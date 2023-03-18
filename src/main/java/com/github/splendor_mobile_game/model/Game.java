@@ -1,8 +1,12 @@
 package com.github.splendor_mobile_game.model;
 
+import com.github.splendor_mobile_game.database.CardDatabase;
+import com.github.splendor_mobile_game.enums.CardTier;
 import com.github.splendor_mobile_game.enums.TokenType;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Game {
 
@@ -13,24 +17,16 @@ public class Game {
     private TokenList onyxTokens;
     private TokenList goldTokens;
 
-    private int maxTokenStack = 7; // Default number of each token type
+    private ArrayList<Card> cardTier1List = new ArrayList<>();
+    private ArrayList<Card> cardTier2List = new ArrayList<>();
+    private ArrayList<Card> cardTier3List = new ArrayList<>();
 
-    private int playerCount;
-    private final ArrayList<User> players = new ArrayList<>();
+    private int maxTokenStack = 7; // Default number of each token type
 
     public Game() {
 
     }
 
-
-    public ArrayList<User> getAllPlayers() {
-        return players;
-    }
-
-
-    public boolean playerExists(User user) {
-        return players.contains(user);
-    }
 
     public TokenList getEmeraldTokens() {
         return emeraldTokens;
@@ -60,56 +56,18 @@ public class Game {
         return maxTokenStack;
     }
 
-    public int getPlayerCount() {
-        return playerCount;
-    }
-
-
-
-    /**
-     *
-     * Add new player to the game if number of currently awaiting players is smaller than 4.
-     *
-     * @param user -> user who is trying to join the game
-     * @return boolean -> true if user successfully joined the game
-     */
-    public boolean joinGame(User user) {
-        if (playerCount >= 4) return false; // Maximum number of players reached
-
-        players.add(user);
-        playerCount++;
-        return true;
-    }
 
 
 
 
-    /**
-     *
-     * Remove a player from the game if he is awaiting.
-     *
-     * @param user -> user who is trying to leave the game
-     * @return boolean -> true if user successfully left the game
-     */
-    public boolean leaveGame(User user) {
-        if (playerCount < 0) return false;  // There is no one awaiting
-        if (!players.contains(user)) return false;  // Player is not part of the game.
 
-        players.remove(user);
-        playerCount--;
-        return true;
-    }
-
-
-
-
-    public boolean startGame() {
-        if (playerCount < 2) return false; // Minimum number of players to start a game is 2.
-        if (playerCount > 4) return false; // Maximum number of players to start a game is 4.
+    public boolean startGame(Room room) {
+        if (room.getPlayerCount() < 2) return false; // Minimum number of players to start a game is 2.
+        if (room.getPlayerCount() > 4) return false; // Maximum number of players to start a game is 4.
 
         // Calculate number of tokens of each type
-        if (playerCount == 2) this.maxTokenStack = 4;
-        if (playerCount == 3) this.maxTokenStack = 5;
+        if (room.getPlayerCount() == 2) this.maxTokenStack = 4;
+        if (room.getPlayerCount() == 3) this.maxTokenStack = 5;
 
         // Assign all tokenLists
         this.emeraldTokens  = createTokenList(TokenType.EMERALD);
@@ -119,6 +77,11 @@ public class Game {
         this.onyxTokens     = createTokenList(TokenType.ONYX);
         this.goldTokens     = createTokenList(TokenType.GOLD_JOKER);
 
+
+        // Choose random cards from deck.
+        this.cardTier1List = getRandomCards(CardDatabase.getAllCards(CardTier.LEVEL_1), 4);
+        this.cardTier2List = getRandomCards(CardDatabase.getAllCards(CardTier.LEVEL_2), 4);
+        this.cardTier3List = getRandomCards(CardDatabase.getAllCards(CardTier.LEVEL_3), 4);
 
 
         return true;
@@ -145,6 +108,35 @@ public class Game {
         }
 
         return tokenList;
+    }
+
+
+    /**
+     *
+     * @param cardList -> Collection of all objects from we will draw a card
+     * @param amount -> Amount of elements we want to draw
+     * @return ArrayList<Card> -> Collection of randomly picked cards
+     */
+    private ArrayList<Card> getRandomCards(ArrayList<Card> cardList, int amount) {
+        int size = cardList.size();
+        if (size < amount) return null;
+
+        ArrayList<Card> array = new ArrayList<>();
+        ArrayList<Integer> list = new ArrayList<>(size);
+        for(int i = 1; i <= size; i++) {
+            list.add(i);
+        }
+
+        Random rand = new Random();
+        while(list.size() > 0) {
+            int index = rand.nextInt(list.size()); // Get random index
+            array.add(cardList.get(index));
+            System.out.println("Selected: " + list.remove(index));
+        }
+
+        //TODO We can't pick one card few times. Verification of already chosen cards needs to be added
+
+        return array;
     }
 
 
