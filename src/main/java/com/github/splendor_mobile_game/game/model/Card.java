@@ -1,7 +1,7 @@
-package com.github.splendor_mobile_game.model;
+package com.github.splendor_mobile_game.game.model;
 
-import com.github.splendor_mobile_game.enums.CardTier;
-import com.github.splendor_mobile_game.enums.TokenType;
+import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.enums.TokenType;
 
 public class Card {
 
