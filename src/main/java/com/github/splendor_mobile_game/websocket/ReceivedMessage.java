@@ -18,6 +18,7 @@ public class ReceivedMessage {
 
     public void parseDataToClass(Class<?> clazz) throws InvalidReceivedMessage {
         try {
+            // TODO: Perfomance loss because of redundant json parsing
             this.data = JsonParser.parseJson((new Gson()).toJson(this.data), clazz);
         } catch (JsonParserException e) {
             throw new InvalidReceivedMessage("Received message is invalid!", e);
