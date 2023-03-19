@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.splendor_mobile_game.utils.Log;
-import com.github.splendor_mobile_game.utils.Reflection;
+import com.github.splendor_mobile_game.utils.reflection.Reflection;
 
 public class ReactionManager {
     public Map<String, Class<? extends Reaction>> reactions = new HashMap<>();
