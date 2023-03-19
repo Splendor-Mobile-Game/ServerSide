@@ -1,11 +1,11 @@
-package com.github.splendor_mobile_game.handlers.reactions;
+package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import java.util.UUID;
 
-import com.github.splendor_mobile_game.handlers.DataClass;
-import com.github.splendor_mobile_game.handlers.Reaction;
-import com.github.splendor_mobile_game.utils.RandomString;
-import com.github.splendor_mobile_game.websocket.ParsedMessage;
+import com.github.splendor_mobile_game.websocket.handlers.DataClass;
+import com.github.splendor_mobile_game.websocket.handlers.Reaction;
+import com.github.splendor_mobile_game.websocket.utils.RandomString;
+import com.github.splendor_mobile_game.websocket.communication.ParsedMessage;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -70,7 +70,7 @@ public class CreateServer extends Reaction {
         Data receivedMessage = (Data) input.getData();
         // Try to parse to ReceivedMessage object if fail then print what fields are missing
         // try {
-        //     receivedMessage = com.github.splendor_mobile_game.utils.json.JsonParser.parseJson(input.getData().toString(),
+        //     receivedMessage = com.github.splendor_mobile_game.websocket.utils.json.JsonParser.parseJson(input.getData().toString(),
         //             Data.class);
         // } catch (Exception e) {
         //     Log.ERROR(e.toString());
