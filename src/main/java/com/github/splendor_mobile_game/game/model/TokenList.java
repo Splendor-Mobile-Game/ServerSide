@@ -1,6 +1,6 @@
-package com.github.splendor_mobile_game.model;
+package com.github.splendor_mobile_game.game.model;
 
-import com.github.splendor_mobile_game.enums.TokenType;
+import com.github.splendor_mobile_game.game.enums.TokenType;
 
 import java.util.ArrayList;
 

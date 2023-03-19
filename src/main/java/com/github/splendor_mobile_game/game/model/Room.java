@@ -1,6 +1,7 @@
-package com.github.splendor_mobile_game.model;
+package com.github.splendor_mobile_game.game.model;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class Room {
 
@@ -12,16 +13,22 @@ public class Room {
 
     private User owner;
 
+    private UUID uuid;
+
     private int playerCount;
     private final ArrayList<User> players = new ArrayList<>();
 
 
 
 
-    public Room(String name, String password, User owner) {
+    public Room(UUID uuid, String name, String password, User owner) {
+        this.uuid     = uuid;
         this.name     = name;
         this.password = password;
         this.owner    = owner;
+
+        this.players.add(owner);
+        playerCount++;
     }
 
 
@@ -68,6 +75,9 @@ public class Room {
 
         players.add(user);
         playerCount++;
+
+        // allPlayers.SendAcitvity(AcitvityType.NewPlayerJoinedInfo)
+
         return true;
     }
 

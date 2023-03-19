@@ -1,8 +1,8 @@
 package com.github.splendor_mobile_game.database;
 
-import com.github.splendor_mobile_game.enums.CardTier;
-import com.github.splendor_mobile_game.enums.TokenType;
-import com.github.splendor_mobile_game.model.Card;
+import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.enums.TokenType;
+import com.github.splendor_mobile_game.game.model.Card;
 
 import java.util.ArrayList;
 

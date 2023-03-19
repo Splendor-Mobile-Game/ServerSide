@@ -1,10 +1,9 @@
-package com.github.splendor_mobile_game.model;
+package com.github.splendor_mobile_game.game.model;
 
 import com.github.splendor_mobile_game.database.CardDatabase;
-import com.github.splendor_mobile_game.enums.CardTier;
-import com.github.splendor_mobile_game.enums.TokenType;
+import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.enums.TokenType;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -138,9 +137,6 @@ public class Game {
 
         return array;
     }
-
-
-
 
 
 }
