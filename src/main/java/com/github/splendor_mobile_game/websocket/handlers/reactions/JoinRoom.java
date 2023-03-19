@@ -1,16 +1,13 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import com.github.splendor_mobile_game.game.model.User;
-import com.github.splendor_mobile_game.websocket.communication.ParsedMessage;
+import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import javax.xml.crypto.Data;
-
 public class JoinRoom extends Reaction {
-
 
     public JoinRoom(int connectionHashCode) {
         super(connectionHashCode);
@@ -24,7 +21,7 @@ public class JoinRoom extends Reaction {
     }
 
     @Override
-    public String getReply(ParsedMessage parsedMessage) {
+    public String getReply(ReceivedMessage parsedMessage) {
 
         Data data = (Data) parsedMessage.getData();
 
@@ -37,7 +34,6 @@ public class JoinRoom extends Reaction {
         room.addProperty("password", "alshdjklasd2asd");
         room.add("player", player);
 
-
         JsonObject response = new JsonObject();
         response.addProperty("messageContextId", parsedMessage.getMessageContextId());
         response.addProperty("type", "JoinRoomResponse");
@@ -48,7 +44,5 @@ public class JoinRoom extends Reaction {
     }
 
 }
-
-
 
 // { "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116", "type": "JoinRoom", "data": { "player": { "name": "James" } } }

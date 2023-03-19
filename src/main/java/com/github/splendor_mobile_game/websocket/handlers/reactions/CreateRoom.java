@@ -4,7 +4,7 @@ import com.github.splendor_mobile_game.exception.InvalidUUIDException;
 import com.github.splendor_mobile_game.exception.InvalidUsernameException;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
-import com.github.splendor_mobile_game.websocket.communication.ParsedMessage;
+import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
@@ -18,12 +18,9 @@ import java.util.regex.Pattern;
 
 public class CreateRoom extends Reaction {
 
-
     public CreateRoom(int connectionHashCode) {
         super(connectionHashCode);
     }
-
-
 
     private class RoomDTO {
 
@@ -36,13 +33,11 @@ public class CreateRoom extends Reaction {
         public String name;
     }
 
-
     @DataClass
     private class DataDTO {
         public UserDTO userDTO;
         public RoomDTO roomDTO;
     }
-
 
     /*
     {
@@ -61,20 +56,17 @@ public class CreateRoom extends Reaction {
      }
      */
 
-
     @Override
-    public String getReply(ParsedMessage parsedMessage) {
+    public String getReply(ReceivedMessage parsedMessage) {
 
         DataDTO receivedMessage = (DataDTO) parsedMessage.getData();
-
 
         try {
             validateData(receivedMessage);
 
             User user = new User(receivedMessage.userDTO.id, receivedMessage.userDTO.name);
-            Room room = new Room(UUID.randomUUID(), receivedMessage.roomDTO.name, receivedMessage.roomDTO.password, user);
-
-
+            Room room = new Room(UUID.randomUUID(), receivedMessage.roomDTO.name, receivedMessage.roomDTO.password,
+                    user);
 
             JsonObject userJson = new JsonObject();
             userJson.addProperty("id", receivedMessage.userDTO.id.toString());
@@ -93,33 +85,34 @@ public class CreateRoom extends Reaction {
             response.addProperty("result", "OK");
             response.add("data", data);
 
-
             return (new Gson()).toJson(response);
 
-        } catch(Exception e) {
+        } catch (Exception e) {
 
-            return (new ErrorResponse(Result.FAILURE, e.getMessage(), "CreateRoomResponse", parsedMessage.getMessageContextId())).ToJson();
+            return (new ErrorResponse(Result.FAILURE, e.getMessage(), "CreateRoomResponse",
+                    parsedMessage.getMessageContextId())).ToJson();
 
         }
     }
 
-
-
-    private void validateData(DataDTO dataDTO) throws InvalidUUIDException, InvalidUsernameException{
-        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+    private void validateData(DataDTO dataDTO) throws InvalidUUIDException, InvalidUsernameException {
+        Pattern uuidPattern = Pattern
+                .compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
         Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.id.toString());
-        if (!uuidMatcher.find()) throw new InvalidUUIDException("Invalid UUID format."); // Check if user UUID matches the pattern
+        if (!uuidMatcher.find())
+            throw new InvalidUUIDException("Invalid UUID format."); // Check if user UUID matches the pattern
 
         Pattern usernamePattern = Pattern.compile("^[a-zA-Z0-9]+$");
         Matcher usernameMatcher = usernamePattern.matcher(dataDTO.userDTO.name);
-        if (!usernameMatcher.find()) throw new InvalidUsernameException("Invalid username credentials."); // Check if user UUID matches the pattern
-
-
+        if (!usernameMatcher.find())
+            throw new InvalidUsernameException("Invalid username credentials."); // Check if user UUID matches the pattern
 
         usernameMatcher = usernamePattern.matcher(dataDTO.roomDTO.name);
-        if (!usernameMatcher.find()) throw new InvalidUsernameException("Invalid room name format."); // Check if user UUID matches the pattern
+        if (!usernameMatcher.find())
+            throw new InvalidUsernameException("Invalid room name format."); // Check if user UUID matches the pattern
 
         usernameMatcher = usernamePattern.matcher(dataDTO.roomDTO.password);
-        if (!usernameMatcher.find()) throw new InvalidUsernameException("Invalid room password format."); // Check if user UUID matches the pattern
+        if (!usernameMatcher.find())
+            throw new InvalidUsernameException("Invalid room password format."); // Check if user UUID matches the pattern
     }
 }

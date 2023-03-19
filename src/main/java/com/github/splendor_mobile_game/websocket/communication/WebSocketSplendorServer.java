@@ -12,12 +12,11 @@ import org.java_websocket.server.WebSocketServer;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.connection.ConnectionHandler;
-import com.github.splendor_mobile_game.websocket.utils.CustomException;
+import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
+import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
-import com.github.splendor_mobile_game.websocket.utils.Reflection;
-import com.github.splendor_mobile_game.websocket.utils.json.JsonParser;
-import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonParserException;
-import com.google.gson.JsonObject;
+import com.github.splendor_mobile_game.websocket.utils.reflection.CannotCreateInstanceException;
+import com.github.splendor_mobile_game.websocket.utils.reflection.Reflection;
 
 public class WebSocketSplendorServer extends WebSocketServer {
 
@@ -48,7 +47,6 @@ public class WebSocketSplendorServer extends WebSocketServer {
         }
 
         this.outerConnectionHandlerClass = outerConnectionHandlerClass;
-
     }
 
     @Override
@@ -58,9 +56,10 @@ public class WebSocketSplendorServer extends WebSocketServer {
 
     @Override
     public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
-        Log.DEBUG("New connection: " + webSocket.getRemoteSocketAddress());
-        Log.DEBUG("Hashcode: " + webSocket.hashCode());
+        Log.DEBUG("New connection" + webSocket.hashCode() + " from " + webSocket.getRemoteSocketAddress());
 
+        // Make new instance of given ConnectionHandler in constructor
+        // It have callbacks that our WebSocketConnectionHandler will be invoking
         ConnectionHandler outerConnectionHandlerInstance;
         try {
             Constructor<? extends ConnectionHandler> constructor = this.outerConnectionHandlerClass
@@ -73,31 +72,34 @@ public class WebSocketSplendorServer extends WebSocketServer {
             return;
         }
 
-        Thread t = new Thread(new WebSocketConnectionHandler(webSocket, this.pingIntervalMs,
+        // Create new thread for it our ConnectionHandler and start it
+        Thread t = new Thread(new WebSocketConnectionHandler(
+                webSocket,
+                this.pingIntervalMs,
                 this.connectionCheckInterval, outerConnectionHandlerInstance));
         t.start();
 
+        // Save reference to it, it'd be deleted on connection close
         connectionHandlers.put(webSocket.hashCode(), t);
     }
 
     @Override
     public void onClose(WebSocket webSocket, int i, String s, boolean b) {
         Log.DEBUG("Connection ended: " + webSocket.getRemoteSocketAddress() + " Cause: " + i + " " + s + " " + b);
-        // connectionHandlers.get(webSocket.hashCode()).interrupt();
         connectionHandlers.remove(webSocket.hashCode());
     }
 
     @Override
     public void onMessage(WebSocket webSocket, String message) {
-        Log.DEBUG("[DEBUG] Message received from (" + webSocket.hashCode() + ":" + webSocket.getRemoteSocketAddress()
-                + "): " + message);
+        Log.TRACE("Message received from (" +
+                webSocket.hashCode() + ":" + webSocket.getRemoteSocketAddress() + "): " +
+                message);
 
-        // TODO: Better message parsing. Combine two message classes
         // Parse the message
         ReceivedMessage receivedMessage;
         try {
-            receivedMessage = ReceivedMessage.fromJson(message);
-        } catch (CustomException e) {
+            receivedMessage = new ReceivedMessage(message);
+        } catch (InvalidReceivedMessage e) {
             Log.ERROR(e.toString());
             webSocket.send(e.toJsonResponse());
             return;
@@ -110,59 +112,45 @@ public class WebSocketSplendorServer extends WebSocketServer {
         Class<? extends Reaction> reactionClass = reactions.get(type);
 
         if (reactionClass == null) {
-            // TODO: Send appropriate error message
-            webSocket.send("This message type has not been found!");
+            Log.TRACE("Unknown reaction type: " + type);
+            ErrorResponse response = new ErrorResponse(Result.FAILURE, "This message type has not been found!");
+            webSocket.send(response.ToJson());
             return;
         }
 
-        Object object = null;
-        for (Class<?> declaredClass : reactionClass.getDeclaredClasses()) {
-
-            if (declaredClass.isAnnotationPresent(DataClass.class)) {
-
-                JsonObject jsonObject = receivedMessage.getData();
-
-                try {
-                    object = JsonParser.parseJson(jsonObject.toString(), declaredClass);
-                } catch (JsonParserException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-            }
-        }
-
-        ParsedMessage parsedMessage;
+        // Parse the data given in the message
+        Class<?> dataClass = Reflection.findClassWithAnnotationWithinClass(reactionClass, DataClass.class);
         try {
-            parsedMessage = ParsedMessage.fromJson(message);
+            receivedMessage.parseDataToClass(dataClass);
         } catch (InvalidReceivedMessage e) {
+            Log.ERROR(e.toString());
+            webSocket.send(e.toJsonResponse());
             return;
         }
 
-        parsedMessage.setData(object);
-
-        Reaction reaction;
+        // Create instance of this reactionClass
+        Reaction reactionInstance;
         try {
-            Constructor<? extends Reaction> constructor = reactionClass.getDeclaredConstructor(int.class);
-            reaction = constructor.newInstance(webSocket.hashCode());
-        } catch (Exception e) {
-            Log.ERROR(reactionClass.getName() + " has no default constructor some way!");
+            reactionInstance = (Reaction) Reflection.createInstanceOfClass(reactionClass, webSocket.hashCode());
+        } catch (CannotCreateInstanceException e) {
+            Log.ERROR(e.getMessage());
             e.printStackTrace();
             return;
         }
 
         // Use it to obtain appropriate reply
-        String reply = reaction.getReply(parsedMessage);
+        String reply = reactionInstance.getReply(receivedMessage);
 
         // And send it to the user
         webSocket.send(reply);
-        Log.DEBUG("[DEBUG] Message sent to (" + webSocket.hashCode() + ":" + webSocket.getRemoteSocketAddress()
-                + "): " + reply);
+        Log.DEBUG("Message sent to (" +
+                webSocket.hashCode() + ":" + webSocket.getRemoteSocketAddress() + "): " +
+                reply);
     }
 
     @Override
     public void onError(WebSocket webSocket, Exception e) {
-        System.out.println("Server error: " + e.getMessage());
+        Log.ERROR("Server error: " + e.getMessage());
     }
 
 }

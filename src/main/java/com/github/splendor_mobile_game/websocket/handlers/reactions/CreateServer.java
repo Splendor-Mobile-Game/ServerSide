@@ -5,7 +5,7 @@ import java.util.UUID;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.utils.RandomString;
-import com.github.splendor_mobile_game.websocket.communication.ParsedMessage;
+import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -28,7 +28,7 @@ public class CreateServer extends Reaction {
     }
 
     @Override
-    public String getReply(ParsedMessage input) {
+    public String getReply(ReceivedMessage input) {
         // Received request from the client should be in the following format
         // {
         //     "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
