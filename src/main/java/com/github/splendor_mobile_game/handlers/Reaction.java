@@ -1,6 +1,6 @@
 package com.github.splendor_mobile_game.handlers;
 
-import com.github.splendor_mobile_game.websocket.ParsedMessage;
+import com.github.splendor_mobile_game.websocket.ReceivedMessage;
 
 public abstract class Reaction {
 
@@ -10,5 +10,5 @@ public abstract class Reaction {
         this.connectionHashCode = connectionHashCode;
     }
 
-    public abstract String getReply(ParsedMessage parsedMessage);
+    public abstract String getReply(ReceivedMessage parsedMessage);
 }

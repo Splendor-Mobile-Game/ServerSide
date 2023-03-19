@@ -2,12 +2,28 @@ package com.github.splendor_mobile_game.websocket;
 
 import com.github.splendor_mobile_game.utils.json.JsonParser;
 import com.github.splendor_mobile_game.utils.json.exceptions.JsonParserException;
-import com.google.gson.JsonObject;
+import com.google.gson.Gson;
 
 public class ReceivedMessage {
     private String messageContextId;
     private String type;
-    private JsonObject data;
+    private Object data;
+
+    public ReceivedMessage(String message) throws InvalidReceivedMessage {
+        ReceivedMessage msg = ReceivedMessage.fromJson(message);
+        this.messageContextId = msg.messageContextId;
+        this.type = msg.type;
+        this.data = msg.getData();
+    }
+
+    public void parseDataToClass(Class<?> clazz) throws InvalidReceivedMessage {
+        try {
+            // TODO: Perfomance loss because of redundant json parsing
+            this.data = JsonParser.parseJson((new Gson()).toJson(this.data), clazz);
+        } catch (JsonParserException e) {
+            throw new InvalidReceivedMessage("Received message is invalid!", e);
+        }
+    }
 
     public static ReceivedMessage fromJson(String inputJson) throws InvalidReceivedMessage {
         try {
@@ -25,8 +41,12 @@ public class ReceivedMessage {
         return type;
     }
 
-    public JsonObject getData() {
+    public Object getData() {
         return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
     }
 
 }
