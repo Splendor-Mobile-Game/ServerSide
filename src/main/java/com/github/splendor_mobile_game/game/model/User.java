@@ -8,11 +8,22 @@ public class User {
 
     private UUID uuid;
 
-    public User(UUID uuid, String name) {
+    private int connectionHasCode;
+
+    public User(UUID uuid, String name, int connectionHasCode) {
         this.uuid = uuid;
         this.name = name;
+        this.connectionHasCode = connectionHasCode;
     }
 
+
+    public int getConnectionHasCode() {
+        return connectionHasCode;
+    }
+
+    public void setConnectionHasCode(int connectionHasCode) {
+        this.connectionHasCode = connectionHasCode;
+    }
 
     public String getName() {
         return name;

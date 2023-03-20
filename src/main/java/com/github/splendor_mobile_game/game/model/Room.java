@@ -8,12 +8,12 @@ public class Room {
     // <- >
 
 
-    private String name;
-    private String password;
+    private final String name;
+    private final String password;
 
     private User owner;
 
-    private UUID uuid;
+    private final UUID uuid;
 
     private int playerCount;
     private final ArrayList<User> players = new ArrayList<>();
@@ -60,8 +60,9 @@ public class Room {
         return password;
     }
 
-
-
+    public UUID getUuid() {
+        return uuid;
+    }
 
     /**
      *
