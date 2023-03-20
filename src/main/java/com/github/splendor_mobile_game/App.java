@@ -15,6 +15,7 @@ import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateRoom;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateServer;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.JoinRoom;
 import com.github.splendor_mobile_game.websocket.utils.Log;
+import com.github.splendor_mobile_game.database.InMemoryDatabase;
 import com.github.splendor_mobile_game.websocket.communication.ConnectionHandlerWithoutDefaultConstructorException;
 import com.github.splendor_mobile_game.websocket.communication.WebSocketSplendorServer;
 
@@ -44,7 +45,8 @@ public class App {
                                 reactionManager.reactions,
                                 ConnectionHandlerImpl.class,
                                 config.getPingIntervalMs(),
-                                config.getConnectionCheckIntervalMs());
+                                config.getConnectionCheckIntervalMs(),
+                                new InMemoryDatabase());
 
                 server.setConnectionLostTimeout(-1);
                 // server.setConnectionLostTimeout(config.getConnectionLostTimeoutSec());

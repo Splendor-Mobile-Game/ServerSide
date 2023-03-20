@@ -9,7 +9,10 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
+import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
+import com.github.splendor_mobile_game.websocket.handlers.Message;
+import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.connection.ConnectionHandler;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
@@ -24,22 +27,28 @@ public class WebSocketSplendorServer extends WebSocketServer {
 
     private Map<Integer, Thread> connectionHandlers = new HashMap<>();
 
+    private Map<Integer, WebSocket> connections = new HashMap<>();
+
     private Class<? extends ConnectionHandler> outerConnectionHandlerClass;
 
     private int pingIntervalMs;
 
     private int connectionCheckInterval;
 
+    private Database database;
+
     public WebSocketSplendorServer(
             InetSocketAddress address,
             Map<String, Class<? extends Reaction>> reactions,
             Class<? extends ConnectionHandler> outerConnectionHandlerClass, int pingIntervalMs,
-            int connectionCheckInterval)
+            int connectionCheckInterval,
+            Database database)
             throws ConnectionHandlerWithoutDefaultConstructorException {
         super(address);
         this.reactions = reactions;
         this.pingIntervalMs = pingIntervalMs;
         this.connectionCheckInterval = connectionCheckInterval;
+        this.database = database;
 
         if (!Reflection.hasOneParameterConstructor(outerConnectionHandlerClass, WebSocket.class)) {
             throw new ConnectionHandlerWithoutDefaultConstructorException(outerConnectionHandlerClass.getName()
@@ -81,12 +90,14 @@ public class WebSocketSplendorServer extends WebSocketServer {
 
         // Save reference to it, it'd be deleted on connection close
         connectionHandlers.put(webSocket.hashCode(), t);
+        connections.put(webSocket.hashCode(), webSocket);
     }
 
     @Override
     public void onClose(WebSocket webSocket, int i, String s, boolean b) {
         Log.DEBUG("Connection ended: " + webSocket.getRemoteSocketAddress() + " Cause: " + i + " " + s + " " + b);
         connectionHandlers.remove(webSocket.hashCode());
+        connections.remove(webSocket.hashCode());
     }
 
     @Override
@@ -138,14 +149,22 @@ public class WebSocketSplendorServer extends WebSocketServer {
             return;
         }
 
-        // Use it to obtain appropriate reply
-        String reply = reactionInstance.getReply(receivedMessage);
+        Messenger messenger = new Messenger();
 
-        // And send it to the user
-        webSocket.send(reply);
-        Log.DEBUG("Message sent to (" +
+        // Use it to obtain appropriate reply
+        reactionInstance.react(receivedMessage, messenger, this.database);
+
+        // And send it to the users
+        for (Message messageToSend : messenger.getMessages()) {
+            WebSocket receiver = this.connections.get(messageToSend.getReceiverHashcode());
+            String text = messageToSend.getMessage();
+            receiver.send(text);
+            Log.DEBUG("Message sent to (" +
                 webSocket.hashCode() + ":" + webSocket.getRemoteSocketAddress() + "): " +
-                reply);
+                text
+            );
+        }
+
     }
 
     @Override

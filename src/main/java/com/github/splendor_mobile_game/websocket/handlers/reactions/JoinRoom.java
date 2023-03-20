@@ -1,8 +1,10 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
+import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -21,7 +23,7 @@ public class JoinRoom extends Reaction {
     }
 
     @Override
-    public String getReply(ReceivedMessage parsedMessage) {
+    public void react(ReceivedMessage parsedMessage, Messenger messenger, Database database) {
 
         Data data = (Data) parsedMessage.getData();
 
@@ -40,7 +42,7 @@ public class JoinRoom extends Reaction {
         response.addProperty("result", "OK");
         response.add("data", room);
 
-        return (new Gson()).toJson(response);
+        messenger.addMessageToSend(this.connectionHashCode, (new Gson()).toJson(response));
     }
 
 }

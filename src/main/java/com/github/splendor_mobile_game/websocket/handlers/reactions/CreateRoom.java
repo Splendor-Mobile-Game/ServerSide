@@ -1,20 +1,22 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.exception.InvalidUUIDException;
 import com.github.splendor_mobile_game.exception.InvalidUsernameException;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
+import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CreateRoom extends Reaction {
 
@@ -57,7 +59,7 @@ public class CreateRoom extends Reaction {
      */
 
     @Override
-    public String getReply(ReceivedMessage parsedMessage) {
+    public void react(ReceivedMessage parsedMessage, Messenger messenger, Database database) {
 
         DataDTO receivedMessage = (DataDTO) parsedMessage.getData();
 
@@ -84,13 +86,18 @@ public class CreateRoom extends Reaction {
             response.addProperty("result", "OK");
             response.add("data", data);
 
-            return (new Gson()).toJson(response);
+            messenger.addMessageToSend(this.connectionHashCode, (new Gson()).toJson(response));
 
         } catch (Exception e) {
 
-            return (new ErrorResponse(Result.FAILURE, e.getMessage(), "CreateRoomResponse",
-                    parsedMessage.getMessageContextId())).ToJson();
+            ErrorResponse errorResponse = new ErrorResponse(
+                Result.FAILURE, 
+                e.getMessage(), 
+                "CreateRoomResponse",
+                parsedMessage.getMessageContextId()
+            );
 
+            messenger.addMessageToSend(connectionHashCode, errorResponse.ToJson());
         }
     }
 
