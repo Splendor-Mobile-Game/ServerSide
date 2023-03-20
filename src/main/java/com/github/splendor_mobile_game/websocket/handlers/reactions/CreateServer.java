@@ -30,7 +30,7 @@ public class CreateServer extends Reaction {
     }
 
     @Override
-    public void getReply(ReceivedMessage input, Messenger messenger, Database database) {
+    public void react(ReceivedMessage input, Messenger messenger, Database database) {
         // Received request from the client should be in the following format
         // {
         //     "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",

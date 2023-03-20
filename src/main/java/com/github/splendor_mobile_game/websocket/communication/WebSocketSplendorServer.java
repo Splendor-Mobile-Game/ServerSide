@@ -152,7 +152,7 @@ public class WebSocketSplendorServer extends WebSocketServer {
         Messenger messenger = new Messenger();
 
         // Use it to obtain appropriate reply
-        reactionInstance.getReply(receivedMessage, messenger, this.database);
+        reactionInstance.react(receivedMessage, messenger, this.database);
 
         // And send it to the users
         for (Message messageToSend : messenger.getMessages()) {

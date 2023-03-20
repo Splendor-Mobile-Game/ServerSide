@@ -23,7 +23,7 @@ public class JoinRoom extends Reaction {
     }
 
     @Override
-    public void getReply(ReceivedMessage parsedMessage, Messenger messenger, Database database) {
+    public void react(ReceivedMessage parsedMessage, Messenger messenger, Database database) {
 
         Data data = (Data) parsedMessage.getData();
 

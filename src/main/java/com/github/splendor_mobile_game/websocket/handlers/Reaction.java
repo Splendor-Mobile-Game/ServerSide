@@ -11,5 +11,5 @@ public abstract class Reaction {
         this.connectionHashCode = connectionHashCode;
     }
 
-    public abstract void getReply(ReceivedMessage parsedMessage, Messenger messenger, Database database);
+    public abstract void react(ReceivedMessage parsedMessage, Messenger messenger, Database database);
 }

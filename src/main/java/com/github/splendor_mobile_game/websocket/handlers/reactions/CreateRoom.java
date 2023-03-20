@@ -59,7 +59,7 @@ public class CreateRoom extends Reaction {
      */
 
     @Override
-    public void getReply(ReceivedMessage parsedMessage, Messenger messenger, Database database) {
+    public void react(ReceivedMessage parsedMessage, Messenger messenger, Database database) {
 
         DataDTO receivedMessage = (DataDTO) parsedMessage.getData();
 
