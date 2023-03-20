@@ -65,8 +65,7 @@ public class CreateRoom extends Reaction {
             validateData(receivedMessage);
 
             User user = new User(receivedMessage.userDTO.id, receivedMessage.userDTO.name);
-            Room room = new Room(UUID.randomUUID(), receivedMessage.roomDTO.name, receivedMessage.roomDTO.password,
-                    user);
+            Room room = new Room(UUID.randomUUID(), receivedMessage.roomDTO.name, receivedMessage.roomDTO.password, user);
 
             JsonObject userJson = new JsonObject();
             userJson.addProperty("id", receivedMessage.userDTO.id.toString());
@@ -96,8 +95,7 @@ public class CreateRoom extends Reaction {
     }
 
     private void validateData(DataDTO dataDTO) throws InvalidUUIDException, InvalidUsernameException {
-        Pattern uuidPattern = Pattern
-                .compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
         Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.id.toString());
         if (!uuidMatcher.find())
             throw new InvalidUUIDException("Invalid UUID format."); // Check if user UUID matches the pattern
