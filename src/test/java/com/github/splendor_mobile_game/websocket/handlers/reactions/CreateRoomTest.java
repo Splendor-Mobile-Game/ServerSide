@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.database.InMemoryDatabase;
+import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.InvalidReceivedMessage;
 import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
@@ -52,6 +53,21 @@ public class CreateRoomTest {
         
         // Receiver of this message is the client that sent request to the server
         assertThat(messenger.getMessages().get(0).getReceiverHashcode()).isEqualTo(clientConnectionHashCode);
+        
+        // One user has been added to the database
+        assertThat(database.getAllUsers().size()).isEqualTo(1);
+        
+
+        User user = database.getAllUsers().get(0);
+        
+        // Check for connection hash code
+        assertThat(user.getConnectionHasCode()).isEqualTo(clientConnectionHashCode);
+
+        // Check for name
+        assertThat(user.getName()).isEqualTo("James");
+
+        // Check for UUID
+        assertThat(user.getUuid().toString()).isEqualTo("f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454");
         
         // Other assertions checking that reply is valid
         String reply = messenger.getMessages().get(0).getMessage();
