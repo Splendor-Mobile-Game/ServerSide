@@ -3,8 +3,10 @@ package com.github.splendor_mobile_game.websocket.handlers.reactions;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
+import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.utils.RandomString;
+import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -28,7 +30,7 @@ public class CreateServer extends Reaction {
     }
 
     @Override
-    public String getReply(ReceivedMessage input) {
+    public void getReply(ReceivedMessage input, Messenger messenger, Database database) {
         // Received request from the client should be in the following format
         // {
         //     "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
@@ -96,7 +98,7 @@ public class CreateServer extends Reaction {
         response.addProperty("result", "OK");
         response.add("data", data);
 
-        return (new Gson()).toJson(response);
+        messenger.addMessageToSend(this.connectionHashCode, (new Gson()).toJson(response));
     }
 
 }
