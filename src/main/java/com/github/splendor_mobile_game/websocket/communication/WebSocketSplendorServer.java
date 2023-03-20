@@ -156,12 +156,13 @@ public class WebSocketSplendorServer extends WebSocketServer {
 
         // And send it to the users
         for (Message messageToSend : messenger.getMessages()) {
-            WebSocket receiver = this.connections.get(webSocket.hashCode());
+            WebSocket receiver = this.connections.get(messageToSend.getReceiverHashcode());
             String text = messageToSend.getMessage();
             receiver.send(text);
             Log.DEBUG("Message sent to (" +
-                    webSocket.hashCode() + ":" + webSocket.getRemoteSocketAddress() + "): " +
-                    text);
+                webSocket.hashCode() + ":" + webSocket.getRemoteSocketAddress() + "): " +
+                text
+            );
         }
 
     }
