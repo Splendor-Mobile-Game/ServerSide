@@ -17,31 +17,37 @@ Game logic is being proceeded on server based on responses send by user. That in
 That's what makes our project server-side application.
 
 
-
+### What is reaction?
 `websocket` package is a storage for whole WebSocket server. That's where we add new `request handlers` similarly named `reactions`. [Websocket reactions are located here](src/main/java/com/githib/splendor_mobile_game/websocket/handlers/reactions).
-Each reaction proceedes **JSON data** given by Client. Example request made from Client:
+Each reaction proceedes **JSON data** given by Client. 
+
+#### Example request made from Client:
 
 `
 {
-         "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
-         "type": "CreateRoom",
-         "data": {
-             "userDTO": {
-                 "id": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
-                 "name": "James"
-             },
-             "roomDTO": {
-                 "name": "TajnyPokoj",
-                 "password": "kjashjkasd"
-             }
-         }
-     }
+  "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
+  "type": "CreateRoom",
+  "data": {
+    "userDTO": {
+      "id": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
+      "name": "James"
+    },
+    "roomDTO": {
+      "name": "TajnyPokoj",
+      "password": "kjashjkasd"
+    }
+  }
+}
 `
 
 This request's data is proceeded and then response is generated.
+
+#### Example server response to Client:
+
+null
 
 ## How to create new reaction?
 If you want to create new reaction then head to the `reactions` package and create new class. Make sure to add this class into ArrayList in App.java so it will be registered as reaction.
 Reaction named **CreateRoom** inserts changes to game objects. Their structure is stored [here](src/main/java/com/githib/splendor_mobile_game/game/model).
 
-Basically reactions are handling game logic which we implement in package `game.model`.
+Basically reactions are handling game logic which structure is implemented in package `game.model`.
