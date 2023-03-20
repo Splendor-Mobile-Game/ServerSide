@@ -36,7 +36,7 @@ public class CreateRoom extends Reaction {
     }
 
     @DataClass
-    private class DataDTO {
+    public class DataDTO {
         public UserDTO userDTO;
         public RoomDTO roomDTO;
     }
