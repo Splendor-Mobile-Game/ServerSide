@@ -51,3 +51,10 @@ If you want to create new reaction then head to the `reactions` package and crea
 Reaction named **CreateRoom** inserts changes to game objects. Their structure is stored [here](src/main/java/com/githib/splendor_mobile_game/game/model).
 
 Basically reactions are handling game logic which structure is implemented in package `game.model`.
+
+
+## How to commit new code to repository?
+
+There is a protected `main` branch which stores "production" code. 
+In order to avoid code destroying, the default branch is `develop`. We don't want to work directly on it, because few users may be editing the same files.
+Instead - you must create a new branch which will be a temporal storage for any additional code that you've created.
