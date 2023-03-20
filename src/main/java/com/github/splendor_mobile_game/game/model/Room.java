@@ -1,5 +1,7 @@
 package com.github.splendor_mobile_game.game.model;
 
+import com.github.splendor_mobile_game.database.InMemoryDatabase;
+
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -8,12 +10,12 @@ public class Room {
     // <- >
 
 
-    private String name;
-    private String password;
+    private final String name;
+    private final String password;
 
     private User owner;
 
-    private UUID uuid;
+    private final UUID uuid;
 
     private int playerCount;
     private final ArrayList<User> players = new ArrayList<>();
@@ -29,6 +31,8 @@ public class Room {
 
         this.players.add(owner);
         playerCount++;
+
+        InMemoryDatabase.allRooms.add(this);
     }
 
 
@@ -60,8 +64,9 @@ public class Room {
         return password;
     }
 
-
-
+    public UUID getUuid() {
+        return uuid;
+    }
 
     /**
      *

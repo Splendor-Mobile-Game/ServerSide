@@ -66,7 +66,7 @@ public class CreateRoom extends Reaction {
         try {
             validateData(receivedMessage);
 
-            User user = new User(receivedMessage.userDTO.id, receivedMessage.userDTO.name);
+            User user = new User(receivedMessage.userDTO.id, receivedMessage.userDTO.name, this.connectionHashCode);
             Room room = new Room(UUID.randomUUID(), receivedMessage.roomDTO.name, receivedMessage.roomDTO.password, user);
 
             JsonObject userJson = new JsonObject();
