@@ -1,7 +1,5 @@
 package com.github.splendor_mobile_game.game.model;
 
-import com.github.splendor_mobile_game.database.InMemoryDatabase;
-
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -31,8 +29,6 @@ public class Room {
 
         this.players.add(owner);
         playerCount++;
-
-        InMemoryDatabase.allRooms.add(this);
     }
 
 

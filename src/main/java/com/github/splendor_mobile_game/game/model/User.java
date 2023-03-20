@@ -1,7 +1,5 @@
 package com.github.splendor_mobile_game.game.model;
 
-import com.github.splendor_mobile_game.database.InMemoryDatabase;
-
 import java.util.UUID;
 
 public class User {
@@ -16,8 +14,6 @@ public class User {
         this.uuid = uuid;
         this.name = name;
         this.connectionHasCode = connectionHasCode;
-
-        InMemoryDatabase.allUsers.add(this);
     }
 
 
