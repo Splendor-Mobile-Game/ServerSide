@@ -139,20 +139,20 @@ public class WebSocketSplendorServer extends WebSocketServer {
             return;
         }
 
+        Messenger messenger = new Messenger();
+
         // Create instance of this reactionClass
         Reaction reactionInstance;
         try {
-            reactionInstance = (Reaction) Reflection.createInstanceOfClass(reactionClass, webSocket.hashCode());
+            reactionInstance = (Reaction) Reflection.createInstanceOfClass(reactionClass, webSocket.hashCode(), receivedMessage, messenger, this.database);
         } catch (CannotCreateInstanceException e) {
             Log.ERROR(e.getMessage());
             e.printStackTrace();
             return;
         }
 
-        Messenger messenger = new Messenger();
-
-        // Use it to obtain appropriate reply
-        reactionInstance.react(receivedMessage, messenger, this.database);
+        // Use it to react appropriately
+        reactionInstance.react();
 
         // And send it to the users
         for (Message messageToSend : messenger.getMessages()) {
