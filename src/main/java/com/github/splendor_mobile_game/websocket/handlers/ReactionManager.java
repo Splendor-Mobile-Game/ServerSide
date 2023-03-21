@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.github.splendor_mobile_game.websocket.utils.reflection.Reflection;
 
@@ -121,12 +122,13 @@ public class ReactionManager {
                 continue;
             }
 
-            // Check if the class has a public constructor with a single int parameter
-            if (!Reflection.hasOneParameterConstructor(clazz, int.class)) {
-                Log.ERROR(
-                        clazz.getName()
-                                + " was not registered as the Reaction, beacause it doesn't implement constructor with `int` as the only parameter which is required!");
-                continue;
+            // Check if the class has a public constructor with appropriate parameters
+            try {
+                Reflection.getConstructorWithParameters(clazz, int.class, Messenger.class, Database.class);
+            } catch (NoSuchMethodException e) {
+                Log.ERROR(clazz.getName() + " was not registered as the Reaction, because it doesn't" 
+                    + " implement constructor with `int`, `Messenger` and `Database`, but it's required!"
+                );
             }
 
             // Check if the class is public

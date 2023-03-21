@@ -20,8 +20,8 @@ import com.google.gson.JsonObject;
 
 public class CreateRoom extends Reaction {
 
-    public CreateRoom(int connectionHashCode) {
-        super(connectionHashCode);
+    public CreateRoom(int connectionHashCode, Messenger messenger, Database database) {
+        super(connectionHashCode, messenger, database);
     }
 
     private class RoomDTO {
@@ -59,7 +59,7 @@ public class CreateRoom extends Reaction {
      */
 
     @Override
-    public void react(ReceivedMessage parsedMessage, Messenger messenger, Database database) {
+    public void react(ReceivedMessage parsedMessage) {
 
         DataDTO receivedMessage = (DataDTO) parsedMessage.getData();
 

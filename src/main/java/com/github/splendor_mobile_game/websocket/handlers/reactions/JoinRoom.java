@@ -11,8 +11,8 @@ import com.google.gson.JsonObject;
 
 public class JoinRoom extends Reaction {
 
-    public JoinRoom(int connectionHashCode) {
-        super(connectionHashCode);
+    public JoinRoom(int connectionHashCode, Messenger messenger, Database database) {
+        super(connectionHashCode, messenger, database);
     }
 
     @DataClass
@@ -23,7 +23,7 @@ public class JoinRoom extends Reaction {
     }
 
     @Override
-    public void react(ReceivedMessage parsedMessage, Messenger messenger, Database database) {
+    public void react(ReceivedMessage parsedMessage) {
 
         Data data = (Data) parsedMessage.getData();
 

@@ -16,8 +16,8 @@ public class CreateServer extends Reaction {
     // This field is available due to abstract class
     // protected int connectionHashCode;
 
-    public CreateServer(int connectionHashCode) {
-        super(connectionHashCode);
+    public CreateServer(int connectionHashCode, Messenger messenger, Database database) {
+        super(connectionHashCode, messenger, database);
     }
 
     public class Player {
@@ -30,7 +30,7 @@ public class CreateServer extends Reaction {
     }
 
     @Override
-    public void react(ReceivedMessage input, Messenger messenger, Database database) {
+    public void react(ReceivedMessage input) {
         // Received request from the client should be in the following format
         // {
         //     "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
