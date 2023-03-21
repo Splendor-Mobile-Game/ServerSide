@@ -20,8 +20,8 @@ import com.google.gson.JsonObject;
 
 public class CreateRoom extends Reaction {
 
-    public CreateRoom(int connectionHashCode, Messenger messenger, Database database) {
-        super(connectionHashCode, messenger, database);
+    public CreateRoom(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
+        super(connectionHashCode, receivedMessage, messenger, database);
     }
 
     private class RoomDTO {
@@ -59,32 +59,32 @@ public class CreateRoom extends Reaction {
      */
 
     @Override
-    public void react(ReceivedMessage parsedMessage) {
+    public void react() {
 
-        DataDTO receivedMessage = (DataDTO) parsedMessage.getData();
+        DataDTO dataDTO = (DataDTO) receivedMessage.getData();
 
         try {
-            validateData(receivedMessage);
+            validateData(dataDTO);
 
-            User user = new User(receivedMessage.userDTO.id, receivedMessage.userDTO.name, this.connectionHashCode);
-            Room room = new Room(UUID.randomUUID(), receivedMessage.roomDTO.name, receivedMessage.roomDTO.password, user);
+            User user = new User(dataDTO.userDTO.id, dataDTO.userDTO.name, this.connectionHashCode);
+            Room room = new Room(UUID.randomUUID(), dataDTO.roomDTO.name, dataDTO.roomDTO.password, user);
 
             database.addUser(user);
             database.addRoom(room);
 
             JsonObject userJson = new JsonObject();
-            userJson.addProperty("id", receivedMessage.userDTO.id.toString());
-            userJson.addProperty("name", receivedMessage.userDTO.name);
+            userJson.addProperty("id", dataDTO.userDTO.id.toString());
+            userJson.addProperty("name", dataDTO.userDTO.name);
 
             JsonObject roomJson = new JsonObject();
-            roomJson.addProperty("name", receivedMessage.roomDTO.name);
+            roomJson.addProperty("name", dataDTO.roomDTO.name);
 
             JsonObject data = new JsonObject();
             data.add("user", userJson);
             data.add("room", roomJson);
 
             JsonObject response = new JsonObject();
-            response.addProperty("messageContextId", parsedMessage.getMessageContextId());
+            response.addProperty("messageContextId", receivedMessage.getMessageContextId());
             response.addProperty("type", "CreateRoomResponse");
             response.addProperty("result", "OK");
             response.add("data", data);
@@ -97,7 +97,7 @@ public class CreateRoom extends Reaction {
                 Result.FAILURE, 
                 e.getMessage(), 
                 "CreateRoomResponse",
-                parsedMessage.getMessageContextId()
+                receivedMessage.getMessageContextId()
             );
 
             messenger.addMessageToSend(connectionHashCode, errorResponse.ToJson());

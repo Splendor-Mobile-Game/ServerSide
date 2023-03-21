@@ -144,15 +144,15 @@ public class WebSocketSplendorServer extends WebSocketServer {
         // Create instance of this reactionClass
         Reaction reactionInstance;
         try {
-            reactionInstance = (Reaction) Reflection.createInstanceOfClass(reactionClass, webSocket.hashCode(), messenger, this.database);
+            reactionInstance = (Reaction) Reflection.createInstanceOfClass(reactionClass, webSocket.hashCode(), receivedMessage, messenger, this.database);
         } catch (CannotCreateInstanceException e) {
             Log.ERROR(e.getMessage());
             e.printStackTrace();
             return;
         }
 
-        // Use it to obtain appropriate reply
-        reactionInstance.react(receivedMessage);
+        // Use it to react appropriately
+        reactionInstance.react();
 
         // And send it to the users
         for (Message messageToSend : messenger.getMessages()) {
