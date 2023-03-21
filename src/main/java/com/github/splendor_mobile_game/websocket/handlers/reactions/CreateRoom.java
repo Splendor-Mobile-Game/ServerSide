@@ -81,7 +81,7 @@ public class CreateRoom extends Reaction {
             database.addRoom(room);
 
             JsonObject userJson = new JsonObject();
-            userJson.addProperty("id", dataDTO.userDTO.uuid.toString());
+            userJson.addProperty("uuid", dataDTO.userDTO.uuid.toString());
             userJson.addProperty("name", dataDTO.userDTO.name);
 
             JsonObject roomJson = new JsonObject();
@@ -107,14 +107,16 @@ public class CreateRoom extends Reaction {
 
 
     private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, InvalidUsernameException, RoomAlreadyExistsException, AlreadyAnOwnerException {
-        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+        Pattern uuidPattern     = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+        Pattern usernamePattern = Pattern.compile("^(?=.*\\p{L})[\\p{L}\\p{N}\\s]+$");
+
+        // Check if user UUID matches the pattern
         Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.uuid.toString());
         if (!uuidMatcher.find())
-            throw new InvalidUUIDException("Invalid UUID format."); // Check if user UUID matches the pattern
+            throw new InvalidUUIDException("Invalid UUID format.");
 
 
         // Check if user UUID matches the pattern
-        Pattern usernamePattern = Pattern.compile("^(?=.*\\p{L})[\\p{L}\\p{N}\\s]+$");
         Matcher usernameMatcher = usernamePattern.matcher(dataDTO.userDTO.name);
         if (!usernameMatcher.find())
             throw new InvalidUsernameException("Invalid username credentials.");
@@ -132,12 +134,12 @@ public class CreateRoom extends Reaction {
             throw new InvalidUsernameException("Invalid room password format.");
 
 
-        // Check if room with specified name already exists NAME OF THE ROOM MUST BE UNIQUEd
+        // Check if room with specified name already exists NAME OF THE ROOM MUST BE UNIQUE
         if (database.getRoom(dataDTO.roomDTO.name) != null)
             throw new RoomAlreadyExistsException("Room with specified name already exists!");
 
 
-        // Check if user is already an owner of some other room
+        // Check if user is already an owner of any room
         for(Room room : database.getAllRooms()) {
             if (room.getOwner().getUuid().equals(dataDTO.userDTO.uuid))
                 throw new AlreadyAnOwnerException("You are already an owner of " + room.getName() + " room.");
