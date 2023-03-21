@@ -1,11 +1,10 @@
 package com.github.splendor_mobile_game.game.model;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Room {
-
-    // <- >
 
 
     private final String name;
@@ -16,7 +15,7 @@ public class Room {
     private final UUID uuid;
 
     private int playerCount;
-    private final ArrayList<User> players = new ArrayList<>();
+    private final ArrayList<User> users = new ArrayList<>();
 
 
 
@@ -27,7 +26,7 @@ public class Room {
         this.password = password;
         this.owner    = owner;
 
-        this.players.add(owner);
+        this.users.add(owner);
         playerCount++;
     }
 
@@ -36,12 +35,12 @@ public class Room {
         return playerCount;
     }
 
-    public ArrayList<User> getAllPlayers() {
-        return players;
+    public ArrayList<User> getAllUsers() {
+        return users;
     }
 
-    public boolean playerExists(User user) {
-        return players.contains(user);
+    public boolean userExists(User user) {
+        return users.contains(user);
     }
 
     public User getOwner() {
@@ -71,15 +70,11 @@ public class Room {
      * @param user -> user who is trying to join the game
      * @return boolean -> true if user successfully joined the game
      */
-    public boolean joinGame(User user) {
-        if (playerCount >= 4) return false; // Maximum number of players reached
+    public void joinGame(User user) {
+        if (users.contains(user)) return;  // Player is already a part of the game.
 
-        players.add(user);
+        users.add(user);
         playerCount++;
-
-        // allPlayers.SendAcitvity(AcitvityType.NewPlayerJoinedInfo)
-
-        return true;
     }
 
 
@@ -92,13 +87,23 @@ public class Room {
      * @param user -> user who is trying to leave the game
      * @return boolean -> true if user successfully left the game
      */
-    public boolean leaveGame(User user) {
-        if (playerCount < 0) return false;  // There is no one awaiting
-        if (!players.contains(user)) return false;  // Player is not part of the game.
-
-        players.remove(user);
+    public void leaveGame(User user) {
+        if (!users.contains(user)) return;  // Player is not part of the game.
+        users.remove(user);
         playerCount--;
-        return true;
     }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Room room = (Room) o;
+        return name.equals(room.name) && password.equals(room.password) && uuid.equals(room.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, password, uuid);
+    }
 }
