@@ -13,11 +13,13 @@ import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
+import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+@ReactionName("CREATE_ROOM")
 public class CreateRoom extends Reaction {
 
     public CreateRoom(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
@@ -44,7 +46,7 @@ public class CreateRoom extends Reaction {
     /*
     {
          "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
-         "type": "CreateRoom",
+         "type": "CREATE_ROOM",
          "data": {
              "userDTO": {
                  "id": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
@@ -85,7 +87,8 @@ public class CreateRoom extends Reaction {
 
             JsonObject response = new JsonObject();
             response.addProperty("messageContextId", receivedMessage.getMessageContextId());
-            response.addProperty("type", "CreateRoomResponse");
+            response.addProperty("type", "CREATE_ROOM_RESPONSE");
+
             response.addProperty("result", "OK");
             response.add("data", data);
 
@@ -96,7 +99,7 @@ public class CreateRoom extends Reaction {
             ErrorResponse errorResponse = new ErrorResponse(
                 Result.FAILURE, 
                 e.getMessage(), 
-                "CreateRoomResponse",
+                "CREATE_ROOM_RESPONSE",
                 receivedMessage.getMessageContextId()
             );
 

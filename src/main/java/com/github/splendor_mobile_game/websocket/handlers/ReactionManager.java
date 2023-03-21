@@ -138,11 +138,21 @@ public class ReactionManager {
                 continue;
             }
 
-            // Add the reaction to the map
-            String simpleName = clazz.getName().substring(clazz.getName().lastIndexOf(".") + 1);
-            this.reactions.put(simpleName, reactionClass);
+            // Get the custom name of the reaction if ReactionName annotation is used
+            // else use the class name
+            ReactionName reactionNameAnnotation = clazz.getAnnotation(ReactionName.class);
+            String reactionNameString;
 
-            Log.INFO("Class `" + clazz.getName() + "` loaded as `" + simpleName + "`");
+            if (reactionNameAnnotation == null) {
+                // Log.WARNING(clazz.getName() + " doesn't have ReactionName annotation, so it'll be registered with the name of its class!");
+                reactionNameString = clazz.getName().substring(clazz.getName().lastIndexOf(".") + 1);
+            } else {
+                reactionNameString = reactionNameAnnotation.value();
+            }
+
+            // Add the reaction to the map
+            this.reactions.put(reactionNameString, reactionClass);
+            Log.INFO("Class `" + clazz.getName() + "` loaded as `" + reactionNameString + "`");
         }
     }
 
