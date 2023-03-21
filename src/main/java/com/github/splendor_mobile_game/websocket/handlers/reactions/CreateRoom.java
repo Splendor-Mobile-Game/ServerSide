@@ -18,6 +18,7 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.ResponseType;
 import com.github.splendor_mobile_game.websocket.response.Result;
+import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
