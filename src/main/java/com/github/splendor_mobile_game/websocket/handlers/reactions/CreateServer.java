@@ -16,8 +16,8 @@ public class CreateServer extends Reaction {
     // This field is available due to abstract class
     // protected int connectionHashCode;
 
-    public CreateServer(int connectionHashCode) {
-        super(connectionHashCode);
+    public CreateServer(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
+        super(connectionHashCode, receivedMessage, messenger, database);
     }
 
     public class Player {
@@ -30,7 +30,7 @@ public class CreateServer extends Reaction {
     }
 
     @Override
-    public void react(ReceivedMessage input, Messenger messenger, Database database) {
+    public void react() {
         // Received request from the client should be in the following format
         // {
         //     "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
@@ -67,25 +67,11 @@ public class CreateServer extends Reaction {
         //     }
         // }
 
-        // String message = "{\"type\":\"CreateServer\"}";
-
-        Data receivedMessage = (Data) input.getData();
-        // Try to parse to ReceivedMessage object if fail then print what fields are missing
-        // try {
-        //     receivedMessage = com.github.splendor_mobile_game.websocket.utils.json.JsonParser.parseJson(input.getData().toString(),
-        //             Data.class);
-        // } catch (Exception e) {
-        //     Log.ERROR(e.toString());
-        //     ErrorResponse response = new ErrorResponse(Result.FAILURE, e.getMessage(), "CreateServerResponse");
-        //     return response.ToJson();
-        // }
-
-        // TODO: Add player to some database or other structure in ram
-        // TODO: Create some gameSession
+        Data dataDTO = (Data) receivedMessage.getData();
 
         JsonObject player = new JsonObject();
         player.addProperty("id", UUID.randomUUID().toString());
-        player.addProperty("name", receivedMessage.player.name);
+        player.addProperty("name", dataDTO.player.name);
 
         JsonObject data = new JsonObject();
         data.addProperty("roomCode", RandomString.generateRandomString(5));
@@ -93,7 +79,7 @@ public class CreateServer extends Reaction {
         data.add("player", player);
 
         JsonObject response = new JsonObject();
-        response.addProperty("messageContextId", input.getMessageContextId());
+        response.addProperty("messageContextId", receivedMessage.getMessageContextId());
         response.addProperty("type", "CreateServerResponse");
         response.addProperty("result", "OK");
         response.add("data", data);

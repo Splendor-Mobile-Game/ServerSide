@@ -15,6 +15,7 @@ import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
+import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.ResponseType;
 import com.github.splendor_mobile_game.websocket.response.Result;
@@ -22,10 +23,11 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+@ReactionName("CREATE_ROOM")
 public class CreateRoom extends Reaction {
 
-    public CreateRoom(int connectionHashCode) {
-        super(connectionHashCode);
+    public CreateRoom(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
+        super(connectionHashCode, receivedMessage, messenger, database);
     }
 
     private class RoomDTO {
@@ -48,7 +50,7 @@ public class CreateRoom extends Reaction {
     /*   ----> EXAMPLE USER REQUEST <----
     {
          "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
-         "type": "CreateRoom",
+         "type": "CREATE_ROOM",
          "data": {
              "userDTO": {
                  "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
@@ -63,15 +65,15 @@ public class CreateRoom extends Reaction {
      */
 
     @Override
-    public void react(ReceivedMessage parsedMessage, Messenger messenger, Database database) {
+    public void react() {
 
-        DataDTO receivedMessage = (DataDTO) parsedMessage.getData();
+        DataDTO dataDTO = (DataDTO) receivedMessage.getData();
 
         try {
-            validateData(receivedMessage, database);
+            validateData(dataDTO, this.database);
 
-            User user = new User(receivedMessage.userDTO.uuid, receivedMessage.userDTO.name, this.connectionHashCode);
-            Room room = new Room(UUID.randomUUID(), receivedMessage.roomDTO.name, receivedMessage.roomDTO.password, user);
+            User user = new User(dataDTO.userDTO.uuid, dataDTO.userDTO.name, this.connectionHashCode);
+            Room room = new Room(UUID.randomUUID(), dataDTO.roomDTO.name, dataDTO.roomDTO.password, user);
 
             Log.DEBUG("UUID pokoju: " + room.getUuid());
 
@@ -79,18 +81,18 @@ public class CreateRoom extends Reaction {
             database.addRoom(room);
 
             JsonObject userJson = new JsonObject();
-            userJson.addProperty("uuid", receivedMessage.userDTO.uuid.toString());
-            userJson.addProperty("name", receivedMessage.userDTO.name);
+            userJson.addProperty("id", dataDTO.userDTO.uuid.toString());
+            userJson.addProperty("name", dataDTO.userDTO.name);
 
             JsonObject roomJson = new JsonObject();
-            roomJson.addProperty("name", receivedMessage.roomDTO.name);
+            roomJson.addProperty("name", dataDTO.roomDTO.name);
 
             JsonObject data = new JsonObject();
             data.add("user", userJson);
             data.add("room", roomJson);
 
             JsonObject response = new JsonObject();
-            response.addProperty("messageContextId", parsedMessage.getMessageContextId());
+            response.addProperty("messageContextId", receivedMessage.getMessageContextId());
             response.addProperty("type", ResponseType.CREATE_ROOM_RESPONSE.toString());
             response.addProperty("result", Result.OK.toString());
             response.add("data", data);
@@ -98,8 +100,7 @@ public class CreateRoom extends Reaction {
             messenger.addMessageToSend(this.connectionHashCode, (new Gson()).toJson(response));
 
         } catch (Exception e) {
-
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(),ResponseType.CREATE_ROOM_RESPONSE, parsedMessage.getMessageContextId());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ResponseType.CREATE_ROOM_RESPONSE, receivedMessage.getMessageContextId());
             messenger.addMessageToSend(connectionHashCode, errorResponse.ToJson());
         }
     }

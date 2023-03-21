@@ -23,8 +23,8 @@ import java.util.regex.Pattern;
 
 public class JoinRoom extends Reaction {
 
-    public JoinRoom(int connectionHashCode) {
-        super(connectionHashCode);
+    public JoinRoom(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
+        super(connectionHashCode, receivedMessage, messenger, database);
     }
 
 
@@ -64,46 +64,45 @@ public class JoinRoom extends Reaction {
      */
 
     @Override
-    public void react(ReceivedMessage parsedMessage, Messenger messenger, Database database) {
+    public void react() {
 
-        DataDTO receivedMessage = (DataDTO) parsedMessage.getData();
+        DataDTO dataDTO = (DataDTO) receivedMessage.getData();
 
         try {
 
-            validateData(receivedMessage, database);
+            validateData(dataDTO, database);
 
-            Room room = database.getRoom(receivedMessage.roomDTO.uuid);
-            User user = new User(receivedMessage.userDTO.uuid, receivedMessage.userDTO.name, this.connectionHashCode);
+            Room room = database.getRoom(dataDTO.roomDTO.uuid);
+            User user = new User(dataDTO.userDTO.uuid, dataDTO.userDTO.name, this.connectionHashCode);
             database.addUser(user);
             room.joinGame(user);
 
             JsonObject userJson = new JsonObject();
-            userJson.addProperty("uuid", receivedMessage.userDTO.uuid.toString());
+            userJson.addProperty("uuid", dataDTO.userDTO.uuid.toString());
             userJson.addProperty("name", user.getName());
 
             JsonObject roomJson = new JsonObject();
-            roomJson.addProperty("uuid", receivedMessage.roomDTO.uuid.toString());
+            roomJson.addProperty("uuid", dataDTO.roomDTO.uuid.toString());
 
             JsonObject data = new JsonObject();
             data.add("user", userJson);
             data.add("room", roomJson);
 
             JsonObject response = new JsonObject();
-            response.addProperty("messageContextId", parsedMessage.getMessageContextId());
+            response.addProperty("messageContextId", receivedMessage.getMessageContextId());
             response.addProperty("type", ResponseType.JOIN_ROOM_RESPONSE.toString());
             response.addProperty("result", Result.OK.toString());
             response.add("data", data);
 
-
+            
             // Send join information to other players
             for (User u : room.getAllUsers()) {
                 messenger.addMessageToSend(u.getConnectionHasCode(), (new Gson()).toJson(response));
             }
 
-
         } catch(Exception e) {
 
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ResponseType.JOIN_ROOM_RESPONSE, parsedMessage.getMessageContextId());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ResponseType.JOIN_ROOM_RESPONSE, receivedMessage.getMessageContextId());
             messenger.addMessageToSend(connectionHashCode, errorResponse.ToJson());
 
         }

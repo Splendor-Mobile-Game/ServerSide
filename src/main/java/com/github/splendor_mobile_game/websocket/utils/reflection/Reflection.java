@@ -27,6 +27,39 @@ public class Reflection {
         }
     }
 
+    public static Constructor<?> getConstructorWithParameters(Class<?> clazz, Class<?>... parameters) throws NoSuchMethodException {
+        Class<?>[] parameterTypes = new Class[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            parameterTypes[i] = parameters[i];
+        }
+
+        Constructor<?>[] constructors = clazz.getConstructors();
+        
+        for (int i = 0; i < constructors.length; i++) {
+            Class<?>[] constructorParameters = constructors[i].getParameterTypes();
+
+            if (constructorParameters.length != parameterTypes.length) {
+                continue;
+            }
+
+            int j;
+            for (j = 0; j < parameterTypes.length; j++) {
+                Class<?> parameter1 = toSimpleType(constructorParameters[j]);
+                Class<?> parameter2 = toSimpleType(parameterTypes[j]);
+                if (!parameter1.isAssignableFrom(parameter2)) {
+                    // Log.DEBUG(constructorParameters[j].getName() + "-" + parameters[j].getName());
+                    break;
+                }
+            }
+            
+            if (j == parameterTypes.length) {
+                return constructors[i];
+            }
+        }
+
+        throw new NoSuchMethodException();
+    }
+
     public static Class<?> findClassWithAnnotationWithinClass(Class<?> parent, Class<? extends Annotation> annotation) {
         for (Class<?> clazz : parent.getDeclaredClasses())
             if (clazz.isAnnotationPresent(annotation))
@@ -41,7 +74,7 @@ public class Reflection {
 
         try {
             paremeterTypes = Reflection.getParameterTypes(constructorArgs);
-            Constructor<?> constructor = clazz.getDeclaredConstructor(paremeterTypes);
+            Constructor<?> constructor = Reflection.getConstructorWithParameters(clazz, paremeterTypes);
             return constructor.newInstance(constructorArgs);
 
         } catch (Exception e) {
