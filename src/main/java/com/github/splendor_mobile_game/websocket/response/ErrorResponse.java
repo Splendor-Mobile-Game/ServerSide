@@ -20,19 +20,19 @@ public class ErrorResponse {
     public String result;
     public Data data;
 
-    public ErrorResponse(Result result, String error, String type, String messageContextId) {
+    public ErrorResponse(Result result, String error, ResponseType responseType, String messageContextId) {
         this.messageContextId = messageContextId;
-        this.type = type;
+        this.type = responseType.toString();
         this.result = result.name();
         this.data = new Data(error);
     }
 
-    public ErrorResponse(Result result, String error, String type) {
-        this(result, error, type, UUID.randomUUID().toString());
+    public ErrorResponse(Result result, String error, ResponseType responseType) {
+        this(result, error, responseType, UUID.randomUUID().toString());
     }
 
     public ErrorResponse(Result result, String error) {
-        this(result, error, "Unknown type");
+        this(result, error, ResponseType.UNKNOWN);
     }
 
     public String ToJson() {
