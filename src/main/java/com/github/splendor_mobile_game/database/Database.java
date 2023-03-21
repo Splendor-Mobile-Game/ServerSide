@@ -14,6 +14,8 @@ public interface Database {
 
     public Room getRoom(UUID uuid);
 
+    public Room getRoom(String name);
+
     public void addRoom(Room room);
 
     public ArrayList<User> getAllUsers();
