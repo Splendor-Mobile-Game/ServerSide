@@ -41,15 +41,28 @@ Each reaction proceedes **JSON data** given by Client.
 
 This request's data is processed and then response is generated.
 
-#### Example server response to Client:
+#### Example server response:
 
-`{"messageContextId":"80bdc250-5365-4caf-8dd9-a33e709a0116","type":"CreateRoomResponse","result":"OK","data":{"user":{"id":"f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454","name":"James"},"room":{"name":"TajnyPokoj"}}}`
+`{
+  "messageContextId":"80bdc250-5365-4caf-8dd9-a33e709a0116",
+  "type":"CreateRoomResponse",
+  "result":"OK",
+  "data": {
+    "user": {
+      "uuid":"f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
+      "name":"James"
+      },
+    "room": {
+      "name":"TajnyPokoj"
+    }
+  }
+}`
 
-## How to create new reaction?
-If you want to create new reaction then head to the `reactions` package and create new class. Make sure to add this class into ArrayList in App.java so it will be registered as reaction.
-Reaction named **CreateRoom** inserts changes to game objects. Their structure is stored [here](src/main/java/com/githib/splendor_mobile_game/game/model).
+## How to create a new reaction?
+If you want to create a new reaction then head to the `reactions` package and create a new class. Make sure to add this class into ArrayList in App.java so that it will be registered as a reaction.
+The reaction named **CreateRoom** inserts changes to game objects. Their structure is stored [here](src/main/java/com/github/splendor_mobile_game/game/model).
 
-Basically reactions are handling game logic which structure is implemented in package `game.model`.
+Basically, reactions are handling game logic which structure is implemented in package `game.model`.
 
 
 ## How to commit new code to repository?
