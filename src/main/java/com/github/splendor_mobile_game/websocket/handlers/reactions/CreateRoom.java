@@ -47,6 +47,68 @@ public class CreateRoom extends Reaction {
         public RoomDTO roomDTO;
     }
 
+    @ResponseClass
+    private class Response {
+        UUID messageContextId;
+        String type;
+        Result result;
+        ResponseData data;
+
+        public Response(UUID messageContextId, String type, Result result, ResponseData data) {
+            this.messageContextId = messageContextId;
+            this.type = type;
+            this.result = result;
+            this.data = data;
+        }
+
+    }
+
+    private class ResponseData {
+        UserDataResponse user;
+        RoomDataResponse room;
+
+        public ResponseData(UserDataResponse user, RoomDataResponse room) {
+            this.user = user;
+            this.room = room;
+        }
+        
+    }
+
+    private class UserDataResponse {
+        public UUID id;
+        public String name;
+
+        public UserDataResponse(UUID id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+        
+    }
+
+    private class RoomDataResponse {
+        String name;
+
+        public RoomDataResponse(String name) {
+            this.name = name;
+        }
+
+    }
+
+    // {
+    //     "messageContextId":"80bdc250-5365-4caf-8dd9-a33e709a0116",
+    //     "type":"CREATE_ROOM_RESPONSE",
+    //     "result":"OK",
+    //     "data":{
+    //         "user":{
+    //             "id":"f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
+    //             "name":"James"
+    //         },
+    //         "room":{
+    //             "name":"TajnyPokoj"
+    //         }
+    //     }
+    // }
+
     /*   ----> EXAMPLE USER REQUEST <----
     {
          "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
@@ -80,24 +142,12 @@ public class CreateRoom extends Reaction {
             database.addUser(user);
             database.addRoom(room);
 
-            JsonObject userJson = new JsonObject();
-            userJson.addProperty("id", dataDTO.userDTO.uuid.toString());
-            userJson.addProperty("name", dataDTO.userDTO.name);
+            UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, dataDTO.userDTO.name);
+            RoomDataResponse roomDataResponse = new RoomDataResponse(dataDTO.roomDTO.name);
+            ResponseData responseData = new ResponseData(userDataResponse, roomDataResponse);
+            Response response = new Response(UUID.fromString(receivedMessage.getMessageContextId()), ResponseType.CREATE_ROOM_RESPONSE.toString(), Result.OK, responseData);
 
-            JsonObject roomJson = new JsonObject();
-            roomJson.addProperty("name", dataDTO.roomDTO.name);
-
-            JsonObject data = new JsonObject();
-            data.add("user", userJson);
-            data.add("room", roomJson);
-
-            JsonObject response = new JsonObject();
-            response.addProperty("messageContextId", receivedMessage.getMessageContextId());
-            response.addProperty("type", ResponseType.CREATE_ROOM_RESPONSE.toString());
-            response.addProperty("result", Result.OK.toString());
-            response.add("data", data);
-
-            messenger.addMessageToSend(this.connectionHashCode, (new Gson()).toJson(response));
+            messenger.addMessageToSend(this.connectionHashCode, response);
 
         } catch (Exception e) {
             ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ResponseType.CREATE_ROOM_RESPONSE, receivedMessage.getMessageContextId());
