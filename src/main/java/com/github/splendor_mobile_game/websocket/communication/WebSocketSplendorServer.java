@@ -131,12 +131,21 @@ public class WebSocketSplendorServer extends WebSocketServer {
 
         // Parse the data given in the message
         Class<?> dataClass = Reflection.findClassWithAnnotationWithinClass(reactionClass, DataClass.class);
-        try {
-            receivedMessage.parseDataToClass(dataClass);
-        } catch (InvalidReceivedMessage e) {
-            Log.ERROR(e.toString());
-            webSocket.send(e.toJsonResponse());
-            return;
+
+        if (dataClass != null) {
+            try {
+                receivedMessage.parseDataToClass(dataClass);
+            } catch (InvalidReceivedMessage e) {
+                Log.ERROR(e.toString());
+                webSocket.send(e.toJsonResponse());
+                return;
+            }
+        }
+
+        if (dataClass == null && receivedMessage.getData() != null) {
+            Log.WARNING(webSocket.hashCode() + 
+                " provided data to the message, but the message type reaction class doesn't require any data!"
+            );
         }
 
         Messenger messenger = new Messenger();
@@ -170,6 +179,9 @@ public class WebSocketSplendorServer extends WebSocketServer {
     @Override
     public void onError(WebSocket webSocket, Exception e) {
         Log.ERROR("Server error: " + e.getMessage());
+        // TODO: Messaage type and message id
+        ErrorResponse response = new ErrorResponse(Result.ERROR, e.getMessage());
+        webSocket.send(response.ToJson());
     }
 
 }
