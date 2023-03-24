@@ -40,9 +40,9 @@ public class InMemoryDatabase implements Database {
     }
 
     @Override
-    public Room getRoom(String name) {
+    public Room getRoom(String enterCode) {
         for(Room room : allRooms) {
-            if (room.getName().equals(name)) return room;
+            if (room.getEnterCode().equals(enterCode)) return room;
         }
         return null;
     }
