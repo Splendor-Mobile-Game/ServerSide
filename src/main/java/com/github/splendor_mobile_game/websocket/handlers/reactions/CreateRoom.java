@@ -5,10 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.splendor_mobile_game.database.Database;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.AlreadyAnOwnerException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUsernameException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomAlreadyExistsException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
@@ -43,8 +40,8 @@ public class CreateRoom extends Reaction {
 
     @DataClass
     private class DataDTO {
-        public UserDTO userDTO;
         public RoomDTO roomDTO;
+        public UserDTO userDTO;
     }
 
     /*   ----> EXAMPLE USER REQUEST <----
@@ -52,13 +49,13 @@ public class CreateRoom extends Reaction {
          "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
          "type": "CREATE_ROOM",
          "data": {
+             "roomDTO": {
+                 "name": "TajnyPokoj",
+                 "password": "Tajne6Przez2Poufne.;"
+             },
              "userDTO": {
                  "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
                  "name": "James"
-             },
-             "roomDTO": {
-                 "name": "TajnyPokoj",
-                 "password": "kjashjkasd"
              }
          }
      }
@@ -73,23 +70,25 @@ public class CreateRoom extends Reaction {
             validateData(dataDTO, this.database);
 
             User user = new User(dataDTO.userDTO.uuid, dataDTO.userDTO.name, this.connectionHashCode);
-            Room room = new Room(UUID.randomUUID(), dataDTO.roomDTO.name, dataDTO.roomDTO.password, user);
+            Room room = new Room(UUID.randomUUID(), dataDTO.roomDTO.name, dataDTO.roomDTO.password, user, database);
 
             Log.DEBUG("UUID pokoju: " + room.getUuid());
 
             database.addUser(user);
             database.addRoom(room);
 
+
+            JsonObject roomJson = new JsonObject();
+            roomJson.addProperty("uuid", room.getUuid().toString());
+            roomJson.addProperty("name", dataDTO.roomDTO.name);
+
             JsonObject userJson = new JsonObject();
             userJson.addProperty("uuid", dataDTO.userDTO.uuid.toString());
             userJson.addProperty("name", dataDTO.userDTO.name);
 
-            JsonObject roomJson = new JsonObject();
-            roomJson.addProperty("name", dataDTO.roomDTO.name);
-
             JsonObject data = new JsonObject();
-            data.add("user", userJson);
             data.add("room", roomJson);
+            data.add("user", userJson);
 
             JsonObject response = new JsonObject();
             response.addProperty("messageContextId", receivedMessage.getMessageContextId());
@@ -106,9 +105,10 @@ public class CreateRoom extends Reaction {
     }
 
 
-    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, InvalidUsernameException, RoomAlreadyExistsException, AlreadyAnOwnerException {
+    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, InvalidUsernameException, RoomAlreadyExistsException, AlreadyAnOwnerException, InvalidPasswordException {
         Pattern uuidPattern     = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
         Pattern usernamePattern = Pattern.compile("^(?=.*\\p{L})[\\p{L}\\p{N}\\s]+$");
+        Pattern passwordPattern = Pattern.compile("^[a-zA-Z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ\\p{Punct}]+$");
 
         // Check if user UUID matches the pattern
         Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.uuid.toString());
@@ -129,9 +129,9 @@ public class CreateRoom extends Reaction {
 
 
         // Check if user UUID matches the pattern
-        usernameMatcher = usernamePattern.matcher(dataDTO.roomDTO.password);
-        if (!usernameMatcher.find())
-            throw new InvalidUsernameException("Invalid room password format.");
+        Matcher passwordMatcher = passwordPattern.matcher(dataDTO.roomDTO.password);
+        if (!passwordMatcher.find())
+            throw new InvalidPasswordException("Invalid room password format.");
 
 
         // Check if room with specified name already exists NAME OF THE ROOM MUST BE UNIQUE
@@ -141,7 +141,7 @@ public class CreateRoom extends Reaction {
 
         // Check if user is already an owner of any room
         for(Room room : database.getAllRooms()) {
-            if (room.getOwner().getUuid().equals(dataDTO.userDTO.uuid))
+            if (room.getOwner().equals(database.getUser(dataDTO.userDTO.uuid)))
                 throw new AlreadyAnOwnerException("You are already an owner of " + room.getName() + " room.");
         }
 
