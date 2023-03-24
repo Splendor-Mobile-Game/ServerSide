@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public class InMemoryDatabase implements Database {
 
-    public ArrayList<User> allUsers = new ArrayList<>();
-    public ArrayList<Room> allRooms = new ArrayList<>();
+    private ArrayList<User> allUsers = new ArrayList<>();
+    private ArrayList<Room> allRooms = new ArrayList<>();
 
 
     public InMemoryDatabase() {
@@ -20,8 +20,8 @@ public class InMemoryDatabase implements Database {
 
     @Override
     public User getUser(UUID uuid) {
-        for(User u : allUsers) {
-            if (u.getUuid().equals(uuid)) return u;
+        for(User user : allUsers) {
+            if (user.getUuid().equals(uuid)) return user;
         }
         return null;
     }
@@ -33,8 +33,16 @@ public class InMemoryDatabase implements Database {
 
     @Override
     public Room getRoom(UUID uuid) {
-        for(Room r : allRooms) {
-            if (r.getUuid().equals(uuid)) return r;
+        for(Room room : allRooms) {
+            if (room.getUuid().equals(uuid)) return room;
+        }
+        return null;
+    }
+
+    @Override
+    public Room getRoom(String enterCode) {
+        for(Room room : allRooms) {
+            if (room.getEnterCode().equals(enterCode)) return room;
         }
         return null;
     }

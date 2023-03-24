@@ -42,6 +42,11 @@ public class SqliteDatabase implements Database {
     }
 
     @Override
+    public Room getRoom(String name) {
+        return null;
+    }
+
+    @Override
     public User getUser(UUID uuid) {
         // TODO Auto-generated method stub
         return null;

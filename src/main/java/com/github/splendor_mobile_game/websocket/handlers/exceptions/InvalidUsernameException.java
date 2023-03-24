@@ -1,4 +1,4 @@
-package com.github.splendor_mobile_game.exception;
+package com.github.splendor_mobile_game.websocket.handlers.exceptions;
 
 public class InvalidUsernameException extends Exception {
 

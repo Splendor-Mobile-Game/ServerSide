@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.github.splendor_mobile_game.websocket.utils.reflection.Reflection;
 
@@ -121,12 +123,13 @@ public class ReactionManager {
                 continue;
             }
 
-            // Check if the class has a public constructor with a single int parameter
-            if (!Reflection.hasOneParameterConstructor(clazz, int.class)) {
-                Log.ERROR(
-                        clazz.getName()
-                                + " was not registered as the Reaction, beacause it doesn't implement constructor with `int` as the only parameter which is required!");
-                continue;
+            // Check if the class has a public constructor with appropriate parameters
+            try {
+                Reflection.getConstructorWithParameters(clazz, int.class, ReceivedMessage.class, Messenger.class, Database.class);
+            } catch (NoSuchMethodException e) {
+                Log.ERROR(clazz.getName() + " was not registered as the Reaction, because it doesn't" 
+                    + " implement constructor with `int`, `ReceivedMessage`, `Messenger` and `Database`, but it's required!"
+                );
             }
 
             // Check if the class is public
@@ -135,11 +138,21 @@ public class ReactionManager {
                 continue;
             }
 
-            // Add the reaction to the map
-            String simpleName = clazz.getName().substring(clazz.getName().lastIndexOf(".") + 1);
-            this.reactions.put(simpleName, reactionClass);
+            // Get the custom name of the reaction if ReactionName annotation is used
+            // else use the class name
+            ReactionName reactionNameAnnotation = clazz.getAnnotation(ReactionName.class);
+            String reactionNameString;
 
-            Log.INFO("Class `" + clazz.getName() + "` loaded as `" + simpleName + "`");
+            if (reactionNameAnnotation == null) {
+                // Log.WARNING(clazz.getName() + " doesn't have ReactionName annotation, so it'll be registered with the name of its class!");
+                reactionNameString = clazz.getName().substring(clazz.getName().lastIndexOf(".") + 1);
+            } else {
+                reactionNameString = reactionNameAnnotation.value();
+            }
+
+            // Add the reaction to the map
+            this.reactions.put(reactionNameString, reactionClass);
+            Log.INFO("Class `" + clazz.getName() + "` loaded as `" + reactionNameString + "`");
         }
     }
 

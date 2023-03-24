@@ -1,33 +1,35 @@
 package com.github.splendor_mobile_game.game.model;
 
+import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.websocket.utils.Log;
+
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Random;
 import java.util.UUID;
 
 public class Room {
 
-    // <- >
-
-
-    private final String name;
-    private final String password;
-
-    private User owner;
 
     private final UUID uuid;
-
+    private final String name;
+    private final String enterCode;
+    private final String password;
+    private User owner;
     private int playerCount;
-    private final ArrayList<User> players = new ArrayList<>();
+    private final ArrayList<User> users = new ArrayList<>();
 
 
-
-
-    public Room(UUID uuid, String name, String password, User owner) {
+    public Room(UUID uuid, String name, String password, User owner, Database database) {
         this.uuid     = uuid;
         this.name     = name;
         this.password = password;
         this.owner    = owner;
 
-        this.players.add(owner);
+        this.enterCode = generateRoomCode(database);
+        Log.DEBUG(this.enterCode);
+
+        this.users.add(owner);
         playerCount++;
     }
 
@@ -36,12 +38,12 @@ public class Room {
         return playerCount;
     }
 
-    public ArrayList<User> getAllPlayers() {
-        return players;
+    public ArrayList<User> getAllUsers() {
+        return users;
     }
 
-    public boolean playerExists(User user) {
-        return players.contains(user);
+    public boolean userExists(User user) {
+        return users.contains(user);
     }
 
     public User getOwner() {
@@ -64,6 +66,11 @@ public class Room {
         return uuid;
     }
 
+    public String getEnterCode() {
+        return enterCode;
+    }
+
+
     /**
      *
      * Add new player to the game if number of currently awaiting players is smaller than 4.
@@ -71,15 +78,11 @@ public class Room {
      * @param user -> user who is trying to join the game
      * @return boolean -> true if user successfully joined the game
      */
-    public boolean joinGame(User user) {
-        if (playerCount >= 4) return false; // Maximum number of players reached
+    public void joinGame(User user) {
+        if (users.contains(user)) return;  // Player is already a part of the game.
 
-        players.add(user);
+        users.add(user);
         playerCount++;
-
-        // allPlayers.SendAcitvity(AcitvityType.NewPlayerJoinedInfo)
-
-        return true;
     }
 
 
@@ -92,13 +95,65 @@ public class Room {
      * @param user -> user who is trying to leave the game
      * @return boolean -> true if user successfully left the game
      */
-    public boolean leaveGame(User user) {
-        if (playerCount < 0) return false;  // There is no one awaiting
-        if (!players.contains(user)) return false;  // Player is not part of the game.
-
-        players.remove(user);
+    public void leaveGame(User user) {
+        if (!users.contains(user)) return;  // Player is not part of the game.
+        users.remove(user);
         playerCount--;
+    }
+
+
+    /**
+     * Function generating unique room code.
+     *
+     * @param database -> game database storing all rooms. Needed to compare enterCodes
+     * @return enterCode -> code needed to enter someone else's room
+     */
+    private String generateRoomCode(Database database) {
+        int leftLimit = 48; // numeral '0'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 6;
+        Random random = new Random();
+
+        // Create Stream of ints limited by "targetStringLength" length and filter to contain only alphanumeric characters
+        String generatedCode = random.ints(leftLimit, rightLimit + 1)
+                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                .limit(targetStringLength)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+
+        if (!isCodeAvailable(database, generatedCode)) return generateRoomCode(database);
+
+        return generatedCode;
+    }
+
+
+    /**
+     * Check if enterCode already exists in other room object
+     *
+     * @param database -> game database storing all rooms. Needed to compare enterCodes
+     * @param enterCode -> code which we want to find in already existing rooms
+     * @return boolean -> true if code doesn't exist yet
+     */
+    private boolean isCodeAvailable(Database database, String enterCode) {
+        for (Room room : database.getAllRooms()) {
+            if (room.getEnterCode().equals(enterCode)) return false;
+        }
         return true;
     }
 
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Room room = (Room) o;
+        return uuid.equals(room.uuid) && name.equals(room.name) && enterCode.equals(room.enterCode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid, name, enterCode);
+    }
 }
