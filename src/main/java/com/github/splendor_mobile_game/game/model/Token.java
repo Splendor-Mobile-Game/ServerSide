@@ -24,6 +24,9 @@ public class Token {
         this.owner = owner;
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
 
     public TokenType getTokenType() {
         return tokenType;
