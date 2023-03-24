@@ -24,39 +24,45 @@ Each reaction proceedes **JSON data** given by Client.
 
 #### Example Client request:
 
-`{
-  "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
-  "type": "CreateRoom",
-  "data": {
-    "userDTO": {
-      "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
-      "name": "James"
-    },
-    "roomDTO": {
-      "name": "TajnyPokoj",
-      "password": "kjashjkasd"
-    }
-  }
-}`
+
+```json
+{
+     "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
+     "type": "CREATE_ROOM",
+     "data": {
+         "userDTO": {
+             "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
+             "name": "James"
+         },
+         "roomDTO": {
+             "name": "TajnyPokoj",
+             "password": "kjashjkasd"
+         }
+     }
+ }
+```
 
 This request's data is processed and then response is generated.
 
 #### Example server response:
 
-`{
-  "messageContextId":"80bdc250-5365-4caf-8dd9-a33e709a0116",
-  "type":"CreateRoomResponse",
-  "result":"OK",
-  "data": {
-    "user": {
-      "uuid":"f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
-      "name":"James"
-      },
-    "room": {
-      "name":"TajnyPokoj"
+```json 
+{
+    "messageContextId":"80bdc250-5365-4caf-8dd9-a33e709a0116",
+    "type":"CREATE_ROOM_RESPONSE",
+    "result":"OK",
+    "data": {
+        "room":{
+            "uuid":"0599e96b-7573-4a7a-9605-323dee718fc5",
+            "name":"TajnyPokoj"
+        },
+        "user":{
+            "uuid":"f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
+            "name":"James"
+        }
     }
-  }
-}`
+}
+```
 
 ## How to create a new reaction?
 If you want to create a new reaction then head to the `reactions` package and create a new class. Make sure to add this class into ArrayList in App.java so that it will be registered as a reaction.
