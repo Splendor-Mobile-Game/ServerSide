@@ -30,13 +30,13 @@ Each reaction proceedes **JSON data** given by Client.
      "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
      "type": "CREATE_ROOM",
      "data": {
+         "roomDTO": {
+             "name": "TajnyPokoj",
+             "password": "Tajne6Przez2Poufne.;"
+         },
          "userDTO": {
              "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
              "name": "James"
-         },
-         "roomDTO": {
-             "name": "TajnyPokoj",
-             "password": "kjashjkasd"
          }
      }
  }
