@@ -7,10 +7,8 @@ import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomFullException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserAlreadyInRoomException;
+import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.ResponseType;
 import com.github.splendor_mobile_game.websocket.response.Result;
@@ -21,6 +19,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@ReactionName("JOIN_ROOM")
 public class JoinRoom extends Reaction {
 
     public JoinRoom(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
@@ -29,7 +28,8 @@ public class JoinRoom extends Reaction {
 
 
     private class RoomDTO {
-        public UUID uuid;
+        public String enterCode;
+        public String password;
     }
 
     private class UserDTO {
@@ -41,8 +41,8 @@ public class JoinRoom extends Reaction {
     @DataClass
     private class DataDTO {
 
-        private UserDTO userDTO;
         private RoomDTO roomDTO;
+        private UserDTO userDTO;
 
     }
 
@@ -50,14 +50,15 @@ public class JoinRoom extends Reaction {
     /* ----> EXAMPLE USER REQUEST <----
     {
          "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
-         "type": "JoinRoom",
+         "type": "JOIN_ROOM",
          "data": {
+             "roomDTO": {
+                 "enterCode": "gfwoMA",
+                 "password": "Tajne6Przez2Poufne.;"
+             },
              "userDTO": {
                  "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3456",
                  "name": "Jacuch"
-             },
-             "roomDTO": {
-                 "uuid": "494fdfda-aa14-42f3-9569-4cde39b1f63b"
              }
          }
      }
@@ -72,7 +73,7 @@ public class JoinRoom extends Reaction {
 
             validateData(dataDTO, database);
 
-            Room room = database.getRoom(dataDTO.roomDTO.uuid);
+            Room room = database.getRoom(dataDTO.roomDTO.enterCode);
             User user = new User(dataDTO.userDTO.uuid, dataDTO.userDTO.name, this.connectionHashCode);
             database.addUser(user);
             room.joinGame(user);
@@ -82,7 +83,8 @@ public class JoinRoom extends Reaction {
             userJson.addProperty("name", user.getName());
 
             JsonObject roomJson = new JsonObject();
-            roomJson.addProperty("uuid", dataDTO.roomDTO.uuid.toString());
+            roomJson.addProperty("uuid", room.getUuid().toString());
+            roomJson.addProperty("name", room.getName());
 
             JsonObject data = new JsonObject();
             data.add("user", userJson);
@@ -110,8 +112,9 @@ public class JoinRoom extends Reaction {
     }
 
 
-    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, RoomDoesntExistException, UserAlreadyInRoomException, RoomFullException {
+    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, RoomDoesntExistException, UserAlreadyInRoomException, RoomFullException, InvalidEnterCodeException, InvalidPasswordException {
         Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+        Pattern codePattern = Pattern.compile("^([0-9a-zA-Z]+){6}$");
 
         // Check if user UUID matches the pattern
         Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.uuid.toString());
@@ -120,15 +123,20 @@ public class JoinRoom extends Reaction {
 
 
         // Check if room UUID matches the pattern
-        uuidMatcher = uuidPattern.matcher(dataDTO.roomDTO.uuid.toString());
-        if (!uuidMatcher.find())
-            throw new InvalidUUIDException("Invalid UUID format.");
+        Matcher codeMatcher = codePattern.matcher(dataDTO.roomDTO.enterCode);
+        if (!codeMatcher.find())
+            throw new InvalidEnterCodeException("Invalid enter code format.");
 
 
         // Check if room exists
-        Room room = database.getRoom(dataDTO.roomDTO.uuid);
+        Room room = database.getRoom(dataDTO.roomDTO.enterCode);
         if (room == null)
             throw new RoomDoesntExistException("Could not find a room with specified UUID.");
+
+
+        // Check if password is valid
+        if (!dataDTO.roomDTO.password.equals(room.getPassword()))
+            throw new InvalidPasswordException("Wrong password!");
 
 
         // Check players count reached maximum number
