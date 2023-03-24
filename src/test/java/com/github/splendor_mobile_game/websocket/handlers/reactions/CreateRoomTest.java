@@ -2,6 +2,8 @@ package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 
 import com.github.splendor_mobile_game.database.Database;
@@ -22,8 +24,8 @@ public class CreateRoomTest {
         
         // 1. Setup data for the test
         String messageContextId = "80bdc250-5365-4caf-8dd9-a33e709a0116";
-        String messageType = "CreateRoom";
-        String userId = "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454";
+        String messageType = "CREATE_ROOM";
+        String userUuid = "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454";
         String userName = "James";
         String roomName = "TajnyPokoj";
         String roomPassword = "kjashjkasd";
@@ -34,7 +36,7 @@ public class CreateRoomTest {
             "type": "$type",
             "data": {
                 "userDTO": {
-                    "id": "$userId",
+                    "uuid": "$userId",
                     "name": "$userName"
                 },
                 "roomDTO": {
@@ -44,7 +46,7 @@ public class CreateRoomTest {
             }
         }""".replace("$messageContextId", messageContextId)
             .replace("$type", messageType)
-            .replace("$userId", userId)
+            .replace("$userId", userUuid)
             .replace("$userName", userName)
             .replace("$roomName", roomName)
             .replace("$roomPassword", roomPassword);
@@ -55,7 +57,7 @@ public class CreateRoomTest {
         ReceivedMessage receivedMessage = new ReceivedMessage(message);
         Messenger messenger = new Messenger();
         Database database = new InMemoryDatabase();
-        CreateRoom createRoom = new CreateRoom(clientConnectionHashCode);
+        CreateRoom createRoom = new CreateRoom(clientConnectionHashCode, receivedMessage, messenger, database);
         
         // Parse the data given in the message
         receivedMessage.parseDataToClass(CreateRoom.DataDTO.class);
@@ -63,7 +65,7 @@ public class CreateRoomTest {
 
         
         // 2. Call the function you are testing
-        createRoom.react(receivedMessage, messenger, database);
+        createRoom.react();
 
 
         // 3. Check that return value and side effects of this call is correct
@@ -98,11 +100,11 @@ public class CreateRoomTest {
         String expectedJsonString = """
         {
             "messageContextId":"$messageContextId",
-            "type":"$typeResponse",
+            "type":"$type_RESPONSE",
             "result":"$result",
             "data":{
                 "user":{
-                    "id":"$userId",
+                    "uuid":"$userId",
                     "name":"$userName"
                 },
                 "room":{
@@ -112,7 +114,7 @@ public class CreateRoomTest {
         }""".replace("$messageContextId", messageContextId)
             .replace("$type", messageType)
             .replace("$result", Result.OK.toString())
-            .replace("$userId", userId)
+            .replace("$userId", userUuid)
             .replace("$userName", userName)
             .replace("$roomName", roomName);
 
@@ -122,11 +124,21 @@ public class CreateRoomTest {
         // Parse those strings to json
         JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
         JsonElement actualJson = JsonParser.parseString(serverReply);
+
+        // I check if actual json has room uuid field
+        assertThat(actualJson.getAsJsonObject().get("data").getAsJsonObject().get("room").getAsJsonObject().has("uuid")).isTrue();
+        
+        // I check if this is valid uuid
+        assertThat(UUID.fromString(actualJson.getAsJsonObject().get("data").getAsJsonObject().get("room").getAsJsonObject().get("uuid").getAsString())).isNotNull();
+        
+        // I remove this field, so I can compare all other fields in one go
+        actualJson.getAsJsonObject().get("data").getAsJsonObject().get("room").getAsJsonObject().remove("uuid");
         
         // Check if they are equal
         assertThat(actualJson).isEqualTo(expectedJson);
         // Here I checked if they are sematically identical
         // If we cannot know upfront the value of fields, 
         // then we have a little more work to do and check each field one by one
+        // or do something like with room uuid
     }
 }
