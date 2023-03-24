@@ -44,11 +44,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return name.equals(user.name) && uuid.equals(user.uuid);
+        return name.equals(user.name) && uuid.equals(user.uuid) && connectionHasCode == user.getConnectionHasCode();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, uuid);
+        return Objects.hash(name, uuid, connectionHasCode);
     }
 }
