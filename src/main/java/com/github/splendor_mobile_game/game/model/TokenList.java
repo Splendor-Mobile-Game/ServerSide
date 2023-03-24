@@ -32,6 +32,8 @@ public class TokenList {
 
     public int getEquippedTokensCount() {
         return 7 - availableTokens;
+
+        // TODO 7 is not a valid value for every number of players. Value of 7 is only valid for game with 4 players.
     }
 
     /**
@@ -45,6 +47,7 @@ public class TokenList {
             if (token.getOwner() == null) {
                 token.setOwner(user);
                 availableTokens--;
+                return token;
             }
         }
         return null;
