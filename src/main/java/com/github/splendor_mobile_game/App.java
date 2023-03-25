@@ -21,7 +21,6 @@ import com.github.splendor_mobile_game.websocket.communication.WebSocketSplendor
 
 public class App {
 
-        // sss
         private static List<Class<?>> classesWithReactions = new ArrayList<>(Arrays.asList(
                         CreateServer.class, CreateRoom.class, JoinRoom.class));
 
