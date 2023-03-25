@@ -1,12 +1,14 @@
 package com.github.splendor_mobile_game.websocket.communication;
 
 import com.github.splendor_mobile_game.websocket.utils.json.JsonParser;
+import com.github.splendor_mobile_game.websocket.utils.json.Optional;
 import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonParserException;
 import com.google.gson.Gson;
 
 public class ReceivedMessage {
     private String messageContextId;
     private String type;
+    @Optional
     private Object data;
 
     public ReceivedMessage(String message) throws InvalidReceivedMessage {
