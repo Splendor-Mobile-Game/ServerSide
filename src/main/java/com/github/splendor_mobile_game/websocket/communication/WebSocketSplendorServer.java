@@ -124,7 +124,7 @@ public class WebSocketSplendorServer extends WebSocketServer {
 
         if (reactionClass == null) {
             Log.TRACE("Unknown reaction type: " + type);
-            ErrorResponse response = new ErrorResponse(Result.FAILURE, "This message type has not been found!");
+            ErrorResponse response = new ErrorResponse(Result.ERROR, "This message type has not been found!");
             webSocket.send(response.ToJson());
             return;
         }
