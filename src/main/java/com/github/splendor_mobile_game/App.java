@@ -25,6 +25,7 @@ public class App {
         private static List<Class<?>> classesWithReactions = new ArrayList<>(Arrays.asList(
                         CreateServer.class, CreateRoom.class, JoinRoom.class));
 
+        // Komenatrz 2
         public static void main(String[] args)
                         throws InvalidConfigException, IOException,
                         ConnectionHandlerWithoutDefaultConstructorException {
