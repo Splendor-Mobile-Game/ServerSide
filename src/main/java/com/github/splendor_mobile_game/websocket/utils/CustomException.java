@@ -3,7 +3,7 @@ package com.github.splendor_mobile_game.websocket.utils;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 
-public class CustomException extends Exception {
+public class CustomException extends RuntimeException {
     public CustomException() {
     }
 
