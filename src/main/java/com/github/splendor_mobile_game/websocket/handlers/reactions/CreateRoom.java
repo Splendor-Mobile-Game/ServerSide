@@ -27,21 +27,38 @@ public class CreateRoom extends Reaction {
         super(connectionHashCode, receivedMessage, messenger, database);
     }
 
-    private class RoomDTO {
-
+    public class RoomDTO {
         public String name;
         public String password;
+
+        public RoomDTO(String name, String password) {
+            this.name = name;
+            this.password = password;
+        }
+
     }
 
-    private class UserDTO {
+    public class UserDTO {
         public UUID uuid;
         public String name;
+
+        public UserDTO(UUID uuid, String name) {
+            this.uuid = uuid;
+            this.name = name;
+        }
+
     }
 
     @DataClass
     public class DataDTO {
         public RoomDTO roomDTO;
         public UserDTO userDTO;
+
+        public DataDTO(RoomDTO roomDTO, UserDTO userDTO) {
+            this.roomDTO = roomDTO;
+            this.userDTO = userDTO;
+        }
+
     }
 
     /*   ----> EXAMPLE USER REQUEST <----
