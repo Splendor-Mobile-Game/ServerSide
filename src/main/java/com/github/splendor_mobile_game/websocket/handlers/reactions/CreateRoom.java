@@ -27,7 +27,7 @@ public class CreateRoom extends Reaction {
         super(connectionHashCode, receivedMessage, messenger, database);
     }
 
-    public class RoomDTO {
+    public static class RoomDTO {
         public String name;
         public String password;
 
@@ -38,7 +38,7 @@ public class CreateRoom extends Reaction {
 
     }
 
-    public class UserDTO {
+    public static class UserDTO {
         public UUID uuid;
         public String name;
 
@@ -50,7 +50,7 @@ public class CreateRoom extends Reaction {
     }
 
     @DataClass
-    public class DataDTO {
+    public static class DataDTO {
         public RoomDTO roomDTO;
         public UserDTO userDTO;
 
