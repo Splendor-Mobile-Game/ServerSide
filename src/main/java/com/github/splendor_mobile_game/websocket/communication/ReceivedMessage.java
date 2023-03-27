@@ -18,6 +18,12 @@ public class ReceivedMessage {
         this.data = msg.getData();
     }
 
+    public ReceivedMessage(String messageContextId, String type, Object data) {
+        this.messageContextId = messageContextId;
+        this.type = type;
+        this.data = data;
+    }
+
     public void parseDataToClass(Class<?> clazz) throws InvalidReceivedMessage {
         try {
             // TODO: Perfomance loss because of redundant json parsing
