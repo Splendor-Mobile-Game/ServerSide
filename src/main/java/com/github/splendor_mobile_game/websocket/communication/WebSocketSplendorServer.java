@@ -14,6 +14,7 @@ import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Message;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
+import com.github.splendor_mobile_game.websocket.handlers.UserRequestType;
 import com.github.splendor_mobile_game.websocket.handlers.connection.ConnectionHandler;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
@@ -110,11 +111,11 @@ public class WebSocketSplendorServer extends WebSocketServer {
         UserMessage receivedMessage = new UserMessage(message);
 
         // Get the type of the message
-        String type = receivedMessage.getType();
+        UserRequestType type = receivedMessage.getType();
 
         // Find appropriate reaction to the message type received
         // TODO: It could be more readable if we use some ReactionRepository with get method that would throws exception instead of null
-        Class<? extends Reaction> reactionClass = reactions.get(type);
+        Class<? extends Reaction> reactionClass = reactions.get(type.toString());
 
         if (reactionClass == null) {
             Log.TRACE("Unknown reaction type: " + type);

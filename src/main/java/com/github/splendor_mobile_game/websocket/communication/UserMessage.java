@@ -1,13 +1,16 @@
 package com.github.splendor_mobile_game.websocket.communication;
 
+import java.util.UUID;
+
+import com.github.splendor_mobile_game.websocket.handlers.UserRequestType;
 import com.github.splendor_mobile_game.websocket.utils.json.JsonParser;
 import com.github.splendor_mobile_game.websocket.utils.json.Optional;
 import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonParserException;
 import com.google.gson.Gson;
 
 public class UserMessage {
-    private String messageContextId;
-    private String type;
+    private UUID messageContextId;
+    private UserRequestType type;
     @Optional
     private Object data;
 
@@ -18,7 +21,7 @@ public class UserMessage {
         this.data = msg.getData();
     }
 
-    public UserMessage(String messageContextId, String type, Object data) {
+    public UserMessage(UUID messageContextId, UserRequestType type, Object data) {
         this.messageContextId = messageContextId;
         this.type = type;
         this.data = data;
@@ -41,11 +44,11 @@ public class UserMessage {
         }
     }
 
-    public String getMessageContextId() {
+    public UUID getMessageContextId() {
         return messageContextId;
     }
 
-    public String getType() {
+    public UserRequestType getType() {
         return type;
     }
 

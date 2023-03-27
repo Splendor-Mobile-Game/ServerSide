@@ -1,14 +1,15 @@
 package com.github.splendor_mobile_game.websocket.communication;
 
+import java.util.UUID;
+
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.json.JsonParser;
 import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonParserException;
 
 public class ServerMessage {
-    // TODO: Make it UUID
-    private String messageContextId;
-    // TODO: Make type an enum
-    private String type;
+    private UUID messageContextId;
+    private ServerMessageType type;
     private Result result;
     // @Optional
     private Object data;
@@ -21,7 +22,7 @@ public class ServerMessage {
         this.data = msg.getData();
     }
 
-    public ServerMessage(String messageContextId, String type, Result result, Object data) {
+    public ServerMessage(UUID messageContextId, ServerMessageType type, Result result, Object data) {
         this.messageContextId = messageContextId;
         this.type = type;
         this.result = result;
@@ -36,11 +37,11 @@ public class ServerMessage {
         }
     }
 
-    public String getMessageContextId() {
+    public UUID getMessageContextId() {
         return messageContextId;
     }
 
-    public String getType() {
+    public ServerMessageType getType() {
         return type;
     }
 

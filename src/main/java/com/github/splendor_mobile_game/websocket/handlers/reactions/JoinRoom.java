@@ -8,9 +8,9 @@ import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
-import com.github.splendor_mobile_game.websocket.response.ResponseType;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -91,8 +91,8 @@ public class JoinRoom extends Reaction {
             data.add("room", roomJson);
 
             JsonObject response = new JsonObject();
-            response.addProperty("messageContextId", receivedMessage.getMessageContextId());
-            response.addProperty("type", ResponseType.JOIN_ROOM_RESPONSE.toString());
+            response.addProperty("messageContextId", receivedMessage.getMessageContextId().toString());
+            response.addProperty("type", ServerMessageType.JOIN_ROOM_RESPONSE.toString());
             response.addProperty("result", Result.OK.toString());
             response.add("data", data);
 
@@ -104,7 +104,7 @@ public class JoinRoom extends Reaction {
 
         } catch(Exception e) {
 
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ResponseType.JOIN_ROOM_RESPONSE, receivedMessage.getMessageContextId());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.JOIN_ROOM_RESPONSE, receivedMessage.getMessageContextId());
             messenger.addMessageToSend(connectionHashCode, errorResponse.ToJson());
 
         }

@@ -12,7 +12,6 @@ import com.github.splendor_mobile_game.websocket.config.exceptions.InvalidConfig
 import com.github.splendor_mobile_game.websocket.handlers.ReactionManager;
 import com.github.splendor_mobile_game.websocket.handlers.connection.ConnectionHandlerImpl;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateRoom;
-import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateServer;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.JoinRoom;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.github.splendor_mobile_game.database.InMemoryDatabase;
@@ -21,38 +20,39 @@ import com.github.splendor_mobile_game.websocket.communication.WebSocketSplendor
 
 public class App {
 
-        private static List<Class<?>> classesWithReactions = new ArrayList<>(Arrays.asList(
-                        CreateServer.class, CreateRoom.class, JoinRoom.class));
+	private static List<Class<?>> classesWithReactions = new ArrayList<>(Arrays.asList(
+		CreateRoom.class, JoinRoom.class
+	));
 
-        public static void main(String[] args)
-                        throws InvalidConfigException, IOException,
-                        ConnectionHandlerWithoutDefaultConstructorException {
+	public static void main(String[] args) throws InvalidConfigException, IOException, 
+		ConnectionHandlerWithoutDefaultConstructorException {
 
-                // Read the env config
-                Config config = new EnvConfig("./.env");
+		// Read the env config
+		Config config = new EnvConfig("./.env");
 
-                // Initialize logger
-                Log.setSavingLogsToFile(config.getLogsDir());
+		// Initialize logger
+		Log.setSavingLogsToFile(config.getLogsDir());
 
-                // Define where are reactions to the messages from client and load these reactions
-                ReactionManager reactionManager = new ReactionManager();
-                reactionManager.loadReactions(App.classesWithReactions);
+		// Define where are reactions to the messages from client and load these reactions
+		ReactionManager reactionManager = new ReactionManager();
+		reactionManager.loadReactions(App.classesWithReactions);
 
-                // Setup the server
-                int port = config.getPort();
-                WebSocketSplendorServer server = new WebSocketSplendorServer(
-                                new InetSocketAddress(port),
-                                reactionManager.reactions,
-                                ConnectionHandlerImpl.class,
-                                config.getPingIntervalMs(),
-                                config.getConnectionCheckIntervalMs(),
-                                new InMemoryDatabase());
+		// Setup the server
+		int port = config.getPort();
+		WebSocketSplendorServer server = new WebSocketSplendorServer(
+			new InetSocketAddress(port),
+			reactionManager.reactions,
+			ConnectionHandlerImpl.class,
+			config.getPingIntervalMs(),
+			config.getConnectionCheckIntervalMs(),
+			new InMemoryDatabase()
+		);
 
-                server.setConnectionLostTimeout(-1);
-                // server.setConnectionLostTimeout(config.getConnectionLostTimeoutSec());
+		server.setConnectionLostTimeout(-1);
+		// server.setConnectionLostTimeout(config.getConnectionLostTimeoutSec());
 
-                // Start the server
-                Log.INFO("Starting the server on ws://localhost:" + port);
-                server.run();
-        }
+		// Start the server
+		Log.INFO("Starting the server on ws://localhost:" + port);
+		server.run();
+	}
 }
