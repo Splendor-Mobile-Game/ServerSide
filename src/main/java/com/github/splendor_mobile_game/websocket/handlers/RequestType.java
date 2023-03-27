@@ -1,6 +1,6 @@
 package com.github.splendor_mobile_game.websocket.handlers;
 
-public enum ReactionType {
+public enum RequestType {
 
     CREATE_ROOM;
 
