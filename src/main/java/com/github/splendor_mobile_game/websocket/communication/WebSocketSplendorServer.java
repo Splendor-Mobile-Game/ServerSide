@@ -107,7 +107,7 @@ public class WebSocketSplendorServer extends WebSocketServer {
         );
 
         // Parse the message
-        ReceivedMessage receivedMessage = new ReceivedMessage(message);
+        UserMessage receivedMessage = new UserMessage(message);
 
         // Get the type of the message
         String type = receivedMessage.getType();

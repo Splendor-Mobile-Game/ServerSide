@@ -3,7 +3,7 @@ package com.github.splendor_mobile_game.websocket.handlers.reactions;
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
-import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
+import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 @ReactionName("JOIN_ROOM")
 public class JoinRoom extends Reaction {
 
-    public JoinRoom(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
+    public JoinRoom(int connectionHashCode, UserMessage receivedMessage, Messenger messenger, Database database) {
         super(connectionHashCode, receivedMessage, messenger, database);
     }
 

@@ -7,7 +7,7 @@ import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.utils.RandomString;
 import com.github.splendor_mobile_game.database.Database;
-import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
+import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -16,7 +16,7 @@ public class CreateServer extends Reaction {
     // This field is available due to abstract class
     // protected int connectionHashCode;
 
-    public CreateServer(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
+    public CreateServer(int connectionHashCode, UserMessage receivedMessage, Messenger messenger, Database database) {
         super(connectionHashCode, receivedMessage, messenger, database);
     }
 
