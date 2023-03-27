@@ -40,7 +40,7 @@ public class JsonParser {
                 stringBuilder.append("Missing required field: " + field.getName() + "\n"); // TODO: SecurityException
         }
 
-        if (!stringBuilder.isEmpty())
+        if (stringBuilder.length() != 0)
             throw new JsonMissingFieldException(stringBuilder.toString().strip());
 
         T object = gson.fromJson(jsonString, clazz); // TODO: Possible null
