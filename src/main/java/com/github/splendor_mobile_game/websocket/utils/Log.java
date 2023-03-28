@@ -15,6 +15,8 @@ public class Log {
 
     // TODO: Way to set log level and not log messages below threshold
 
+    // TODO: Way to add tag to each log message and then set which messages with which prefix of the tag to display
+
     public static void setSavingLogsToFile(String logsDir) {
         LocalDateTime currentTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
@@ -62,7 +64,7 @@ public class Log {
 
     public static void INFO(String message) {
         String logMessage = Log.getHeader() + message;
-        System.out.println(ColoredText.Green(logMessage));
+        System.out.println(ColoredText.green(logMessage));
         if (Log.savingToFile) {
             Log.saveToFile(logMessage);
         }
@@ -70,7 +72,7 @@ public class Log {
 
     public static void DEBUG(String message) {
         String logMessage = Log.getHeader() + message;
-        System.out.println(ColoredText.Blue(logMessage));
+        System.out.println(ColoredText.blue(logMessage));
         if (Log.savingToFile) {
             Log.saveToFile(logMessage);
         }
@@ -78,7 +80,7 @@ public class Log {
 
     public static void WARNING(String message) {
         String logMessage = Log.getHeader() + message;
-        System.out.println(ColoredText.Yellow(logMessage));
+        System.out.println(ColoredText.yellow(logMessage));
         if (Log.savingToFile) {
             Log.saveToFile(logMessage);
         }
@@ -86,7 +88,7 @@ public class Log {
 
     public static void ERROR(String message) {
         String logMessage = Log.getHeader() + message;
-        System.out.println(ColoredText.Red(logMessage));
+        System.out.println(ColoredText.red(logMessage));
         if (Log.savingToFile) {
             Log.saveToFile(logMessage);
         }

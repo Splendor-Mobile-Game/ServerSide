@@ -15,24 +15,16 @@ import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.github.splendor_mobile_game.websocket.utils.reflection.Reflection;
 
-/**
- * The `ReactionManager` class manages the loading and storage of `Reaction` classes..
- */
+/** The `ReactionManager` class manages the loading and storage of `Reaction` classes. */
 public class ReactionManager {
 
-    /**
-     * A `Map` of reaction names to their corresponding `Reaction` classes.
-     */
+    /** A `Map` of reaction names to their corresponding `Reaction` classes. */
     public Map<String, Class<? extends Reaction>> reactions = new HashMap<>();
 
-    /**
-     * The package to search in when loading `Reaction` classes.
-     */
+    /** The package to search in when loading `Reaction` classes. */
     private String packageToSearchIn;
 
-    /**
-     * Creates a new `ReactionManager` instance with an empty `reactions` map and a `null` `packageToSearchIn`.
-     */
+    /** Creates a new `ReactionManager` instance with an empty `reactions` map and a `null` `packageToSearchIn`. */
     public ReactionManager() {
 
     }

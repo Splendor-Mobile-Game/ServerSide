@@ -5,7 +5,15 @@ import java.lang.reflect.Constructor;
 
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
+/** A utility class for reflection operations. */
 public class Reflection {
+
+    /**
+     * Checks if a class has a default constructor.
+     * 
+     * @param clazz the class to check
+     * @return true if the class has a default constructor, false otherwise
+     */
     public static boolean hasDefaultConstructor(Class<?> clazz) {
         try {
             Constructor<?> constructor = clazz.getDeclaredConstructor();
@@ -15,6 +23,13 @@ public class Reflection {
         }
     }
 
+    /**
+     * Checks if a class has a constructor with one parameter of a specific type.
+     * 
+     * @param clazz     the class to check
+     * @param parameter the type of the parameter
+     * @return true if the class has a constructor with one parameter of the specified type, false otherwise
+     */
     public static boolean hasOneParameterConstructor(Class<?> clazz, Class<?> parameter) {
         try {
             Constructor<?> constructor = clazz.getDeclaredConstructor(parameter);
@@ -27,6 +42,14 @@ public class Reflection {
         }
     }
 
+    /**
+     * Gets a constructor of a class that matches a set of parameter types.
+     * 
+     * @param clazz      the class to get the constructor from
+     * @param parameters the types of the parameters
+     * @return the constructor that matches the parameter types
+     * @throws NoSuchMethodException if no constructor matches the parameter types
+     */
     public static Constructor<?> getConstructorWithParameters(Class<?> clazz, Class<?>... parameters) throws NoSuchMethodException {
         Class<?>[] parameterTypes = new Class[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
@@ -34,7 +57,7 @@ public class Reflection {
         }
 
         Constructor<?>[] constructors = clazz.getConstructors();
-        
+
         for (int i = 0; i < constructors.length; i++) {
             Class<?>[] constructorParameters = constructors[i].getParameterTypes();
 
@@ -44,14 +67,14 @@ public class Reflection {
 
             int j;
             for (j = 0; j < parameterTypes.length; j++) {
-                Class<?> parameter1 = toSimpleType(constructorParameters[j]);
-                Class<?> parameter2 = toSimpleType(parameterTypes[j]);
+                Class<?> parameter1 = toPrimitiveType(constructorParameters[j]);
+                Class<?> parameter2 = toPrimitiveType(parameterTypes[j]);
                 if (!parameter1.isAssignableFrom(parameter2)) {
                     // Log.DEBUG(constructorParameters[j].getName() + "-" + parameters[j].getName());
                     break;
                 }
             }
-            
+
             if (j == parameterTypes.length) {
                 return constructors[i];
             }
@@ -60,6 +83,13 @@ public class Reflection {
         throw new NoSuchMethodException();
     }
 
+    /**
+     * Finds a nested class within a class that is annotated with a specific annotation.
+     * 
+     * @param parent     the class to search within
+     * @param annotation the annotation to search for
+     * @return the nested class that is annotated with the specified annotation, or null if no such class exists
+     */
     public static Class<?> findClassWithAnnotationWithinClass(Class<?> parent, Class<? extends Annotation> annotation) {
         for (Class<?> clazz : parent.getDeclaredClasses())
             if (clazz.isAnnotationPresent(annotation))
@@ -68,6 +98,14 @@ public class Reflection {
         return null;
     }
 
+    /**
+     * Creates an instance of a class using a constructor that matches a set of parameter types.
+     * 
+     * @param clazz           the class to create an instance of
+     * @param constructorArgs the arguments to pass to the constructor
+     * @return an instance of the class
+     * @throws CannotCreateInstanceException if no constructor matches the parameter types or if an exception occurs while creating the instance
+     */
     public static Object createInstanceOfClass(Class<?> clazz, Object... constructorArgs)
             throws CannotCreateInstanceException {
         Class<?>[] paremeterTypes;
@@ -86,14 +124,24 @@ public class Reflection {
         }
     }
 
+    /**
+     * Returns an array of Class objects representing the parameter types of the given arguments.
+     * @param args the arguments whose parameter types are to be determined
+     * @return an array of Class objects representing the parameter types of the given arguments
+     */
     private static Class<?>[] getParameterTypes(Object... args) {
         Class<?>[] parameterTypes = new Class<?>[args.length];
         for (int i = 0; i < args.length; i++)
-            parameterTypes[i] = Reflection.toSimpleType(args[i].getClass());
+            parameterTypes[i] = Reflection.toPrimitiveType(args[i].getClass());
 
         return parameterTypes;
     }
 
+    /**
+     * Returns a string representation of the parameter types of the given arguments.
+     * @param args the arguments whose parameter types are to be represented as a string
+     * @return a string representation of the parameter types of the given arguments
+     */
     private static String getParameterTypesNames(Object... args) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < args.length - 1; i++) {
@@ -104,7 +152,12 @@ public class Reflection {
         return stringBuilder.toString();
     }
 
-    private static Class<?> toSimpleType(Class<?> clazz) {
+    /**
+     * Returns the primitive type corresponding to the given class, if it exists.
+     * @param clazz the class to be converted to a primitive type
+     * @return the primitive type corresponding to the given class, if it exists; otherwise, the given class
+     */
+    private static Class<?> toPrimitiveType(Class<?> clazz) {
         if (clazz.equals(Integer.class))
             return int.class;
         if (clazz.equals(Long.class))
