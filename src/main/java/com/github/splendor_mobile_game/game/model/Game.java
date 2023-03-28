@@ -78,9 +78,9 @@ public class Game {
 
 
         // Choose random cards from deck.
-        this.cardTier1List = getRandomCards(CardDatabase.getAllCards(CardTier.LEVEL_1), 4);
-        this.cardTier2List = getRandomCards(CardDatabase.getAllCards(CardTier.LEVEL_2), 4);
-        this.cardTier3List = getRandomCards(CardDatabase.getAllCards(CardTier.LEVEL_3), 4);
+        this.cardTier1List = getRandomCards(CardDatabase.getSpecifiedCards(CardTier.LEVEL_1), 4);
+        this.cardTier2List = getRandomCards(CardDatabase.getSpecifiedCards(CardTier.LEVEL_2), 4);
+        this.cardTier3List = getRandomCards(CardDatabase.getSpecifiedCards(CardTier.LEVEL_3), 4);
 
 
         return true;

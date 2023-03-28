@@ -51,10 +51,4 @@ public class SqliteDatabase implements Database {
         // TODO Auto-generated method stub
         return null;
     }
-
-    @Override
-    public void loadCards() {
-        // TODO Auto-generated method stub
-    }
-
 }

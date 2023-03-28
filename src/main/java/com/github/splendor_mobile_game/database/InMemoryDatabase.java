@@ -7,20 +7,12 @@ import com.github.splendor_mobile_game.game.model.Card;
 import java.util.ArrayList;
 import java.util.UUID;
 
-//imports for card loading
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
-import com.github.splendor_mobile_game.game.enums.CardTier;
-import com.github.splendor_mobile_game.game.enums.TokenType;
 
 public class InMemoryDatabase implements Database {
 
     private ArrayList<User> allUsers = new ArrayList<>();
     private ArrayList<Room> allRooms = new ArrayList<>();
-    private ArrayList<Card> allCards = new ArrayList<>();
-
+    
 
     public InMemoryDatabase() {
 
@@ -70,29 +62,5 @@ public class InMemoryDatabase implements Database {
     @Override
     public ArrayList<Room> getAllRooms() {
         return allRooms;
-    }
-
-    @Override
-    public void loadCards() {
-        String csvFile = "CardDatabase.csv";
-        String line = "";
-        String csvSplitBy = ";";
-
-        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-
-            line = br.readLine();   //skipping first line because there are headlines
-
-            while ((line = br.readLine()) != null) {
-
-                String[] data = line.split(csvSplitBy);
-
-                Card card = new Card(CardTier.valueOf(data[0]), Integer.parseInt(data[2]), Integer.parseInt(data[5]), Integer.parseInt(data[4]), Integer.parseInt(data[6]), Integer.parseInt(data[7]), Integer.parseInt(data[3]), TokenType.valueOf(data[1]));
-
-                this.allCards.add(card);
-
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
