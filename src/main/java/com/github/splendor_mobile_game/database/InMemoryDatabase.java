@@ -12,6 +12,7 @@ public class InMemoryDatabase implements Database {
 
     private ArrayList<User> allUsers = new ArrayList<>();
     private ArrayList<Room> allRooms = new ArrayList<>();
+    private ArrayList<Card> allCards = new ArrayList<>();
     
 
     public InMemoryDatabase() {
@@ -62,5 +63,9 @@ public class InMemoryDatabase implements Database {
     @Override
     public ArrayList<Room> getAllRooms() {
         return allRooms;
+    }
+
+    public void loadCards() {
+        this.allCards = CardDatabase.getCards();
     }
 }

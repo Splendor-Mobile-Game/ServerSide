@@ -21,4 +21,6 @@ public interface Database {
     public ArrayList<User> getAllUsers();
 
     public ArrayList<Room> getAllRooms();
+
+    public void loadCards();
 }
