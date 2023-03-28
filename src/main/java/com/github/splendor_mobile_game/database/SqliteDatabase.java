@@ -52,4 +52,9 @@ public class SqliteDatabase implements Database {
         return null;
     }
 
+    @Override
+    public void loadCards() {
+        // TODO Auto-generated method stub
+    }
+
 }
