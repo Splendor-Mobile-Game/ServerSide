@@ -18,7 +18,6 @@ import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
-import com.google.gson.Gson;
 
 @ReactionName("CREATE_ROOM")
 public class CreateRoom extends Reaction {
@@ -143,13 +142,13 @@ public class CreateRoom extends Reaction {
             UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, dataDTO.userDTO.name);
             RoomDataResponse roomDataResponse = new RoomDataResponse(dataDTO.roomDTO.name);
             ResponseData responseData = new ResponseData(userDataResponse, roomDataResponse);
-            ServerMessage response = new ServerMessage(receivedMessage.getMessageContextId(), ServerMessageType.CREATE_ROOM_RESPONSE, Result.OK, responseData);
+            ServerMessage serverMessage = new ServerMessage(receivedMessage.getMessageContextId(), ServerMessageType.CREATE_ROOM_RESPONSE, Result.OK, responseData);
 
-            messenger.addMessageToSend(this.connectionHashCode, (new Gson()).toJson(response));
+            messenger.addMessageToSend(this.connectionHashCode, serverMessage);
 
         } catch (Exception e) {
             ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.CREATE_ROOM_RESPONSE, receivedMessage.getMessageContextId());
-            messenger.addMessageToSend(connectionHashCode, errorResponse.ToJson());
+            messenger.addMessageToSend(connectionHashCode, errorResponse);
         }
     }
 

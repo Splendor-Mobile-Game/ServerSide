@@ -17,7 +17,6 @@ import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
-import com.google.gson.Gson;
 
 @ReactionName("JOIN_ROOM")
 public class JoinRoom extends Reaction {
@@ -115,17 +114,17 @@ public class JoinRoom extends Reaction {
             RoomDataResponse roomData = new RoomDataResponse(room.getUuid(), room.getName());
             UserDataResponse userData = new UserDataResponse(dataDTO.userDTO.uuid, user.getName());
             ResponseData responseData = new ResponseData(userData, roomData);
-            ServerMessage responseMessage = new ServerMessage(receivedMessage.getMessageContextId(), ServerMessageType.JOIN_ROOM_RESPONSE, Result.OK, responseData);
+            ServerMessage serverMessage = new ServerMessage(receivedMessage.getMessageContextId(), ServerMessageType.JOIN_ROOM_RESPONSE, Result.OK, responseData);
             
             // Send join information to other players
             for (User u : room.getAllUsers()) {
-                messenger.addMessageToSend(u.getConnectionHasCode(), (new Gson()).toJson(responseMessage));
+                messenger.addMessageToSend(u.getConnectionHasCode(), serverMessage);
             }
 
         } catch(Exception e) {
 
             ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.JOIN_ROOM_RESPONSE, receivedMessage.getMessageContextId());
-            messenger.addMessageToSend(connectionHashCode, errorResponse.ToJson());
+            messenger.addMessageToSend(connectionHashCode, errorResponse);
 
         }
 
