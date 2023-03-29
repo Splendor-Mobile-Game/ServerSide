@@ -36,6 +36,7 @@ public class EnvConfig implements Config {
         this.loadFile(dotEnvPath);
     }
 
+    // TODO: This function can be unit tested
     /**
      * Loads environment variables from the specified file path.
      * @param path the file path to load environment variables from.
@@ -63,6 +64,7 @@ public class EnvConfig implements Config {
         this.logsDir = (String) this.loadValue(dotenv, "LOGS_DIR", String.class, true);
     }
 
+    // TODO: This function can be unit tested
     /**
      * Loads a single environment variable from the specified Dotenv instance.
      * @param dotenv the Dotenv instance to load the environment variable from.

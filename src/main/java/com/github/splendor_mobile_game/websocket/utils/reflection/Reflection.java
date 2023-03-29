@@ -8,6 +8,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 /** A utility class for reflection operations. */
 public class Reflection {
 
+    // TODO: This function can be unit tested
     /**
      * Checks if a class has a default constructor.
      * 
@@ -23,6 +24,7 @@ public class Reflection {
         }
     }
 
+    // TODO: This function can be unit tested
     /**
      * Checks if a class has a constructor with one parameter of a specific type.
      * 
@@ -42,6 +44,7 @@ public class Reflection {
         }
     }
 
+    // TODO: This function can be unit tested
     /**
      * Gets a constructor of a class that matches a set of parameter types.
      * 
@@ -83,6 +86,7 @@ public class Reflection {
         throw new NoSuchMethodException();
     }
 
+    // TODO: This function can be unit tested
     /**
      * Finds a nested class within a class that is annotated with a specific annotation.
      * 
@@ -98,6 +102,7 @@ public class Reflection {
         return null;
     }
 
+    // TODO: This function can be unit tested
     /**
      * Creates an instance of a class using a constructor that matches a set of parameter types.
      * 
@@ -124,6 +129,7 @@ public class Reflection {
         }
     }
 
+    // TODO: This function can be unit tested
     /**
      * Returns an array of Class objects representing the parameter types of the given arguments.
      * @param args the arguments whose parameter types are to be determined
@@ -137,6 +143,7 @@ public class Reflection {
         return parameterTypes;
     }
 
+    // TODO: This function can be unit tested
     /**
      * Returns a string representation of the parameter types of the given arguments.
      * @param args the arguments whose parameter types are to be represented as a string
@@ -152,6 +159,7 @@ public class Reflection {
         return stringBuilder.toString();
     }
 
+    // TODO: This function can be unit tested
     /**
      * Returns the primitive type corresponding to the given class, if it exists.
      * @param clazz the class to be converted to a primitive type

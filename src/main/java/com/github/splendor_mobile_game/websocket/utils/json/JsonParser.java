@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
  */
 public class JsonParser {
 
+    // TODO: This function can be unit tested
     /**
      * Parses a JSON string into a Java object of the specified class.
      *

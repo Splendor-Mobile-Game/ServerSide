@@ -89,6 +89,7 @@ public class ReactionManager {
         this.loadReactions(classes);
     }
 
+    // TODO: This function can be unit tested
     /**
     * Loads reactions from the provided list of classes. Only classes that implement the Reaction interface and have a
     * public constructor with a single int parameter will be loaded.
