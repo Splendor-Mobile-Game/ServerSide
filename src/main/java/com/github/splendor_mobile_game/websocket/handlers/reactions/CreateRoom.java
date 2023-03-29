@@ -22,8 +22,8 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 @ReactionName("CREATE_ROOM")
 public class CreateRoom extends Reaction {
 
-    public CreateRoom(int connectionHashCode, UserMessage receivedMessage, Messenger messenger, Database database) {
-        super(connectionHashCode, receivedMessage, messenger, database);
+    public CreateRoom(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
+        super(connectionHashCode, userMessage, messenger, database);
     }
 
     public static class RoomDTO {
@@ -126,7 +126,7 @@ public class CreateRoom extends Reaction {
     @Override
     public void react() {
 
-        DataDTO dataDTO = (DataDTO) receivedMessage.getData();
+        DataDTO dataDTO = (DataDTO) userMessage.getData();
 
         try {
             validateData(dataDTO, this.database);
@@ -142,12 +142,12 @@ public class CreateRoom extends Reaction {
             UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, dataDTO.userDTO.name);
             RoomDataResponse roomDataResponse = new RoomDataResponse(dataDTO.roomDTO.name);
             ResponseData responseData = new ResponseData(userDataResponse, roomDataResponse);
-            ServerMessage serverMessage = new ServerMessage(receivedMessage.getMessageContextId(), ServerMessageType.CREATE_ROOM_RESPONSE, Result.OK, responseData);
+            ServerMessage serverMessage = new ServerMessage(userMessage.getMessageContextId(), ServerMessageType.CREATE_ROOM_RESPONSE, Result.OK, responseData);
 
             messenger.addMessageToSend(this.connectionHashCode, serverMessage);
 
         } catch (Exception e) {
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.CREATE_ROOM_RESPONSE, receivedMessage.getMessageContextId());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.CREATE_ROOM_RESPONSE, userMessage.getMessageContextId());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
         }
     }

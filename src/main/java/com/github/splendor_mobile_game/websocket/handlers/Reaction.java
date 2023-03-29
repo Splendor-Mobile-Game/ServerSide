@@ -8,11 +8,11 @@ public abstract class Reaction {
     protected int connectionHashCode;
     protected Messenger messenger;
     protected Database database;
-    protected UserMessage receivedMessage;
+    protected UserMessage userMessage;
 
     public Reaction(int connectionHashCode, UserMessage receivedMessage, Messenger messenger, Database database) {
         this.connectionHashCode = connectionHashCode;
-        this.receivedMessage = receivedMessage;
+        this.userMessage = receivedMessage;
         this.messenger = messenger;
         this.database = database;
     }

@@ -21,8 +21,8 @@ import com.github.splendor_mobile_game.websocket.response.Result;
 @ReactionName("JOIN_ROOM")
 public class JoinRoom extends Reaction {
 
-    public JoinRoom(int connectionHashCode, UserMessage receivedMessage, Messenger messenger, Database database) {
-        super(connectionHashCode, receivedMessage, messenger, database);
+    public JoinRoom(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
+        super(connectionHashCode, userMessage, messenger, database);
     }
 
 
@@ -100,7 +100,7 @@ public class JoinRoom extends Reaction {
     @Override
     public void react() {
 
-        DataDTO dataDTO = (DataDTO) receivedMessage.getData();
+        DataDTO dataDTO = (DataDTO) userMessage.getData();
 
         try {
 
@@ -114,7 +114,7 @@ public class JoinRoom extends Reaction {
             RoomDataResponse roomData = new RoomDataResponse(room.getUuid(), room.getName());
             UserDataResponse userData = new UserDataResponse(dataDTO.userDTO.uuid, user.getName());
             ResponseData responseData = new ResponseData(userData, roomData);
-            ServerMessage serverMessage = new ServerMessage(receivedMessage.getMessageContextId(), ServerMessageType.JOIN_ROOM_RESPONSE, Result.OK, responseData);
+            ServerMessage serverMessage = new ServerMessage(userMessage.getMessageContextId(), ServerMessageType.JOIN_ROOM_RESPONSE, Result.OK, responseData);
             
             // Send join information to other players
             for (User u : room.getAllUsers()) {
@@ -123,7 +123,7 @@ public class JoinRoom extends Reaction {
 
         } catch(Exception e) {
 
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.JOIN_ROOM_RESPONSE, receivedMessage.getMessageContextId());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.JOIN_ROOM_RESPONSE, userMessage.getMessageContextId());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
 
         }

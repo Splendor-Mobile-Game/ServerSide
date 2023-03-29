@@ -3,6 +3,8 @@ package com.github.splendor_mobile_game.database;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 
@@ -52,4 +54,20 @@ public class SqliteDatabase implements Database {
         return null;
     }
 
+    @Override
+    public void loadCards() {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public ArrayList<Card> getAllCards() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ArrayList<Card> getSpecifiedCards(CardTier tier) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

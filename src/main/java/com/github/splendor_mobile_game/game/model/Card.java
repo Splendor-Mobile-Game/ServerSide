@@ -7,7 +7,7 @@ public class Card {
 
     private final CardTier cardTier;
 
-    private TokenType additionalToken = null;
+    private final TokenType additionalToken;
 
     private final int points;
 
@@ -18,7 +18,7 @@ public class Card {
     private final int onyxCost;
 
 
-    public Card(CardTier cardTier, int points, int emeraldCost, int sapphireCost, int rubyCost, int diamondCost, int onyxCost) {
+    public Card(CardTier cardTier, int points, int emeraldCost, int sapphireCost, int rubyCost, int diamondCost, int onyxCost, TokenType token) {
         this.cardTier     = cardTier;
         this.points       = points;
         this.emeraldCost  = emeraldCost;
@@ -26,6 +26,7 @@ public class Card {
         this.rubyCost     = rubyCost;
         this.diamondCost  = diamondCost;
         this.onyxCost     = onyxCost;
+        this.additionalToken = token;
     }
 
     public CardTier getCardTier() {
@@ -36,10 +37,10 @@ public class Card {
         return additionalToken;
     }
 
-    public Card setAdditionalToken(TokenType tokenType) {
-        this.additionalToken = tokenType;
-        return this;
-    }
+    // public Card setAdditionalToken(TokenType tokenType) {
+    //     this.additionalToken = tokenType;
+    //     return this;
+    // }
 
     public int getPoints() {
         return points;
@@ -63,5 +64,10 @@ public class Card {
 
     public int getOnyxCost() {
         return onyxCost;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s %d %d %d %d %d %d %s", cardTier.toString(), points, emeraldCost, sapphireCost,  rubyCost,  diamondCost,  onyxCost,  additionalToken.toString());
     }
 }

@@ -6,22 +6,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.github.splendor_mobile_game.database.InMemoryDatabase;
+import com.github.splendor_mobile_game.websocket.communication.ConnectionHandlerWithoutDefaultConstructorException;
+import com.github.splendor_mobile_game.websocket.communication.WebSocketSplendorServer;
 import com.github.splendor_mobile_game.websocket.config.Config;
 import com.github.splendor_mobile_game.websocket.config.EnvConfig;
 import com.github.splendor_mobile_game.websocket.config.exceptions.InvalidConfigException;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionManager;
 import com.github.splendor_mobile_game.websocket.handlers.connection.ConnectionHandlerImpl;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateRoom;
+import com.github.splendor_mobile_game.websocket.handlers.reactions.DebugGetRandomCard;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.JoinRoom;
 import com.github.splendor_mobile_game.websocket.utils.Log;
-import com.github.splendor_mobile_game.database.InMemoryDatabase;
-import com.github.splendor_mobile_game.websocket.communication.ConnectionHandlerWithoutDefaultConstructorException;
-import com.github.splendor_mobile_game.websocket.communication.WebSocketSplendorServer;
 
 public class App {
 
 	private static List<Class<?>> classesWithReactions = new ArrayList<>(Arrays.asList(
-		CreateRoom.class, JoinRoom.class
+		CreateRoom.class, JoinRoom.class, DebugGetRandomCard.class
 	));
 
 	public static void main(String[] args) throws InvalidConfigException, IOException, 

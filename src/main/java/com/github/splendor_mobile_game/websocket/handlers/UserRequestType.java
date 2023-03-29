@@ -4,5 +4,6 @@ public enum UserRequestType {
     
     CREATE_ROOM,
     JOIN_ROOM,
+    DEBUG_GET_RANDOM_CARD,
 
 }
