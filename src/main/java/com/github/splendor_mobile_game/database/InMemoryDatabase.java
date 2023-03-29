@@ -73,7 +73,7 @@ public class InMemoryDatabase implements Database {
 
     @Override
     public void loadCards() {
-        String csvFile = "src/main/java/com/github/splendor_mobile_game/database/CardDatabase.csv";
+        String csvFile = "resources/CardDatabase.csv";
         String line = "";
         String csvSplitBy = ";";
 
