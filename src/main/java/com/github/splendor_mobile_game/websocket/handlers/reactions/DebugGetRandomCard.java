@@ -1,7 +1,6 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import com.github.splendor_mobile_game.database.Database;
-import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
@@ -24,6 +23,11 @@ public class DebugGetRandomCard extends Reaction {
         // Get some card from the database
         // Card card = database.getRandomCard();
 
+        //database.loadCards();
+        //database.getSpecifiedCards(CardTier.LEVEL_1);
+        //database.getSpecifiedCards(CardTier.LEVEL_2);
+        //database.getSpecifiedCards(CardTier.LEVEL_3);
+
         Gson gson = new Gson();
 
         JsonObject data = new JsonObject();
@@ -38,6 +42,7 @@ public class DebugGetRandomCard extends Reaction {
         response.add("data", data);
 
         messenger.addMessageToSend(this.connectionHashCode, gson.toJson(response));
+
 
     }
 
