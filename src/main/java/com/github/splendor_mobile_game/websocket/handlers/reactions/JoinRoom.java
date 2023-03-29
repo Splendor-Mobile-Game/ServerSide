@@ -19,6 +19,7 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// TODO: This whole class can be unit tested
 @ReactionName("JOIN_ROOM")
 public class JoinRoom extends Reaction {
 
