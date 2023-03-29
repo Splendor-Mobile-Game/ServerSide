@@ -73,7 +73,7 @@ public class InMemoryDatabase implements Database {
 
     @Override
     public void loadCards() {
-        String csvFile = "CardDatabase.csv";
+        String csvFile = "src/main/java/com/github/splendor_mobile_game/database/CardDatabase.csv";
         String line = "";
         String csvSplitBy = ";";
 
@@ -85,7 +85,8 @@ public class InMemoryDatabase implements Database {
 
                 String[] data = line.split(csvSplitBy);
 
-                Card card = new Card(CardTier.valueOf(data[0]),
+                try {
+                    Card card = new Card(CardTier.valueOf(data[0]),
                                     Integer.parseInt(data[2]),
                                     Integer.parseInt(data[5]),
                                     Integer.parseInt(data[4]),
@@ -93,8 +94,11 @@ public class InMemoryDatabase implements Database {
                                     Integer.parseInt(data[7]),
                                     Integer.parseInt(data[3]),
                                     TokenType.valueOf(data[1]));
-
-                this.allCards.add(card);
+                                    
+                    this.allCards.add(card);
+                } catch (IllegalArgumentException e) {
+                    Log.ERROR(e.getMessage());
+                }
 
             }
 

@@ -65,4 +65,9 @@ public class Card {
     public int getOnyxCost() {
         return onyxCost;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s %d %d %d %d %d %d %s", cardTier.toString(), points, emeraldCost, sapphireCost,  rubyCost,  diamondCost,  onyxCost,  additionalToken.toString());
+    }
 }

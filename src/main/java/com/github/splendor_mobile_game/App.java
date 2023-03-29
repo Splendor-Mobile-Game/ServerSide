@@ -13,6 +13,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionManager;
 import com.github.splendor_mobile_game.websocket.handlers.connection.ConnectionHandlerImpl;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateRoom;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateServer;
+import com.github.splendor_mobile_game.websocket.handlers.reactions.DebugGetRandomCard;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.JoinRoom;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.github.splendor_mobile_game.database.InMemoryDatabase;
@@ -22,7 +23,7 @@ import com.github.splendor_mobile_game.websocket.communication.WebSocketSplendor
 public class App {
 
         private static List<Class<?>> classesWithReactions = new ArrayList<>(Arrays.asList(
-                        CreateServer.class, CreateRoom.class, JoinRoom.class));
+                        CreateServer.class, CreateRoom.class, JoinRoom.class, DebugGetRandomCard.class));
 
         public static void main(String[] args)
                         throws InvalidConfigException, IOException,
