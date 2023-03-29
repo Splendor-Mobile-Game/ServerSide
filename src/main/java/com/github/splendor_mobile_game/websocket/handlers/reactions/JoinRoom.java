@@ -1,29 +1,28 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
-import com.github.splendor_mobile_game.database.Database;
-import com.github.splendor_mobile_game.game.model.Room;
-import com.github.splendor_mobile_game.game.model.User;
-import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
-import com.github.splendor_mobile_game.websocket.handlers.DataClass;
-import com.github.splendor_mobile_game.websocket.handlers.Messenger;
-import com.github.splendor_mobile_game.websocket.handlers.Reaction;
-import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
-import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
-import com.github.splendor_mobile_game.websocket.response.ResponseType;
-import com.github.splendor_mobile_game.websocket.response.Result;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.model.Room;
+import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
+import com.github.splendor_mobile_game.websocket.communication.UserMessage;
+import com.github.splendor_mobile_game.websocket.handlers.DataClass;
+import com.github.splendor_mobile_game.websocket.handlers.Messenger;
+import com.github.splendor_mobile_game.websocket.handlers.Reaction;
+import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
+import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
+import com.github.splendor_mobile_game.websocket.response.Result;
+
 @ReactionName("JOIN_ROOM")
 public class JoinRoom extends Reaction {
 
-    public JoinRoom(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
-        super(connectionHashCode, receivedMessage, messenger, database);
+    public JoinRoom(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
+        super(connectionHashCode, userMessage, messenger, database);
     }
 
 
@@ -64,10 +63,44 @@ public class JoinRoom extends Reaction {
      }
      */
 
+     public class ResponseData {
+        public UserDataResponse user;
+        public RoomDataResponse room;
+
+        public ResponseData(UserDataResponse user, RoomDataResponse room) {
+            this.user = user;
+            this.room = room;
+        }
+        
+    }
+
+    public class UserDataResponse {
+        public UUID uuid;
+        public String name;
+
+        public UserDataResponse(UUID uuid, String name) {
+            this.uuid = uuid;
+            this.name = name;
+        }
+        
+    }
+
+    public class RoomDataResponse {
+        public UUID uuid;
+        public String name;
+        
+        public RoomDataResponse(UUID uuid, String name) {
+            this.uuid = uuid;
+            this.name = name;
+        }
+
+    }
+
+
     @Override
     public void react() {
 
-        DataDTO dataDTO = (DataDTO) receivedMessage.getData();
+        DataDTO dataDTO = (DataDTO) userMessage.getData();
 
         try {
 
@@ -78,34 +111,20 @@ public class JoinRoom extends Reaction {
             database.addUser(user);
             room.joinGame(user);
 
-            JsonObject userJson = new JsonObject();
-            userJson.addProperty("uuid", dataDTO.userDTO.uuid.toString());
-            userJson.addProperty("name", user.getName());
-
-            JsonObject roomJson = new JsonObject();
-            roomJson.addProperty("uuid", room.getUuid().toString());
-            roomJson.addProperty("name", room.getName());
-
-            JsonObject data = new JsonObject();
-            data.add("user", userJson);
-            data.add("room", roomJson);
-
-            JsonObject response = new JsonObject();
-            response.addProperty("messageContextId", receivedMessage.getMessageContextId());
-            response.addProperty("type", ResponseType.JOIN_ROOM_RESPONSE.toString());
-            response.addProperty("result", Result.OK.toString());
-            response.add("data", data);
-
+            RoomDataResponse roomData = new RoomDataResponse(room.getUuid(), room.getName());
+            UserDataResponse userData = new UserDataResponse(dataDTO.userDTO.uuid, user.getName());
+            ResponseData responseData = new ResponseData(userData, roomData);
+            ServerMessage serverMessage = new ServerMessage(userMessage.getMessageContextId(), ServerMessageType.JOIN_ROOM_RESPONSE, Result.OK, responseData);
             
             // Send join information to other players
             for (User u : room.getAllUsers()) {
-                messenger.addMessageToSend(u.getConnectionHasCode(), (new Gson()).toJson(response));
+                messenger.addMessageToSend(u.getConnectionHasCode(), serverMessage);
             }
 
         } catch(Exception e) {
 
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ResponseType.JOIN_ROOM_RESPONSE, receivedMessage.getMessageContextId());
-            messenger.addMessageToSend(connectionHashCode, errorResponse.ToJson());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.JOIN_ROOM_RESPONSE, userMessage.getMessageContextId());
+            messenger.addMessageToSend(connectionHashCode, errorResponse);
 
         }
 

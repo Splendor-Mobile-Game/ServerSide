@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.github.splendor_mobile_game.database.Database;
-import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
+import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.github.splendor_mobile_game.websocket.utils.reflection.Reflection;
 
@@ -125,7 +125,7 @@ public class ReactionManager {
 
             // Check if the class has a public constructor with appropriate parameters
             try {
-                Reflection.getConstructorWithParameters(clazz, int.class, ReceivedMessage.class, Messenger.class, Database.class);
+                Reflection.getConstructorWithParameters(clazz, int.class, UserMessage.class, Messenger.class, Database.class);
             } catch (NoSuchMethodException e) {
                 Log.ERROR(clazz.getName() + " was not registered as the Reaction, because it doesn't" 
                     + " implement constructor with `int`, `ReceivedMessage`, `Messenger` and `Database`, but it's required!"

@@ -1,11 +1,11 @@
 package com.github.splendor_mobile_game.game.model;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.TokenType;
-
-import java.util.ArrayList;
-import java.util.Random;
 
 public class Game {
 

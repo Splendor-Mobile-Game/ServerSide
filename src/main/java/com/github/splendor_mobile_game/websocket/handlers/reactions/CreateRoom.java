@@ -8,41 +8,103 @@ import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
-import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
+import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
+import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
-import com.github.splendor_mobile_game.websocket.response.ResponseType;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 @ReactionName("CREATE_ROOM")
 public class CreateRoom extends Reaction {
 
-    public CreateRoom(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
-        super(connectionHashCode, receivedMessage, messenger, database);
+    public CreateRoom(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
+        super(connectionHashCode, userMessage, messenger, database);
     }
 
-    private class RoomDTO {
-
+    public static class RoomDTO {
         public String name;
         public String password;
+
+        public RoomDTO(String name, String password) {
+            this.name = name;
+            this.password = password;
+        }
+
     }
 
-    private class UserDTO {
+    public static class UserDTO {
         public UUID uuid;
         public String name;
+
+        public UserDTO(UUID uuid, String name) {
+            this.uuid = uuid;
+            this.name = name;
+        }
+
     }
 
     @DataClass
-    public class DataDTO {
+    public static class DataDTO {
         public RoomDTO roomDTO;
         public UserDTO userDTO;
+
+        public DataDTO(RoomDTO roomDTO, UserDTO userDTO) {
+            this.roomDTO = roomDTO;
+            this.userDTO = userDTO;
+        }
+
     }
+
+    public class ResponseData {
+        public UserDataResponse user;
+        public RoomDataResponse room;
+
+        public ResponseData(UserDataResponse user, RoomDataResponse room) {
+            this.user = user;
+            this.room = room;
+        }
+        
+    }
+
+    public class UserDataResponse {
+        public UUID id;
+        public String name;
+
+        public UserDataResponse(UUID id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+        
+    }
+
+    public class RoomDataResponse {
+        public String name;
+
+        public RoomDataResponse(String name) {
+            this.name = name;
+        }
+
+    }
+
+    // {
+    //     "messageContextId":"80bdc250-5365-4caf-8dd9-a33e709a0116",
+    //     "type":"CREATE_ROOM_RESPONSE",
+    //     "result":"OK",
+    //     "data":{
+    //         "user":{
+    //             "id":"f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
+    //             "name":"James"
+    //         },
+    //         "room":{
+    //             "name":"TajnyPokoj"
+    //         }
+    //     }
+    // }
 
     /*   ----> EXAMPLE USER REQUEST <----
     {
@@ -64,7 +126,7 @@ public class CreateRoom extends Reaction {
     @Override
     public void react() {
 
-        DataDTO dataDTO = (DataDTO) receivedMessage.getData();
+        DataDTO dataDTO = (DataDTO) userMessage.getData();
 
         try {
             validateData(dataDTO, this.database);
@@ -77,30 +139,16 @@ public class CreateRoom extends Reaction {
             database.addUser(user);
             database.addRoom(room);
 
+            UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, dataDTO.userDTO.name);
+            RoomDataResponse roomDataResponse = new RoomDataResponse(dataDTO.roomDTO.name);
+            ResponseData responseData = new ResponseData(userDataResponse, roomDataResponse);
+            ServerMessage serverMessage = new ServerMessage(userMessage.getMessageContextId(), ServerMessageType.CREATE_ROOM_RESPONSE, Result.OK, responseData);
 
-            JsonObject roomJson = new JsonObject();
-            roomJson.addProperty("uuid", room.getUuid().toString());
-            roomJson.addProperty("name", dataDTO.roomDTO.name);
-
-            JsonObject userJson = new JsonObject();
-            userJson.addProperty("uuid", dataDTO.userDTO.uuid.toString());
-            userJson.addProperty("name", dataDTO.userDTO.name);
-
-            JsonObject data = new JsonObject();
-            data.add("room", roomJson);
-            data.add("user", userJson);
-
-            JsonObject response = new JsonObject();
-            response.addProperty("messageContextId", receivedMessage.getMessageContextId());
-            response.addProperty("type", ResponseType.CREATE_ROOM_RESPONSE.toString());
-            response.addProperty("result", Result.OK.toString());
-            response.add("data", data);
-
-            messenger.addMessageToSend(this.connectionHashCode, (new Gson()).toJson(response));
+            messenger.addMessageToSend(this.connectionHashCode, serverMessage);
 
         } catch (Exception e) {
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ResponseType.CREATE_ROOM_RESPONSE, receivedMessage.getMessageContextId());
-            messenger.addMessageToSend(connectionHashCode, errorResponse.ToJson());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.CREATE_ROOM_RESPONSE, userMessage.getMessageContextId());
+            messenger.addMessageToSend(connectionHashCode, errorResponse);
         }
     }
 

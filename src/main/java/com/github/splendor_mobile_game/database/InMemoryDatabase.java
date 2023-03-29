@@ -1,17 +1,17 @@
 package com.github.splendor_mobile_game.database;
 
-import com.github.splendor_mobile_game.game.model.Room;
-import com.github.splendor_mobile_game.game.model.User;
-import com.github.splendor_mobile_game.websocket.utils.Log;
-import com.github.splendor_mobile_game.game.enums.CardTier;
-import com.github.splendor_mobile_game.game.enums.TokenType;
-import com.github.splendor_mobile_game.game.model.Card;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
+
+import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.enums.TokenType;
+import com.github.splendor_mobile_game.game.model.Card;
+import com.github.splendor_mobile_game.game.model.Room;
+import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.websocket.utils.Log;
 
 
 public class InMemoryDatabase implements Database {
@@ -19,7 +19,6 @@ public class InMemoryDatabase implements Database {
     private ArrayList<User> allUsers = new ArrayList<>();
     private ArrayList<Room> allRooms = new ArrayList<>();
     private ArrayList<Card> allCards = new ArrayList<>();
-    
 
     public InMemoryDatabase() {
 

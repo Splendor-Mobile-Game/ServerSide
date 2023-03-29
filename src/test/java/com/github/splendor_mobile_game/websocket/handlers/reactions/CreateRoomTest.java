@@ -10,7 +10,7 @@ import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.database.InMemoryDatabase;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.InvalidReceivedMessage;
-import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
+import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
@@ -54,7 +54,7 @@ public class CreateRoomTest {
         Log.DEBUG(message);
 
         int clientConnectionHashCode = 714239;
-        ReceivedMessage receivedMessage = new ReceivedMessage(message);
+        UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
         Database database = new InMemoryDatabase();
         CreateRoom createRoom = new CreateRoom(clientConnectionHashCode, receivedMessage, messenger, database);
