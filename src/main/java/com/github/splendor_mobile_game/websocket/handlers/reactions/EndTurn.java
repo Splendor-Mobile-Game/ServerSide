@@ -1,9 +1,10 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import com.github.splendor_mobile_game.database.Database;
-import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
+import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
+import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 
 /**
  * Player sends this request if now is their turn, they did some action and they now want to end the turn.
@@ -47,11 +48,11 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
  * }
  * 
  */
+@ReactionName("END_TURN")
 public class EndTurn extends Reaction {
 
-    public EndTurn(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
-        super(connectionHashCode, receivedMessage, messenger, database);
-        //TODO Auto-generated constructor stub
+    public EndTurn(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
+        super(connectionHashCode, userMessage, messenger, database);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import com.github.splendor_mobile_game.database.Database;
-import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
+import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
@@ -55,8 +55,8 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 @ReactionName("SEND_CHAT_MESSAGE")
 public class SendChatMessage extends Reaction {
 
-    public SendChatMessage(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
-        super(connectionHashCode, receivedMessage, messenger, database);
+    public SendChatMessage(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
+        super(connectionHashCode, userMessage, messenger, database);
     }
 
     @Override
