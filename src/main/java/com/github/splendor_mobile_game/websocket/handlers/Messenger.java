@@ -7,6 +7,7 @@ import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.google.gson.Gson;
 
+// TODO: Java doc required
 public class Messenger {
     private List<Message> messages = new ArrayList<>();
 

@@ -2,6 +2,7 @@ package com.github.splendor_mobile_game.websocket.communication;
 
 import com.github.splendor_mobile_game.websocket.utils.CustomException;
 
+// TODO: Java doc required
 public class InvalidReceivedMessage extends CustomException {
 
     public InvalidReceivedMessage() {

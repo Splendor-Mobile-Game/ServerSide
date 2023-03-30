@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+// TODO: Java doc required
 public class Log {
 
     private static boolean savingToFile;

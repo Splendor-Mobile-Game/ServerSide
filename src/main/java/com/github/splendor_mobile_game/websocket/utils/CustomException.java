@@ -10,34 +10,17 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  */
 public class CustomException extends RuntimeException {
 
-    /** Constructs a new custom exception with no message or cause. */
     public CustomException() {
     }
 
-    /**
-     * Constructs a new custom exception with the specified detail message.
-     *
-     * @param message the detail message
-     */
     public CustomException(String message) {
         super(message);
     }
 
-    /**
-     * Constructs a new custom exception with the specified cause.
-     *
-     * @param cause the cause
-     */
     public CustomException(Throwable cause) {
         super(cause);
     }
 
-    /**
-     * Constructs a new custom exception with the specified detail message and cause.
-     *
-     * @param message the detail message
-     * @param cause the cause
-     */
     public CustomException(String message, Throwable cause) {
         super(message, cause);
     }

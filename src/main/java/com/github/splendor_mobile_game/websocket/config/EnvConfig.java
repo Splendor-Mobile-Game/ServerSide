@@ -117,49 +117,26 @@ public class EnvConfig implements Config {
         return parsedValue;
     }
 
-    /**
-     * Returns the port number to use for the network connection.
-     * @return The port number.
-     */
     @Override
     public int getPort() {
         return this.port;
     }
 
-    /**
-     * Returns the maximum number of seconds to wait for a response from the server
-     * before assuming the connection has been lost.
-     * @return The maximum number of seconds.
-     */
     @Override
     public int getConnectionLostTimeoutSec() {
         return this.connectionLostTimeoutSec;
     }
 
-    /**
-     * Returns the interval in milliseconds at which to send ping messages
-     * to the client to check the status of the connection.
-     * @return The ping interval in milliseconds.
-     */
     @Override
     public int getPingIntervalMs() {
         return this.pingIntervalMs;
     }
 
-    /**
-     * Returns the interval in milliseconds at which to check the status of the connection
-     * to the client and trigger any necessary actions if the connection has been lost.
-     * @return The connection check interval in milliseconds.
-     */
     @Override
     public int getConnectionCheckIntervalMs() {
         return this.connectionCheckIntervalMs;
     }
 
-    /**
-     * Returns the directory where log files should be stored.
-     * @return The log directory as a String.
-     */
     @Override
     public String getLogsDir() {
         return this.logsDir;

@@ -8,6 +8,7 @@ import com.github.splendor_mobile_game.websocket.utils.json.Optional;
 import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonParserException;
 import com.google.gson.Gson;
 
+// TODO: Java doc required
 public class UserMessage {
     private UUID messageContextId;
     private UserRequestType type;

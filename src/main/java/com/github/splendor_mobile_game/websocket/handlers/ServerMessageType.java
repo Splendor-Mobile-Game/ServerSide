@@ -1,5 +1,6 @@
 package com.github.splendor_mobile_game.websocket.handlers;
 
+// TODO: Java doc required
 public enum ServerMessageType {
 
     UNKNOWN,
