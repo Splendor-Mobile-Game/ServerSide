@@ -14,11 +14,12 @@ import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Message;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
+import com.github.splendor_mobile_game.websocket.handlers.UserRequestType;
 import com.github.splendor_mobile_game.websocket.handlers.connection.ConnectionHandler;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
+import com.github.splendor_mobile_game.websocket.utils.CustomException;
 import com.github.splendor_mobile_game.websocket.utils.Log;
-import com.github.splendor_mobile_game.websocket.utils.reflection.CannotCreateInstanceException;
 import com.github.splendor_mobile_game.websocket.utils.reflection.Reflection;
 
 public class WebSocketSplendorServer extends WebSocketServer {
@@ -103,24 +104,18 @@ public class WebSocketSplendorServer extends WebSocketServer {
     @Override
     public void onMessage(WebSocket webSocket, String message) {
         Log.TRACE("Message received from (" +
-                webSocket.hashCode() + ":" + webSocket.getRemoteSocketAddress() + "): " +
-                message);
+            webSocket.hashCode() + ":" + webSocket.getRemoteSocketAddress() + "): " + message
+        );
 
         // Parse the message
-        ReceivedMessage receivedMessage;
-        try {
-            receivedMessage = new ReceivedMessage(message);
-        } catch (InvalidReceivedMessage e) {
-            Log.ERROR(e.toString());
-            webSocket.send(e.toJsonResponse());
-            return;
-        }
+        UserMessage receivedMessage = new UserMessage(message);
 
         // Get the type of the message
-        String type = receivedMessage.getType();
+        UserRequestType type = receivedMessage.getType();
 
         // Find appropriate reaction to the message type received
-        Class<? extends Reaction> reactionClass = reactions.get(type);
+        // TODO: It could be more readable if we use some ReactionRepository with get method that would throws exception instead of null
+        Class<? extends Reaction> reactionClass = reactions.get(type.toString());
 
         if (reactionClass == null) {
             Log.TRACE("Unknown reaction type: " + type);
@@ -132,33 +127,21 @@ public class WebSocketSplendorServer extends WebSocketServer {
         // Parse the data given in the message
         Class<?> dataClass = Reflection.findClassWithAnnotationWithinClass(reactionClass, DataClass.class);
 
-        if (dataClass != null) {
-            try {
-                receivedMessage.parseDataToClass(dataClass);
-            } catch (InvalidReceivedMessage e) {
-                Log.ERROR(e.toString());
-                webSocket.send(e.toJsonResponse());
-                return;
-            }
-        }
-
         if (dataClass == null && receivedMessage.getData() != null) {
             Log.WARNING(webSocket.hashCode() + 
                 " provided data to the message, but the message type reaction class doesn't require any data!"
             );
+        } else {
+            receivedMessage.parseDataToClass(dataClass);
         }
 
+        // Create messenger class for storing messages
         Messenger messenger = new Messenger();
 
         // Create instance of this reactionClass
-        Reaction reactionInstance;
-        try {
-            reactionInstance = (Reaction) Reflection.createInstanceOfClass(reactionClass, webSocket.hashCode(), receivedMessage, messenger, this.database);
-        } catch (CannotCreateInstanceException e) {
-            Log.ERROR(e.getMessage());
-            e.printStackTrace();
-            return;
-        }
+        Reaction reactionInstance = (Reaction) Reflection.createInstanceOfClass(
+            reactionClass, webSocket.hashCode(), receivedMessage, messenger, this.database
+        );
 
         // Use it to react appropriately
         reactionInstance.react();
@@ -169,8 +152,7 @@ public class WebSocketSplendorServer extends WebSocketServer {
             String text = messageToSend.getMessage();
             receiver.send(text);
             Log.DEBUG("Message sent to (" +
-                webSocket.hashCode() + ":" + webSocket.getRemoteSocketAddress() + "): " +
-                text
+                webSocket.hashCode() + ":" + webSocket.getRemoteSocketAddress() + "): " + text
             );
         }
 
@@ -178,10 +160,17 @@ public class WebSocketSplendorServer extends WebSocketServer {
 
     @Override
     public void onError(WebSocket webSocket, Exception e) {
-        Log.ERROR("Server error: " + e.getMessage());
-        // TODO: Messaage type and message id
-        ErrorResponse response = new ErrorResponse(Result.ERROR, e.getMessage());
-        webSocket.send(response.ToJson());
+        
+        // TODO: Message type and message id in the response should be included if possible
+        if (e.getClass().isAssignableFrom(CustomException.class)) {
+            CustomException exception = (CustomException) e;
+            Log.ERROR(exception.toString());
+            webSocket.send(exception.toJsonResponse());
+        } else {
+            Log.ERROR("Server error: " + e.getMessage());
+            ErrorResponse response = new ErrorResponse(Result.ERROR, e.getMessage());
+            webSocket.send(response.ToJson());
+        }
     }
 
 }

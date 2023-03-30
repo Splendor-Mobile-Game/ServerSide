@@ -1,6 +1,8 @@
 package com.github.splendor_mobile_game.websocket.utils.reflection;
 
-public class CannotCreateInstanceException extends Exception {
+import com.github.splendor_mobile_game.websocket.utils.CustomException;
+
+public class CannotCreateInstanceException extends CustomException {
     public CannotCreateInstanceException() {
     }
 

@@ -1,11 +1,11 @@
 package com.github.splendor_mobile_game.game.model;
 
-import com.github.splendor_mobile_game.database.CardDatabase;
-import com.github.splendor_mobile_game.game.enums.CardTier;
-import com.github.splendor_mobile_game.game.enums.TokenType;
-
 import java.util.ArrayList;
 import java.util.Random;
+
+import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.enums.TokenType;
 
 public class Game {
 
@@ -22,8 +22,10 @@ public class Game {
 
     private int maxTokenStack = 7; // Default number of each token type
 
-    public Game() {
+    private Database database;
 
+    public Game(Database database) {
+        this.database = database;
     }
 
 
@@ -78,9 +80,9 @@ public class Game {
 
 
         // Choose random cards from deck.
-        this.cardTier1List = getRandomCards(CardDatabase.getAllCards(CardTier.LEVEL_1), 4);
-        this.cardTier2List = getRandomCards(CardDatabase.getAllCards(CardTier.LEVEL_2), 4);
-        this.cardTier3List = getRandomCards(CardDatabase.getAllCards(CardTier.LEVEL_3), 4);
+        this.cardTier1List = getRandomCards(database.getSpecifiedCards(CardTier.LEVEL_1), 4);
+        this.cardTier2List = getRandomCards(database.getSpecifiedCards(CardTier.LEVEL_2), 4);
+        this.cardTier3List = getRandomCards(database.getSpecifiedCards(CardTier.LEVEL_3), 4);
 
 
         return true;
