@@ -60,7 +60,7 @@ public class JsonParser {
                 stringBuilder.append("Missing required field: " + field.getName() + "\n");
         }
 
-        if (!stringBuilder.isEmpty())
+        if (stringBuilder.length() != 0)
             throw new JsonMissingFieldException(stringBuilder.toString().strip());
     
         // Parse the JsonObject into an object of the specified class

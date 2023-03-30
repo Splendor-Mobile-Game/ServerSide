@@ -14,6 +14,7 @@ import com.github.splendor_mobile_game.websocket.config.exceptions.InvalidConfig
 import com.github.splendor_mobile_game.websocket.handlers.ReactionManager;
 import com.github.splendor_mobile_game.websocket.handlers.connection.SimpleConnectionChecker;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateRoom;
+import com.github.splendor_mobile_game.websocket.handlers.reactions.DebugGetRandomCard;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.JoinRoom;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
@@ -22,7 +23,7 @@ public class App {
 
 	/** A list of classes that contain reactions to messages from clients. */
 	private static List<Class<?>> classesWithReactions = new ArrayList<>(Arrays.asList(
-		CreateRoom.class, JoinRoom.class
+		CreateRoom.class, JoinRoom.class, DebugGetRandomCard.class
 	));
 
 	/**
