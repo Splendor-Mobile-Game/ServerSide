@@ -128,10 +128,13 @@ public class Game {
             list.add(i);
         }
 
+
         Random rand = new Random();
         while(list.size() > 0) {
             int index = rand.nextInt(list.size()); // Get random index
             array.add(cardList.get(index));
+            //If the card was drawn it would not be used at any time by the Game class (I think xd)
+            cardList.remove(index);
             System.out.println("Selected: " + list.remove(index));
         }
 
