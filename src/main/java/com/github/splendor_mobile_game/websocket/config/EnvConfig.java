@@ -19,7 +19,7 @@ public class EnvConfig implements Config {
     private String logsDir;
 
     public EnvConfig() throws InvalidConfigException {
-        this("./env");
+        this("./.env");
     }
 
     public EnvConfig(String dotEnvPath) throws InvalidConfigException {
