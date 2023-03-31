@@ -45,6 +45,11 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      }
  * }
  * 
+ * 
+ * This reactions is also responsible for detecting when the game ends.
+ * Remember, game ends when one player has more that 15 points
+ * and we need to complete the dull turn so every player has done the same amount of actions.
+ * 
  */
 @ReactionName("END_TURN")
 public class EndTurn extends Reaction {
