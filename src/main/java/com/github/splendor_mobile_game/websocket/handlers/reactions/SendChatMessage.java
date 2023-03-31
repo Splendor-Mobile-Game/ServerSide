@@ -25,9 +25,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "type": "CHAT_MESSAGE_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
- *          "player": {
- *              "uuid": "288e001c-6510-4c88-8580-2dbe7aa2bfff"
- *          }
+ *          "playerUuid": "288e001c-6510-4c88-8580-2dbe7aa2bfff",
  *          "message": "Hello my friends! How are you?"
  *      }
  * }

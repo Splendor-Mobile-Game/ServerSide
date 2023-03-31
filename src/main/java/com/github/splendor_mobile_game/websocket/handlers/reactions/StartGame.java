@@ -35,33 +35,33 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *              "gold": 5,
  *          },
  *          "aristocrats": [
- *             {
- *                  "id": "81b7249e-d1f0-4030-a59d-0217ee3ac161",
- *                  "prestige": 3,
- *                  "redMinesRequired": 4,
- *                  "blueMinesRequired": 4
- *              },
  *              {
- *                  "id": "8bceab0a-d67f-44b2-ad4f-cda592cb4b13",
- *                  "prestige": 3,
- *                  "greenMinesRequired": 2,
- *                  "whiteMinesRequired": 3,
- *                  "blackMinesRequired": 3
- *              },
- *              ...
- *              ...
- *              ...
+ *                   "uuid": "81b7249e-d1f0-4030-a59d-0217ee3ac161",
+ *                   "prestige": 3,
+ *                   "redMinesRequired": 4,
+ *                   "blueMinesRequired": 4
+ *               },
+ *               {
+ *                   "uuid": "8bceab0a-d67f-44b2-ad4f-cda592cb4b13",
+ *                   "prestige": 3,
+ *                   "greenMinesRequired": 2,
+ *                   "whiteMinesRequired": 3,
+ *                   "blackMinesRequired": 3
+ *               },
+ *               ...
+ *               ...
+ *               ...
  *          ],
  *          "firstLevelMinesCards": [
  *              {
- *                  "id": "0ba9cba8-3bc0-42fe-b24f-25d7b52fcd2c",
+ *                  "uuid": "0ba9cba8-3bc0-42fe-b24f-25d7b52fcd2c",
  *                  "prestige": 2,
  *                  "bonusColor": "green",
  *                  "greenTokensRequired": 2,
  *                  "whiteTokensRequired": 3
  *              },
  *              {
- *                  "id": "e1df722d-a64c-424c-856e-431748bb358f",
+ *                  "uuid": "e1df722d-a64c-424c-856e-431748bb358f",
  *                  "prestige": 0,
  *                  "bonusColor": "white",
  *                  "blackTokensRequired": 3

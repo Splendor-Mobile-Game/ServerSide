@@ -15,9 +15,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "KICK",
  *      "data": {
- *          "player": {
- *              "uuid": "521ba578-f989-4488-b3ee-91b043abbc83"
- *          }
+ *          "playerUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
  *      }
  * }
  * 
@@ -27,9 +25,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "type": "KICK_ANNONUCEMENT",
  *      "result": "OK",
  *      "data": {
- *          "player": {
- *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
- *          }
+ *          "playerUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
  *      }
  * }
  * 

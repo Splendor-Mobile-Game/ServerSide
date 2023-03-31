@@ -23,7 +23,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "type": "PASS_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
- * 
+ *          "playerUuid": "9fc1845e-5469-458d-9893-07d390908479"
  *      }
  * }
  *

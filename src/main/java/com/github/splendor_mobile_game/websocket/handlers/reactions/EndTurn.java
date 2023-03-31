@@ -22,9 +22,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "type": "NEW_TURN_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
- *          "nextPlayer": {
- *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
- *          }
+ *          "nextPlayerUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
  *      }
  * }
  *
