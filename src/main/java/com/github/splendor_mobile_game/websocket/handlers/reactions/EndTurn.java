@@ -7,16 +7,16 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 
 /**
- * Player sends this request if now is their turn, they did some action and they now want to end the turn.
- * In reaction server sends to all players message of type `NEW_TURN_ANNOUNCEMENT` announcing that this has happend and selecting player for the next turn.
+ * This reaction handles the request sent by a player to end their turn. The server sends a message of type `NEW_TURN_ANNOUNCEMENT` to all players, announcing the end of the current turn and selecting the player for the next turn. If a player sends an invalid request, the server sends a response only to the requester.
  * 
- * Example of user request
+ * Example of a valid user request:
+ * 
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "END_TURN"
  * }
  * 
- * Example of server announcement
+ * Example of a successful server announcement:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "NEW_TURN_ANNOUNCEMENT",
@@ -26,29 +26,22 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      }
  * }
  *
- * Some points about implementation:
- * - We know what player has sent this message because we have their WebSocket's connectionHashCode.
- * - Probably there is need to implement some logic in the model package. 
- *   We need to store information about who's turn's right now and what's the order.
+ * Implementation details:
+ * - The player who sent the message is identified by their WebSocket's connectionHashCode.
+ * - The implementation should include logic to store information about whose turn it is and the order of turns.
  * 
- * Also.. Consider user is sending dodgy request, because they wants to break the software.
- * They send message when this is not their turn right now or they aren't in any game.
- * Please think of every situation, because this will be tested by testers.
+ * This reaction is also responsible for detecting when the game ends. The game ends when one player has more than 15 points and the server needs to complete the current turn so that every player has done the same amount of actions.
  * 
- * In such invalid request you should send message only to the requester. For example
+ * If a player sends an invalid request, such as when it is not their turn or they are not in any game, the server sends a response only to the requester. For example:
+ *
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "END_TURN_RESPONSE",
- *      "result": "FAILURE"
- *      "data": {
- *          "error": "You cannot end turn if it's not your turn!"
- *      }
+ *     "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *     "type": "END_TURN_RESPONSE",
+ *     "result": "FAILURE",
+ *     "data": {
+ *         "error": "You cannot end turn if it's not your turn!"
+ *     }
  * }
- * 
- * 
- * This reactions is also responsible for detecting when the game ends.
- * Remember, game ends when one player has more that 15 points
- * and we need to complete the dull turn so every player has done the same amount of actions.
  * 
  */
 @ReactionName("END_TURN")

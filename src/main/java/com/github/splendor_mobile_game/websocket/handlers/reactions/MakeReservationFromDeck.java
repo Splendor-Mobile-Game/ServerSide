@@ -7,10 +7,10 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 
 /**
- * Player sends this request if now is their turn and they want to make reservation.
- * In reaction server sends to all players message of type `RESERVATION_FROM_DECK_ANNOUNCEMENT` announcing that this has happend.
+ * This request is sent by a player who wants to make a reservation from the deck during their turn.
+ * Upon receiving this request, the server sends an announcement message of type `RESERVATION_FROM_DECK_ANNOUNCEMENT` to all players in the game, indicating that a reservation has been made.
  * 
- * Example of user request
+ * Example of a user request:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "MAKE_RESERVATION_FROM_DECK",
@@ -19,10 +19,9 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      }
  * }
  * 
- * We have to send different messages to the requester and to the other players
- * because this move is the only thing in the game that is hidden from other players
+ * Since this move is hidden from other players, different messages must be sent to the requester and other players in the game.
  * 
- * Example of server announcement to the other players in the room
+ * Example of a server announcement to other players in the game:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "RESERVATION_FROM_TABLE_ANNOUNCEMENT",
@@ -36,7 +35,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      }
  * }
  * 
- * Example of server announcement to the requester 
+ * Example of a server announcement to the requester:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "RESERVATION_FROM_TABLE_RESPONSE",
@@ -52,22 +51,19 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      }
  * }
  *
- * Some points about implementation:
- * - We know what player has sent this message because we have their WebSocket's connectionHashCode.
- * - Of course we need to update game's state in database.
+ * Implementation considerations:
+ * - The player who sent the message can be identified by their WebSocket's connectionHashCode.
+ * - The game's state must be updated in the database.
  * 
- * Also.. Consider user is sending dodgy request, because they wants to cheat.
- * They send message when this is not their turn right now, they aren't in any game,
- * they already did some other action etc.
- * Please think of every situation, because this will be tested by testers.
+ * It is also important to consider that a user may send a fraudulent request in an attempt to cheat. For example, they may send a message when it is not their turn, they are not in any game, or they have already taken another action. All such scenarios must be anticipated and handled appropriately.
  * 
- * In such invalid request you should send message only to the requester. For example
+ * In the case of an invalid request, a message should be sent only to the requester, such as:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "MAKE_RESERVATION_FROM_DECK_RESPONSE",
  *      "result": "FAILURE"
  *      "data": {
- *          "error": "You cannot make reservation if it's not your turn!"
+ *          "error": "You cannot make a reservation if it's not your turn!"
  *      }
  * }
  * 

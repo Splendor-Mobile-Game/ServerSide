@@ -7,10 +7,10 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 
 /**
- * Player sends this request if now is their turn and they want to make reservation.
- * In reaction server sends to all players message of type `RESERVATION_FROM_TABLE_ANNOUNCEMENT` announcing that this has happend.
- * 
- * Example of user request
+ * Reaction for handling player's request to make a reservation from the table. The player can only make a reservation if it is their turn.
+ * Upon receiving a valid request, the server sends an announcement to all players in the game.
+ *
+ * Example of a valid request:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "MAKE_RESERVATION_FROM_TABLE",
@@ -18,8 +18,8 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *          "cardUuid": "b38df21a-6e7b-4537-a20b-ad797a394350"
  *      }
  * }
- * 
- * Example of server announcement
+ *
+ * Example of a successful server announcement:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "RESERVATION_FROM_TABLE_ANNOUNCEMENT",
@@ -30,25 +30,21 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      }
  * }
  *
- * Some points about implementation:
- * - We know what player has sent this message because we have their WebSocket's connectionHashCode.
- * - Of course we need to update game's state in database.
- * 
- * Also.. Consider user is sending dodgy request, because they wants to cheat.
- * They send message when this is not their turn right now, they aren't in any game,
- * they already did some other action etc.
- * Please think of every situation, because this will be tested by testers.
- * 
- * In such invalid request you should send message only to the requester. For example
+ * Implementation details:
+ * - The player's WebSocket connectionHashCode is used to identify the player.
+ * - The game state in the database needs to be updated.
+ *
+ * If the request is invalid (e.g. player is not in a game, it is not their turn, etc.), the server should only send a response to the requester.
+ *
+ * Example of an invalid request response:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "MAKE_RESERVATION_FROM_TABLE_RESPONSE",
- *      "result": "FAILURE"
+ *      "result": "FAILURE",
  *      "data": {
- *          "error": "You cannot make reservation if it's not your turn!"
+ *          "error": "You cannot make a reservation if it is not your turn!"
  *      }
  * }
- * 
  */
 @ReactionName("MAKE_RESERVATION_FROM_TABLE")
 public class MakeReservationFromTable extends Reaction {

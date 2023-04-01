@@ -7,17 +7,15 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 
 /**
- * Player sends this request only if they didn't do any other action and it's impossible 
- * by the rules of game to do any action. This will mark the player that they did an action.
- * In reaction server sends to all players message of type `PASS_ANNOUNCEMENT` announcing that this has happend.
- * 
- * Example of user request
+ * This class handles the `PASS` reaction. Players can send this request only if they haven't done any other action and it's impossible by the rules of the game to do any action. This will mark the player that they did an action. In reaction, the server sends to all players a message of type `PASS_ANNOUNCEMENT` announcing that this has happened.
+ *
+ * Example of user request:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "PASS"
  * }
- * 
- * Example of server announcement
+ *
+ * Example of server announcement:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "PASS_ANNOUNCEMENT",
@@ -27,26 +25,22 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      }
  * }
  *
- * Some points about implementation:
- * - We know what player has sent this message because we have their WebSocket's connectionHashCode.
- * - Probably there is need to implement some logic in the model package. 
- *   We need to store information if a player has done some action.
- * 
- * Also.. Consider user is sending dodgy request, because they wants to break the software.
- * They send message when this is not their turn right now or they aren't in any game,
- * trying to pass, but they can do other action.
- * Please think of every situation, because this will be tested by testers.
- * 
- * In such invalid request you should send message only to the requester. For example
+ * Implementation details:
+ * - The player who sent the message is identified by their WebSocket's connectionHashCode.
+ * - You need to modify some game classes, so they store information if the players has taken some action
+ *
+ * Description of bad requests:
+ * - If a player sends a message when it's not their turn or they aren't in any game, trying to pass, but they can do another action, the server should send a response only to the requester.
+ *
+ * Example of a bad request:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "PASS_RESPONSE",
- *      "result": "FAILURE"
+ *      "result": "FAILURE",
  *      "data": {
  *          "error": "You cannot pass this turn, you can do some action!"
  *      }
  * }
- * 
  */
 @ReactionName("PASS")
 public class Pass extends Reaction {

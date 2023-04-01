@@ -7,10 +7,10 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 
 /**
- * Players sends this request if now is their turn and they want to buy mine (card) that is on the table.
- * In reaction server sends to all players message of type `BUY_MINE_ANNONUCEMENT` announcing that this has happend.
+ * Players send this request when it is their turn and they want to buy a mine card that is on the table.
+ * The server responds with a message of type `BUY_MINE_ANNOUNCEMENT` to all players, announcing that the purchase has been made.
  * 
- * Example of user request
+ * Example of user request:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "BUY_MINE",
@@ -19,10 +19,10 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      }
  * }
  * 
- * Example of server announcement
+ * Example of server announcement:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "BUY_MINE_ANNONUCEMENT",
+ *      "type": "BUY_MINE_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
  *          "playerUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
@@ -30,26 +30,25 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      }
  * }
  *
- * Some points about implementation:
- * - We know what player has sent this message because we have their WebSocket's connectionHashCode.
- * - uuid of card is the same that should have be send at the start of the game
- * - Of course, we should update state of the game on the server (subtract appropriate amount of tokens for the purchase, add prestige points and add the bonus point)
+ * Implementation details:
+ * - The player who sent the message is identified by their WebSocket's connectionHashCode.
+ * - The UUID of the card to be purchased is the same as the one sent at the start of the game.
+ * - The state of the game on the server should be updated to reflect the purchase (subtract the appropriate amount of tokens, add prestige points, and add the bonus point).
  * 
- * Also.. Consider user is sending dodgy request, because they wants to cheat. 
- * They send message to buy mine while is a turn of the other player.
- * Or they send message to buy, but they don't have enough amount of tokens.
- * Please think of every situation, because this will be tested by testers.
+ * Invalid requests:
+ * - If the player sends a message to buy a mine when it is not their turn, the server should respond with a message of type `BUY_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that they cannot buy a mine when it is not their turn.
+ * - If the player sends a message to buy a mine but does not have enough tokens, the server should respond with a message of type `BUY_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that they do not have enough tokens to make the purchase.
+ * - If the player sends a message to buy a mine that is not available on the table, the server should respond with a message of type `BUY_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that the requested mine is not available on the table.
  * 
- * In such invalid request you should send message only to the requester. For example
+ * Example of invalid request response (it should be sent only to the requester):
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "BUY_MINE_RESPONSE",
- *      "result": "FAILURE"
+ *      "result": "FAILURE",
  *      "data": {
- *          "error": "You cannot buy mine when this is not you turn!"
+ *          "error": "You cannot buy a mine when it is not your turn!"
  *      }
  * }
- * 
  */
 @ReactionName("BUY_MINE")
 public class BuyMine extends Reaction {

@@ -7,20 +7,17 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 
 /**
- * Player sends this request if they are the host and wants to start the game.
- * In reaction server sends to all players message of type `GAME_STARTED_ANNOUNCEMENT` announcing that this has happend.
- * This announcement message have all the information about the initial state of the game.
- * For example all the cards that were drawed from the decks and now on the table, aristocrats, number of tokens on the table etc.
- * Quickly after that, server sends message `NEW_TURN_ANNOUNCEMENT` with the player which turn is first.
- * See `EndTurn` reaction class that has to implement the same message as well.
- * 
- * Example of user request
+ * Reaction class for handling the "START_GAME" message sent by the host player to start the game.
+ * Sends a "GAME_STARTED_ANNOUNCEMENT" message to all players with the initial state of the game.
+ * Also sends a "NEW_TURN_ANNOUNCEMENT" message with the player whose turn is first.
+ *
+ * Example of user request:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "START_GAME"
  * }
- * 
- * Example of server announcement
+ *
+ * Example of server announcement in successful case:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "GAME_STARTED_ANNOUNCEMENT",
@@ -74,21 +71,25 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *          "thirdLevelMinesCards": [], // The same as above
  *      }
  * }
- * 
- * Also.. Consider user is sending dodgy request, because they wants to break the software.
- * They send message when they aren't in any game or they aren't the host.
- * Please think of every situation, because this will be tested by testers.
- * 
- * In such invalid request you should send message only to the requester. For example
+ *
+ * Example of implementation details:
+ * - Check if the user is the host and is in a game.
+ * - If yes, get the initial state of the game from the database.
+ * - Send a "GAME_STARTED_ANNOUNCEMENT" message to all players with the initial state of the game.
+ * - Send a "NEW_TURN_ANNOUNCEMENT" message with the player whose turn is first.
+ *
+ * Description of bad requests:
+ * - If the user is not the host or is not in any game, send a "START_GAME_RESPONSE" message with a failure result and an error message.
+ *
+ * Example of response to the bad request:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "START_GAME_RESPONSE",
- *      "result": "FAILURE"
+ *      "result": "FAILURE",
  *      "data": {
- *          "error": "You cannot start game if you're not the host of this game!"
+ *          "error": "You cannot start the game if you are not the host or if you are not in any game!"
  *      }
  * }
- * 
  */
 @ReactionName("START_GAME")
 public class StartGame extends Reaction {
