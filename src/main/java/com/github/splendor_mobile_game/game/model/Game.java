@@ -16,9 +16,15 @@ public class Game {
     private TokenList onyxTokens;
     private TokenList goldTokens;
 
-    private ArrayList<Card> cardTier1List = new ArrayList<>();
-    private ArrayList<Card> cardTier2List = new ArrayList<>();
-    private ArrayList<Card> cardTier3List = new ArrayList<>();
+    //There are always 4 cards revealed to players for each Tier
+    private ArrayList<Card> revealedCardTier1List = new ArrayList<>(4);
+    private ArrayList<Card> revealedCardTier2List = new ArrayList<>(4);
+    private ArrayList<Card> revealedCardTier3List = new ArrayList<>(4);
+
+    //Deck meaning list of cards that was not drawn
+    private ArrayList<Card> deckTier1 = new ArrayList<>();
+    private ArrayList<Card> deckTier2 = new ArrayList<>();
+    private ArrayList<Card> deckTier3 = new ArrayList<>();
 
     private int maxTokenStack = 7; // Default number of each token type
 
@@ -78,12 +84,16 @@ public class Game {
         this.onyxTokens     = createTokenList(TokenType.ONYX);
         this.goldTokens     = createTokenList(TokenType.GOLD_JOKER);
 
+        //Get ALL cards from database
+        this.deckTier1= database.getSpecifiedCards(CardTier.LEVEL_1);
+        this.deckTier2= database.getSpecifiedCards(CardTier.LEVEL_2);
+        this.deckTier3= database.getSpecifiedCards(CardTier.LEVEL_3);
+
 
         // Choose random cards from deck.
-        this.cardTier1List = getRandomCards(database.getSpecifiedCards(CardTier.LEVEL_1), 4);
-        this.cardTier2List = getRandomCards(database.getSpecifiedCards(CardTier.LEVEL_2), 4);
-        this.cardTier3List = getRandomCards(database.getSpecifiedCards(CardTier.LEVEL_3), 4);
-
+        this.revealedCardTier1List = getRandomCards( this.deckTier1, 4);
+        this.revealedCardTier2List = getRandomCards( this.deckTier2, 4);
+        this.revealedCardTier3List = getRandomCards( this.deckTier3, 4);
 
         return true;
     }
@@ -114,12 +124,12 @@ public class Game {
 
     /**
      *
-     * @param cardList -> Collection of all objects from we will draw a card
+     * @param deck -> Collection of not revealed cards for a given Tier from we will draw a card
      * @param amount -> Amount of elements we want to draw
      * @return ArrayList<Card> -> Collection of randomly picked cards
      */
-    private ArrayList<Card> getRandomCards(ArrayList<Card> cardList, int amount) {
-        int size = cardList.size();
+    private ArrayList<Card> getRandomCards(ArrayList<Card> deck, int amount) {
+        int size = deck.size();
         if (size < amount) return null;
 
         ArrayList<Card> array = new ArrayList<>();
@@ -132,13 +142,11 @@ public class Game {
         Random rand = new Random();
         while(list.size() > 0) {
             int index = rand.nextInt(list.size()); // Get random index
-            array.add(cardList.get(index));
-            //If the card was drawn it would not be used at any time by the Game class (I think xd)
-            cardList.remove(index);
+            array.add(deck.get(index));
+            //If the card was drawn it would not be used at any time by the Game class
+            deck.remove(index);
             System.out.println("Selected: " + list.remove(index));
         }
-
-        //TODO We can't pick one card few times. Verification of already chosen cards needs to be added
 
         return array;
     }
