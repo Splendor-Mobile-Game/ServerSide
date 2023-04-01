@@ -3,7 +3,6 @@ package com.github.splendor_mobile_game.websocket.utils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -19,8 +18,9 @@ public class Log {
         ERROR
     }
 
-    private static EnumSet<LogLevel> fileLogLevels;
-    private static EnumSet<LogLevel> consoleLogLevels;
+    private static EnumSet<LogLevel> fileLogLevels=EnumSet.allOf(LogLevel.class);
+    private static EnumSet<LogLevel> consoleLogLevels=EnumSet.allOf(LogLevel.class);
+    
 
     private static boolean savingToFile;
     // private String logsDir;
@@ -33,10 +33,7 @@ public class Log {
         Path path = Path.of(logsDir, formattedTime + ".txt");
         Log.fileToWrite = new File(path.toString());
         Log.fileToWrite.getParentFile().mkdirs();
-        Log.savingToFile = true;
-
-        fileLogLevels=EnumSet.allOf(LogLevel.class);
-        consoleLogLevels=EnumSet.allOf(LogLevel.class);
+        Log.savingToFile = true;  
     }
 
     public static boolean AddFileLogLevel(LogLevel LogLevel){
