@@ -25,11 +25,6 @@ public class CustomException extends RuntimeException {
         super(message, cause);
     }
 
-    /**
-     * Returns a string representation of this custom exception, including the message and cause.
-     *
-     * @return a string representation of this custom exception
-     */
     @Override
     public String toString() {
         return this.getMessage() + "\n" + this.getCause().getMessage();

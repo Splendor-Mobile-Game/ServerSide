@@ -17,7 +17,6 @@ import com.github.splendor_mobile_game.websocket.handlers.connection.ConnectionC
  */
 public class WebSocketConnectionChecker implements Runnable {
 
-    /** The WebSocket connection this instance is monitoring. */
     private WebSocket connection;
 
     /** A Timer object used to send ping messages at regular intervals. */
