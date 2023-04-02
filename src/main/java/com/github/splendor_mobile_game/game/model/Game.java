@@ -18,10 +18,7 @@ public class Game {
     private TokenList onyxTokens;
     private TokenList goldTokens;
 
-    //There are always cards revealed to players for each Tier
     private Map<CardTier,Deck> revealedDecks = new HashMap<CardTier,Deck>();
-
-    //Deck meaning list of cards that was not drawn
     private Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>();
 
     private int maxTokenStack = 7; // Default number of each token type
