@@ -4,6 +4,7 @@ public enum ResponseType {
 
     UNKNOWN,
     CREATE_ROOM_RESPONSE,
-    JOIN_ROOM_RESPONSE;
+    JOIN_ROOM_RESPONSE, 
+    LEAVE_ROOM_RESPONSE;
 
 }
