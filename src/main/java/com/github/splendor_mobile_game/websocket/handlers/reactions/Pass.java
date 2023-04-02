@@ -12,7 +12,10 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  * Example of user request:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "PASS"
+ *      "type": "PASS",
+ *      "data": {
+ *         "userUuid": "9fc1845e-5469-458d-9893-07d390908479"
+ *      }
  * }
  *
  * Example of server announcement:
@@ -21,7 +24,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "type": "PASS_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
- *          "playerUuid": "9fc1845e-5469-458d-9893-07d390908479"
+ *          "userUuid": "9fc1845e-5469-458d-9893-07d390908479"
  *      }
  * }
  *

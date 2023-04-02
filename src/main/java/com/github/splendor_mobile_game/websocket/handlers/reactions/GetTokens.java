@@ -45,6 +45,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "GET_TOKENS",
  *      "data": {
+ *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
  *          "tokensChange": {
  *              "red": 1,
  *              "blue": 1,
@@ -61,7 +62,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "type": "GET_TOKENS_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
- *          "playerUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
+ *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
  *          "tokensChange": {
  *              "red": 1,
  *              "blue": 1,

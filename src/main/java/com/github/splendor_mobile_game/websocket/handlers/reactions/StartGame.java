@@ -14,7 +14,10 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  * Example of user request:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "START_GAME"
+ *      "type": "START_GAME",
+ *      "data": {
+ *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *      }
  * }
  *
  * Example of server announcement in successful case:

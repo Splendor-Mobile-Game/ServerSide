@@ -7,6 +7,11 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 
 /**
+ *
+ *  ------------- IMPORTANT ------------------
+ *  #### THIS CLASS IS ADDITIONAL. IT IS NOT REQUIRED TO KEEP GAME WORKING PROPERLY
+ *  ------------- IMPORTANT ------------------
+ *
  * Players sends this request if they are the host of the game and they want to kick other player from the lobby.
  * In reaction server sends to all players message of type `KICK_ANNONUCEMENT` announcing that this has happend.
  * 
@@ -15,7 +20,8 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "KICK",
  *      "data": {
- *          "playerUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
+ *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
+ *          "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
  *      }
  * }
  * 
@@ -25,7 +31,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "type": "KICK_ANNONUCEMENT",
  *      "result": "OK",
  *      "data": {
- *          "playerUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *          "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
  *      }
  * }
  * 

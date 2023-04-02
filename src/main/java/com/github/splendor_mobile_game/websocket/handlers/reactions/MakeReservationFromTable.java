@@ -15,6 +15,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "MAKE_RESERVATION_FROM_TABLE",
  *      "data": {
+ *          "userUuid": "01901b0e-a78b-4a65-bbd3-0065948dc127",
  *          "cardUuid": "b38df21a-6e7b-4537-a20b-ad797a394350"
  *      }
  * }
@@ -25,7 +26,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "type": "RESERVATION_FROM_TABLE_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
- *          "playerUuid": "9978b2ba-f3e5-4e23-818a-879b0adcfe9a",
+ *          "userUuid": "9978b2ba-f3e5-4e23-818a-879b0adcfe9a",
  *          "cardUuid": "a59cabab-6dac-44c7-ae53-ad8e22936f2c"
  *      }
  * }

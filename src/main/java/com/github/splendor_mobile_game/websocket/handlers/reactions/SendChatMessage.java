@@ -7,6 +7,11 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 
 /**
+ *  ------------- IMPORTANT ------------------
+ *  #### THIS CLASS IS ADDITIONAL. IT IS NOT REQUIRED TO KEEP GAME WORKING PROPERLY
+ *  ------------- IMPORTANT ------------------
+ *
+ *
  * Player sends this request if they wants to send chat message to the other players in the same room.
  * In reaction server sends to all players message of type `CHAT_MESSAGE_ANNOUNCEMENT` announcing that this has happend.
  * 
@@ -15,6 +20,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "SEND_CHAT_MESSAGE",
  *      "data": {
+ *          "userUuid": "288e001c-6510-4c88-8580-2dbe7aa2bfff",
  *          "message": "Hello my friends! How are you?"
  *      }
  * }
@@ -25,7 +31,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "type": "CHAT_MESSAGE_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
- *          "playerUuid": "288e001c-6510-4c88-8580-2dbe7aa2bfff",
+ *          "userUuid": "288e001c-6510-4c88-8580-2dbe7aa2bfff",
  *          "message": "Hello my friends! How are you?"
  *      }
  * }

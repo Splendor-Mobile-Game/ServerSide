@@ -14,6 +14,9 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "END_TURN"
+ *      "data": {
+ *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *      }
  * }
  * 
  * Example of a successful server announcement:
@@ -22,7 +25,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "type": "NEW_TURN_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
- *          "nextPlayerUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *          "nextUserUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
  *      }
  * }
  *
