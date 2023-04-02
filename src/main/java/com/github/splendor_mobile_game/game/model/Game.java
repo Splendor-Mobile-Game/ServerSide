@@ -1,11 +1,13 @@
 package com.github.splendor_mobile_game.game.model;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.TokenType;
+import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
 
@@ -16,15 +18,11 @@ public class Game {
     private TokenList onyxTokens;
     private TokenList goldTokens;
 
-    //There are always 4 cards revealed to players for each Tier
-    private ArrayList<Card> revealedCardTier1List = new ArrayList<>(4);
-    private ArrayList<Card> revealedCardTier2List = new ArrayList<>(4);
-    private ArrayList<Card> revealedCardTier3List = new ArrayList<>(4);
+    //There are always cards revealed to players for each Tier
+    private Map<CardTier,Deck> revealedDecks = new HashMap<CardTier,Deck>();
 
     //Deck meaning list of cards that was not drawn
-    private ArrayList<Card> deckTier1 = new ArrayList<>();
-    private ArrayList<Card> deckTier2 = new ArrayList<>();
-    private ArrayList<Card> deckTier3 = new ArrayList<>();
+    private Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>();
 
     private int maxTokenStack = 7; // Default number of each token type
 
@@ -32,6 +30,15 @@ public class Game {
 
     public Game(Database database) {
         this.database = database;
+        database.loadCards();
+
+        decks.put(CardTier.LEVEL_1,new Deck(CardTier.LEVEL_1));
+        decks.put(CardTier.LEVEL_2,new Deck(CardTier.LEVEL_2));
+        decks.put(CardTier.LEVEL_3,new Deck(CardTier.LEVEL_3));
+
+        revealedDecks.put(CardTier.LEVEL_1,new Deck(CardTier.LEVEL_1));
+        revealedDecks.put(CardTier.LEVEL_2,new Deck(CardTier.LEVEL_2));
+        revealedDecks.put(CardTier.LEVEL_3,new Deck(CardTier.LEVEL_3));
     }
 
 
@@ -65,9 +72,6 @@ public class Game {
 
 
 
-
-
-
     public boolean startGame(Room room) {
         if (room.getPlayerCount() < 2) return false; // Minimum number of players to start a game is 2.
         if (room.getPlayerCount() > 4) return false; // Maximum number of players to start a game is 4.
@@ -84,21 +88,50 @@ public class Game {
         this.onyxTokens     = createTokenList(TokenType.ONYX);
         this.goldTokens     = createTokenList(TokenType.GOLD_JOKER);
 
+        //If startGame will be called second time, we need to clear decks
+        //Maybe will be good idea to make startGame private and call it in constructior?
+        //because why we would call startGame more than once?
+        decks.get(CardTier.LEVEL_1).clear();
+        decks.get(CardTier.LEVEL_2).clear();
+        decks.get(CardTier.LEVEL_3).clear();
+        revealedDecks.get(CardTier.LEVEL_1).clear();
+        revealedDecks.get(CardTier.LEVEL_2).clear();
+        revealedDecks.get(CardTier.LEVEL_3).clear();
+
+
         //Get ALL cards from database
-        this.deckTier1= database.getSpecifiedCards(CardTier.LEVEL_1);
-        this.deckTier2= database.getSpecifiedCards(CardTier.LEVEL_2);
-        this.deckTier3= database.getSpecifiedCards(CardTier.LEVEL_3);
+        decks.get(CardTier.LEVEL_1).addAll(database.getSpecifiedCards(CardTier.LEVEL_1)); 
+        decks.get(CardTier.LEVEL_2).addAll(database.getSpecifiedCards(CardTier.LEVEL_2));
+        decks.get(CardTier.LEVEL_3).addAll(database.getSpecifiedCards(CardTier.LEVEL_3));
 
 
         // Choose random cards from deck.
-        this.revealedCardTier1List = getRandomCards( this.deckTier1, 4);
-        this.revealedCardTier2List = getRandomCards( this.deckTier2, 4);
-        this.revealedCardTier3List = getRandomCards( this.deckTier3, 4);
+        //For testing maxium cards that can be drawn TO BE DELETED
+        revealedDecks.get(CardTier.LEVEL_1).addAll(getRandomCards((CardTier.LEVEL_1),Deck.whatSize(CardTier.LEVEL_1)));
+        revealedDecks.get(CardTier.LEVEL_2).addAll(getRandomCards((CardTier.LEVEL_2),Deck.whatSize(CardTier.LEVEL_2)));
+        revealedDecks.get(CardTier.LEVEL_3).addAll(getRandomCards((CardTier.LEVEL_3),Deck.whatSize(CardTier.LEVEL_3)));
+
+        //Only for testing TO BE DELTED
+        testForDuplicates(CardTier.LEVEL_1);
+        testForDuplicates(CardTier.LEVEL_2);
+        testForDuplicates(CardTier.LEVEL_3);
 
         return true;
     }
 
+    //Only for testing private function TO BE DELETED
+    private void testForDuplicates(CardTier tier){
+        Deck deck1 = revealedDecks.get(CardTier.LEVEL_1);
 
+        for(int i=0;i<deck1.size();++i){
+            for(int j=0;j<deck1.size();++j){
+                if(i!=j){
+                    if(deck1.get(i)==deck1.get(j))
+                        Log.ERROR("Found duplicate at i="+i+" and j="+j);
+                }
+            }
+        }
+    }
 
 
 
@@ -121,35 +154,37 @@ public class Game {
         return tokenList;
     }
 
+    private Card getRandomCard(CardTier tier){
+        return getRandomCards(tier,1).get(0);
+    }
+
 
     /**
      *
-     * @param deck -> Collection of not revealed cards for a given Tier from we will draw a card
+     * @param tier -> Tier of deck from which we draw cards
      * @param amount -> Amount of elements we want to draw
-     * @return ArrayList<Card> -> Collection of randomly picked cards
+     * @return Deck -> Collection of randomly picked cards
      */
-    private ArrayList<Card> getRandomCards(ArrayList<Card> deck, int amount) {
-        int size = deck.size();
-        if (size < amount) return null;
+    public Deck getRandomCards(CardTier tier, int amount) {
+        Deck deck = decks.get(tier);
 
-        ArrayList<Card> array = new ArrayList<>();
-        ArrayList<Integer> list = new ArrayList<>(size);
-        for(int i = 1; i <= size; i++) {
-            list.add(i);
-        }
+        // We draw cards until deck will be empty
+        if ( deck.size() < amount) amount=deck.size();
 
+        Deck array = new Deck(tier);
 
         Random rand = new Random();
-        while(list.size() > 0) {
-            int index = rand.nextInt(list.size()); // Get random index
-            array.add(deck.get(index));
-            //If the card was drawn it would not be used at any time by the Game class
-            deck.remove(index);
-            System.out.println("Selected: " + list.remove(index));
+        for(;amount > 0;amount--) {
+            int index = rand.nextInt(deck.size()); // Get random index
+            Card drawnCard =deck.remove(index);
+            array.add(drawnCard);
+            
+            //globalIndex in that context is an index of InMemoryDatabase.allCards
+            int globalIndex=database.getAllCards().indexOf(drawnCard);          
+            Log.DEBUG("Card has been drawn of tier "+tier.toString()+" and index "+globalIndex);
         }
 
         return array;
     }
-
 
 }
