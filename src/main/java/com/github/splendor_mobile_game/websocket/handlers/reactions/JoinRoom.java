@@ -18,6 +18,7 @@ import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 
+// TODO: This whole class can be unit tested
 @ReactionName("JOIN_ROOM")
 public class JoinRoom extends Reaction {
 
@@ -123,7 +124,7 @@ public class JoinRoom extends Reaction {
 
         } catch(Exception e) {
 
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.JOIN_ROOM_RESPONSE, userMessage.getMessageContextId());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.JOIN_ROOM_RESPONSE, userMessage.getMessageContextId().toString());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
 
         }

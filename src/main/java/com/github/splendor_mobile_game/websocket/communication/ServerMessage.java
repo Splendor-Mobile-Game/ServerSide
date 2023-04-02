@@ -7,6 +7,7 @@ import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.json.JsonParser;
 import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonParserException;
 
+// TODO: Java doc required
 public class ServerMessage {
     private UUID messageContextId;
     private ServerMessageType type;

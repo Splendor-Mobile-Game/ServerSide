@@ -147,7 +147,7 @@ public class CreateRoom extends Reaction {
             messenger.addMessageToSend(this.connectionHashCode, serverMessage);
 
         } catch (Exception e) {
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.CREATE_ROOM_RESPONSE, userMessage.getMessageContextId());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.CREATE_ROOM_RESPONSE, userMessage.getMessageContextId().toString());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
         }
     }
