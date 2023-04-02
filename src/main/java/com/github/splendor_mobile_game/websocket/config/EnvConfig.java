@@ -24,7 +24,7 @@ public class EnvConfig implements Config {
      * @throws InvalidConfigException if there is an error loading the environment file or parsing its contents.
      */
     public EnvConfig() throws InvalidConfigException {
-        this("./env");
+        this("./.env");
     }
 
     /**

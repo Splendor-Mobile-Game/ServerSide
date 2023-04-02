@@ -6,17 +6,25 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.EnumSet;
 
 // TODO: Java doc required
 public class Log {
 
+    public enum LogLevel{
+        TRACE,
+        INFO,
+        DEBUG,
+        WARNING,
+        ERROR
+    }
+
+    private static EnumSet<LogLevel> fileLogLevels=EnumSet.allOf(LogLevel.class);
+    private static EnumSet<LogLevel> consoleLogLevels=EnumSet.allOf(LogLevel.class);
+    
+
     private static boolean savingToFile;
-    // private String logsDir;
     private static File fileToWrite;
-
-    // TODO: Way to set log level and not log messages below threshold
-
-    // TODO: Way to add tag to each log message and then set which messages with which prefix of the tag to display
 
     public static void setSavingLogsToFile(String logsDir) {
         LocalDateTime currentTime = LocalDateTime.now();
@@ -25,7 +33,23 @@ public class Log {
         Path path = Path.of(logsDir, formattedTime + ".txt");
         Log.fileToWrite = new File(path.toString());
         Log.fileToWrite.getParentFile().mkdirs();
-        Log.savingToFile = true;
+        Log.savingToFile = true;  
+    }
+
+    public static boolean AddFileLogLevel(LogLevel LogLevel){
+        return fileLogLevels.add(LogLevel);
+    }
+
+    public static boolean DeleteFileLogLevel(LogLevel LogLevel){
+        return fileLogLevels.remove(LogLevel);
+    }
+
+    public static boolean AddConsoleLogLevel(LogLevel LogLevel){
+        return consoleLogLevels.add(LogLevel);
+    }
+
+    public static boolean DeleteConsoleLogLevel(LogLevel LogLevel){
+        return consoleLogLevels.remove(LogLevel);
     }
 
     private static void saveToFile(String message) {
@@ -55,42 +79,62 @@ public class Log {
         return "[" + Log.getTime() + "]" + " [" + stackTrace[2].getMethodName() + "] [" + location + "] ";
     }
 
-    public static void TRACE(String message) {
+    public static void TRACE(String message) {      
         String logMessage = Log.getHeader() + message;
-        System.out.println(logMessage);
-        if (Log.savingToFile) {
+
+        if(consoleLogLevels.contains(LogLevel.TRACE)){
+            System.out.println(logMessage);
+        }
+        
+        if (fileLogLevels.contains(LogLevel.TRACE) && Log.savingToFile) {
             Log.saveToFile(logMessage);
         }
     }
 
     public static void INFO(String message) {
         String logMessage = Log.getHeader() + message;
-        System.out.println(ColoredText.green(logMessage));
-        if (Log.savingToFile) {
+
+        if(consoleLogLevels.contains(LogLevel.INFO)){
+            System.out.println(ColoredText.green(logMessage));
+        }
+
+        if (fileLogLevels.contains(LogLevel.INFO) && Log.savingToFile) {
             Log.saveToFile(logMessage);
         }
     }
 
     public static void DEBUG(String message) {
         String logMessage = Log.getHeader() + message;
-        System.out.println(ColoredText.blue(logMessage));
-        if (Log.savingToFile) {
+
+        if(consoleLogLevels.contains(LogLevel.DEBUG)){
+            System.out.println(ColoredText.blue(logMessage));
+        }
+        
+        if (fileLogLevels.contains(LogLevel.DEBUG) && Log.savingToFile) {
             Log.saveToFile(logMessage);
         }
     }
 
     public static void WARNING(String message) {
         String logMessage = Log.getHeader() + message;
-        System.out.println(ColoredText.yellow(logMessage));
-        if (Log.savingToFile) {
+        
+        if(consoleLogLevels.contains(LogLevel.WARNING)){
+            System.out.println(ColoredText.yellow(logMessage));
+        }
+        
+        if (fileLogLevels.contains(LogLevel.WARNING) && Log.savingToFile) {
             Log.saveToFile(logMessage);
         }
     }
 
     public static void ERROR(String message) {
         String logMessage = Log.getHeader() + message;
-        System.out.println(ColoredText.red(logMessage));
-        if (Log.savingToFile) {
+        
+        if(consoleLogLevels.contains(LogLevel.ERROR)){
+            System.out.println(ColoredText.red(logMessage));
+        }
+        
+        if (fileLogLevels.contains(LogLevel.ERROR) && Log.savingToFile) {
             Log.saveToFile(logMessage);
         }
     }
