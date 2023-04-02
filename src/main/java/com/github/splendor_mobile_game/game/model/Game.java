@@ -118,7 +118,7 @@ public class Game {
 
     //Only for testing private function TO BE DELETED
     private void testForDuplicates(CardTier tier){
-        Deck deck1 = revealedDecks.get(CardTier.LEVEL_1);
+        Deck deck1 = revealedDecks.get(tier);
 
         for(int i=0;i<deck1.size();++i){
             for(int j=0;j<deck1.size();++j){
