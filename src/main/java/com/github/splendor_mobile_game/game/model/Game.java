@@ -18,7 +18,7 @@ public class Game {
     private TokenList onyxTokens;
     private TokenList goldTokens;
 
-    private Map<CardTier,Deck> revealedDecks = new HashMap<CardTier,Deck>();
+    private Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>();
     private Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>();
 
     private int maxTokenStack = 7; // Default number of each token type
@@ -28,14 +28,6 @@ public class Game {
     public Game(Database database) {
         this.database = database;
         database.loadCards();
-
-        decks.put(CardTier.LEVEL_1,new Deck(CardTier.LEVEL_1));
-        decks.put(CardTier.LEVEL_2,new Deck(CardTier.LEVEL_2));
-        decks.put(CardTier.LEVEL_3,new Deck(CardTier.LEVEL_3));
-
-        revealedDecks.put(CardTier.LEVEL_1,new Deck(CardTier.LEVEL_1));
-        revealedDecks.put(CardTier.LEVEL_2,new Deck(CardTier.LEVEL_2));
-        revealedDecks.put(CardTier.LEVEL_3,new Deck(CardTier.LEVEL_3));
     }
 
 
@@ -85,28 +77,15 @@ public class Game {
         this.onyxTokens     = createTokenList(TokenType.ONYX);
         this.goldTokens     = createTokenList(TokenType.GOLD_JOKER);
 
-        //If startGame will be called second time, we need to clear decks
-        //Maybe will be good idea to make startGame private and call it in constructior?
-        //because why we would call startGame more than once?
-        decks.get(CardTier.LEVEL_1).clear();
-        decks.get(CardTier.LEVEL_2).clear();
-        decks.get(CardTier.LEVEL_3).clear();
-        revealedDecks.get(CardTier.LEVEL_1).clear();
-        revealedDecks.get(CardTier.LEVEL_2).clear();
-        revealedDecks.get(CardTier.LEVEL_3).clear();
-
-
         //Get ALL cards from database
-        decks.get(CardTier.LEVEL_1).addAll(database.getSpecifiedCards(CardTier.LEVEL_1)); 
-        decks.get(CardTier.LEVEL_2).addAll(database.getSpecifiedCards(CardTier.LEVEL_2));
-        decks.get(CardTier.LEVEL_3).addAll(database.getSpecifiedCards(CardTier.LEVEL_3));
-
-
-        // Choose random cards from deck.
-        //For testing maxium cards that can be drawn TO BE DELETED
-        revealedDecks.get(CardTier.LEVEL_1).addAll(getRandomCards((CardTier.LEVEL_1),Deck.whatSize(CardTier.LEVEL_1)));
-        revealedDecks.get(CardTier.LEVEL_2).addAll(getRandomCards((CardTier.LEVEL_2),Deck.whatSize(CardTier.LEVEL_2)));
-        revealedDecks.get(CardTier.LEVEL_3).addAll(getRandomCards((CardTier.LEVEL_3),Deck.whatSize(CardTier.LEVEL_3)));
+        decks.put(CardTier.LEVEL_1,new Deck(CardTier.LEVEL_1,database.getSpecifiedCards(CardTier.LEVEL_1)));
+        decks.put(CardTier.LEVEL_2,new Deck(CardTier.LEVEL_2,database.getSpecifiedCards(CardTier.LEVEL_2)));
+        decks.put(CardTier.LEVEL_3,new Deck(CardTier.LEVEL_3,database.getSpecifiedCards(CardTier.LEVEL_3)));
+        
+        // Choose random cards from deck
+        revealedCards.put(CardTier.LEVEL_1,new Deck(CardTier.LEVEL_1,getRandomCards((CardTier.LEVEL_1),4)));
+        revealedCards.put(CardTier.LEVEL_2,new Deck(CardTier.LEVEL_2,getRandomCards((CardTier.LEVEL_2),4)));
+        revealedCards.put(CardTier.LEVEL_3,new Deck(CardTier.LEVEL_3,getRandomCards((CardTier.LEVEL_3),4)));
 
         //Only for testing TO BE DELTED
         testForDuplicates(CardTier.LEVEL_1);
@@ -118,7 +97,7 @@ public class Game {
 
     //Only for testing private function TO BE DELETED
     private void testForDuplicates(CardTier tier){
-        Deck deck1 = revealedDecks.get(tier);
+        Deck deck1 = revealedCards.get(tier);
 
         for(int i=0;i<deck1.size();++i){
             for(int j=0;j<deck1.size();++j){
@@ -162,7 +141,7 @@ public class Game {
      * @param amount -> Amount of elements we want to draw
      * @return Deck -> Collection of randomly picked cards
      */
-    public Deck getRandomCards(CardTier tier, int amount) {
+    private Deck getRandomCards(CardTier tier, int amount) {
         Deck deck = decks.get(tier);
 
         // We draw cards until deck will be empty

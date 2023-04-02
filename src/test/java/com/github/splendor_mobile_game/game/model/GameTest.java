@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.database.InMemoryDatabase;
 import com.github.splendor_mobile_game.game.enums.CardTier;
-import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class GameTest {
 
@@ -24,5 +23,18 @@ public class GameTest {
         Game game=new Game(database);
         game.startGame(room);
         
+    }
+
+    public int whatSize(CardTier tier){
+        switch(tier){
+            case LEVEL_1:
+                return 40;
+            case LEVEL_2:
+                return 30;
+            case LEVEL_3:
+                return 20;
+            default:
+                return 0;
+        }
     }
 }
