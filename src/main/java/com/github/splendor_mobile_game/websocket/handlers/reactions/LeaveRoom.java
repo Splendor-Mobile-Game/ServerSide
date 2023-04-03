@@ -17,7 +17,6 @@ import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.ResponseType;
 import com.github.splendor_mobile_game.websocket.response.Result;
 
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,27 +67,36 @@ public class LeaveRoom extends Reaction{
             validateData(dataDTO, database);
             User user = database.getUser(dataDTO.userDTO.uuid);
             Room room = database.getRoom(dataDTO.roomDTO.uuid);
-            room.leaveGame(user);
+            if(room.getPlayerCount()>1){
+                //checking if user who wants to leave room isn't owner, if that's true, setting new owner as another user from list of users
+                if(room.getOwner().equals(user)){
+                    room.setOwner(room.getAllUsers().get(1));
+                }
 
-            //TODO if you are the last member of room, you have to remove the room
-            //TODO if you are owner of room, another user has to be an owner
+                room.leaveGame(user);
 
-            JsonObject userJson = new JsonObject();
-            userJson.addProperty("uuid", dataDTO.userDTO.uuid.toString());
-            userJson.addProperty("name", user.getName());
+                JsonObject userJson = new JsonObject();
+                userJson.addProperty("uuid", dataDTO.userDTO.uuid.toString());
+                userJson.addProperty("name", user.getName());
 
-            JsonObject data = new JsonObject();
-            data.add("user", userJson);
+                JsonObject data = new JsonObject();
+                data.add("user", userJson);
 
-            JsonObject response = new JsonObject();
-            response.addProperty("messageContextId", receivedMessage.getMessageContextId());
-            response.addProperty("type", ResponseType.LEAVE_ROOM_RESPONSE.toString());
-            response.addProperty("result", Result.OK.toString());
-            response.add("data", data);
+                JsonObject response = new JsonObject();
+                response.addProperty("messageContextId", receivedMessage.getMessageContextId());
+                response.addProperty("type", ResponseType.LEAVE_ROOM_RESPONSE.toString());
+                response.addProperty("result", Result.OK.toString());
+                response.add("data", data);
 
-            // Send join information to other players
-            for (User u : room.getAllUsers()) {
-                messenger.addMessageToSend(u.getConnectionHasCode(), (new Gson()).toJson(response));
+                // Send join information to other players
+                for (User u : room.getAllUsers()) {
+                    messenger.addMessageToSend(u.getConnectionHasCode(), (new Gson()).toJson(response));
+                }
+            }
+            //If last user wants to leave room, then remove empty room
+            else{
+                room.leaveGame(user);
+                database.getAllRooms().remove(room);
             }
 
         } catch(Exception e) {
