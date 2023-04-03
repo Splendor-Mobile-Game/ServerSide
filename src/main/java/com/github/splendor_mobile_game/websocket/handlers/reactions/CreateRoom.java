@@ -72,7 +72,9 @@ public class CreateRoom extends Reaction {
             User user = new User(dataDTO.userDTO.uuid, dataDTO.userDTO.name, this.connectionHashCode);
             Room room = new Room(UUID.randomUUID(), dataDTO.roomDTO.name, dataDTO.roomDTO.password, user, database);
 
-            Log.DEBUG("UUID pokoju: " + room.getUuid());
+            Log.DEBUG("Kod pokoju: " + room.getEnterCode());
+            
+            Log.DEBUG("Uuid pokoju: " + room.getUuid());
 
             database.addUser(user);
             database.addRoom(room);

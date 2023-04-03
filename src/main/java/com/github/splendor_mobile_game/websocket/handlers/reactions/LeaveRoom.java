@@ -10,6 +10,9 @@ import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMemberException;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.ResponseType;
 import com.github.splendor_mobile_game.websocket.response.Result;
@@ -30,17 +33,31 @@ public class LeaveRoom extends Reaction{
     }
     private class UserDTO{
         public UUID uuid;
-        public String name;
     }
     private class RoomDTO {
-        public String enterCode;
-        public String password;
+        public UUID uuid;
     }
     @DataClass
     private class DataDTO{
         private UserDTO userDTO;
         private RoomDTO roomDTO;
     }
+
+    /* ----> EXAMPLE USER REQUEST <----
+    {
+         "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
+         "type": "LEAVE_ROOM",
+         "data": {
+             "roomDTO": {
+                "uuid": "a88f224f-f656-4925-9341-dda4b9099e90"
+             },
+             "userDTO": {
+                 "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3456"
+             }
+         }
+     }
+     */
+
     @Override
     public void react() {
 
@@ -48,10 +65,13 @@ public class LeaveRoom extends Reaction{
 
         try {
 
-            //validateData(dataDTO, database);
+            validateData(dataDTO, database);
             User user = database.getUser(dataDTO.userDTO.uuid);
-            Room room = database.getRoom(dataDTO.roomDTO.enterCode);
+            Room room = database.getRoom(dataDTO.roomDTO.uuid);
             room.leaveGame(user);
+
+            //TODO if you are the last member of room, you have to remove the room
+            //TODO if you are owner of room, another user has to be an owner
 
             JsonObject userJson = new JsonObject();
             userJson.addProperty("uuid", dataDTO.userDTO.uuid.toString());
@@ -79,9 +99,8 @@ public class LeaveRoom extends Reaction{
         }
         
     }
-    /*private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, RoomDoesntExistException, UserAlreadyInRoomException, RoomFullException, InvalidEnterCodeException, InvalidPasswordException {
+    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, UserNotAMemberException, RoomDoesntExistException {
         Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
-        Pattern codePattern = Pattern.compile("^([0-9a-zA-Z]+){6}$");
 
         // Check if user UUID matches the pattern
         Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.uuid.toString());
@@ -90,34 +109,25 @@ public class LeaveRoom extends Reaction{
 
 
         // Check if room UUID matches the pattern
-        Matcher codeMatcher = codePattern.matcher(dataDTO.roomDTO.enterCode);
-        if (!codeMatcher.find())
-            throw new InvalidEnterCodeException("Invalid enter code format.");
+        uuidMatcher = uuidPattern.matcher(dataDTO.roomDTO.uuid.toString());
+        if (!uuidMatcher.find())
+            throw new InvalidUUIDException("Invalid UUID format."); // Check if room UUID matches the pattern
 
 
         // Check if room exists
-        Room room = database.getRoom(dataDTO.roomDTO.enterCode);
+        Room room = database.getRoom(dataDTO.roomDTO.uuid);
         if (room == null)
             throw new RoomDoesntExistException("Could not find a room with specified UUID.");
 
 
-        // Check if password is valid
-        if (!dataDTO.roomDTO.password.equals(room.getPassword()))
-            throw new InvalidPasswordException("Wrong password!");
-
-
-        // Check players count reached maximum number
-        if (room.getPlayerCount() == 4)
-            throw new RoomFullException("Room has already reached maximum player count!");
-
-
-        // Check if user is already a member of any room
+        // Check if user is a member of the room
         User user = database.getUser(dataDTO.userDTO.uuid);
         if (user != null) {
-            for (Room r : database.getAllRooms())
-                if (r.getAllUsers().contains(user))
-                    throw new UserAlreadyInRoomException("Leave your current room before joining another.");
+            if(!room.userExists(user)){
+                throw new UserNotAMemberException("User is not a member of this room");
+            }
         }
-    }*/
+
+    }
 
 }

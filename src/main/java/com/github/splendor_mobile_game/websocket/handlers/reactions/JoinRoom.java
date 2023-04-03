@@ -53,7 +53,7 @@ public class JoinRoom extends Reaction {
          "type": "JOIN_ROOM",
          "data": {
              "roomDTO": {
-                 "enterCode": "gfwoMA",
+                 "enterCode": "7SlfVr",
                  "password": "Tajne6Przez2Poufne.;"
              },
              "userDTO": {
@@ -122,7 +122,7 @@ public class JoinRoom extends Reaction {
             throw new InvalidUUIDException("Invalid UUID format."); // Check if user UUID matches the pattern
 
 
-        // Check if room UUID matches the pattern
+        // Check if room enterCode matches the pattern
         Matcher codeMatcher = codePattern.matcher(dataDTO.roomDTO.enterCode);
         if (!codeMatcher.find())
             throw new InvalidEnterCodeException("Invalid enter code format.");
