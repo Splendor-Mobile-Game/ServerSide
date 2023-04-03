@@ -1,7 +1,12 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.ArrayList;
+import java.util.UUID;
+
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.enums.Color;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
+import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
@@ -101,9 +106,126 @@ public class StartGame extends Reaction {
         super(connectionHashCode, userMessage, messenger, database);
     }
 
+    public static class UserDTO {
+        public UUID uuid;
+        public String name;
+
+        public UserDTO(UUID uuid, String name) {
+            this.uuid = uuid;
+            this.name = name;
+        }
+
+    }
+
+
+    @DataClass
+    public static class DataDTO{
+        public UserDTO userDTO;
+
+        public DataDTO(UserDTO userDTO) {
+            this.userDTO = userDTO;
+        }   
+    }
+    public class UserDataResponse {
+        public UUID userUuid;
+        public String name;
+
+        public UserDataResponse(UUID userUuid, String name) {
+            this.userUuid = userUuid;
+            this.name = name;
+        }      
+    }
+
+    public class TokensDataResponse{
+        public int red;
+        public int green;
+        public int blue;
+        public int white;
+        public int black;
+        public int gold;
+
+        public TokensDataResponse(int red, int green, int blue, int white, int black, int gold) {
+            this.red = red;
+            this.green = green;
+            this.blue = blue;
+            this.white = white;
+            this.black = black;
+            this.gold = gold;
+        }
+    }
+
+    public class AristocratDataResponse{
+        public UUID uuid;
+        public int prestige;
+
+        public int redMinesRequired;
+        public int greenMinesRequired;
+        public int blueMinesRequired;
+        public int whiteMinesRequired;
+        public int blackMinesRequired;
+
+        public AristocratDataResponse(UUID uuid, int prestige, int redMinesRequired, int greenMinesRequired,
+                int blueMinesRequired, int whiteMinesRequired, int blackMinesRequired) {
+            this.uuid = uuid;
+            this.prestige = prestige;
+            this.redMinesRequired = redMinesRequired;
+            this.greenMinesRequired = greenMinesRequired;
+            this.blueMinesRequired = blueMinesRequired;
+            this.whiteMinesRequired = whiteMinesRequired;
+            this.blackMinesRequired = blackMinesRequired;
+        }
+    }
+
+    public class MinesCardDataResponse{
+        public UUID uuid;
+        public int prestige;
+        public Color color;
+
+        public int redTokensRequired;
+        public int greenTokensRequired;
+        public int blueTokensRequired;
+        public int whiteTokensRequired;
+        public int blackTokensRequired;
+
+        public MinesCardDataResponse(UUID uuid, int prestige, Color color, int redTokensRequired,
+                int greenTokensRequired, int blueTokensRequired, int whiteTokensRequired, int blackTokensRequired) {
+            this.uuid = uuid;
+            this.prestige = prestige;
+            this.color = color;
+            this.redTokensRequired = redTokensRequired;
+            this.greenTokensRequired = greenTokensRequired;
+            this.blueTokensRequired = blueTokensRequired;
+            this.whiteTokensRequired = whiteTokensRequired;
+            this.blackTokensRequired = blackTokensRequired;
+        }
+        
+    }
+
+    public class ResponseData{
+        public TokensDataResponse tokens;
+        public ArrayList<AristocratDataResponse> aristocrats;
+
+        public ArrayList<MinesCardDataResponse> firstLevelMinesCards;
+        public ArrayList<MinesCardDataResponse> secondLevelMinesCards;
+        public ArrayList<MinesCardDataResponse> thirdLevelMinesCards;
+
+        public ResponseData(TokensDataResponse tokens, ArrayList<AristocratDataResponse> aristocrats,
+                ArrayList<MinesCardDataResponse> firstLevelMinesCards,
+                ArrayList<MinesCardDataResponse> secondLevelMinesCards,
+                ArrayList<MinesCardDataResponse> thirdLevelMinesCards) {
+            this.tokens = tokens;
+            this.aristocrats = aristocrats;
+            this.firstLevelMinesCards = firstLevelMinesCards;
+            this.secondLevelMinesCards = secondLevelMinesCards;
+            this.thirdLevelMinesCards = thirdLevelMinesCards;
+        }
+        
+    }
+
     @Override
     public void react() {
-        // TODO Auto-generated method stub
+        DataDTO dataDTO = (DataDTO)userMessage.getData();
+        
     }
     
 }
