@@ -109,6 +109,10 @@ public class Game {
         }
     }
 
+    public Deck getRevealedCards(CardTier tier){
+        return revealedCards.get(tier);
+    }
+
 
 
 

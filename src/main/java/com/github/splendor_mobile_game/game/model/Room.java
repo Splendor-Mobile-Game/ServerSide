@@ -18,6 +18,7 @@ public class Room {
     private User owner;
     private int playerCount;
     private final ArrayList<User> users = new ArrayList<>();
+    private Game game = null;
 
 
     public Room(UUID uuid, String name, String password, User owner, Database database) {
@@ -68,6 +69,10 @@ public class Room {
 
     public String getEnterCode() {
         return enterCode;
+    }
+
+    public Game getGame(){
+        return game;
     }
 
 

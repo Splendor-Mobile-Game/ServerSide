@@ -2,14 +2,34 @@ package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.Validate;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.Color;
+import com.github.splendor_mobile_game.game.model.Card;
+import com.github.splendor_mobile_game.game.model.Deck;
+import com.github.splendor_mobile_game.game.model.Game;
+import com.github.splendor_mobile_game.game.model.Room;
+import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUsernameException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomInGameException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomOwnershipException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
+import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
+import com.github.splendor_mobile_game.websocket.response.Result;
+import com.github.splendor_mobile_game.websocket.utils.Log;
 
 /**
  * Reaction class for handling the "START_GAME" message sent by the host player to start the game.
@@ -21,7 +41,13 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "START_GAME",
  *      "data": {
- *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *          "userDTO":{
+ *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *              "name":"James"
+ *          }
+ *          "roomDTO":{
+ *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *          }
  *      }
  * }
  *
@@ -31,6 +57,13 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *      "type": "GAME_STARTED_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
+ *          "user":{
+ *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *              "name":"James"
+ *          }
+ *          "room":{
+ *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *          }
  *          "tokens": {
  *              "red": 7,
  *              "green": 7,
@@ -39,7 +72,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *              "black": 7,
  *              "gold": 5,
  *          },
- *          "aristocrats": [
+ *          "nobles": [
  *              {
  *                   "uuid": "81b7249e-d1f0-4030-a59d-0217ee3ac161",
  *                   "prestige": 3,
@@ -59,14 +92,12 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  *          ],
  *          "firstLevelMinesCards": [
  *              {
- *                  "uuid": "0ba9cba8-3bc0-42fe-b24f-25d7b52fcd2c",
  *                  "prestige": 2,
  *                  "bonusColor": "green",
  *                  "greenTokensRequired": 2,
  *                  "whiteTokensRequired": 3
  *              },
  *              {
- *                  "uuid": "e1df722d-a64c-424c-856e-431748bb358f",
  *                  "prestige": 0,
  *                  "bonusColor": "white",
  *                  "blackTokensRequired": 3
@@ -117,23 +148,41 @@ public class StartGame extends Reaction {
 
     }
 
+    public static class RoomDTO{
+        public UUID uuid;
+
+        public RoomDTO(UUID uuid) {
+            this.uuid = uuid;
+        }
+    }
+
 
     @DataClass
     public static class DataDTO{
         public UserDTO userDTO;
+        public RoomDTO roomDTO;
 
-        public DataDTO(UserDTO userDTO) {
+        public DataDTO(UserDTO userDTO,RoomDTO roomDTO) {
             this.userDTO = userDTO;
+            this.roomDTO=roomDTO;
         }   
     }
     public class UserDataResponse {
-        public UUID userUuid;
+        public UUID uuid;
         public String name;
 
-        public UserDataResponse(UUID userUuid, String name) {
-            this.userUuid = userUuid;
+        public UserDataResponse(UUID uuid, String name) {
+            this.uuid = uuid;
             this.name = name;
         }      
+    }
+
+    public class RoomDataResponse{
+        public UUID uuid;
+
+        public RoomDataResponse(UUID uuid) {
+            this.uuid = uuid;
+        }
     }
 
     public class TokensDataResponse{
@@ -154,7 +203,7 @@ public class StartGame extends Reaction {
         }
     }
 
-    public class AristocratDataResponse{
+    public class NobleDataResponse{
         public UUID uuid;
         public int prestige;
 
@@ -164,7 +213,7 @@ public class StartGame extends Reaction {
         public int whiteMinesRequired;
         public int blackMinesRequired;
 
-        public AristocratDataResponse(UUID uuid, int prestige, int redMinesRequired, int greenMinesRequired,
+        public NobleDataResponse(UUID uuid, int prestige, int redMinesRequired, int greenMinesRequired,
                 int blueMinesRequired, int whiteMinesRequired, int blackMinesRequired) {
             this.uuid = uuid;
             this.prestige = prestige;
@@ -202,19 +251,23 @@ public class StartGame extends Reaction {
     }
 
     public class ResponseData{
+        public UserDataResponse user;
+        public RoomDataResponse room;
         public TokensDataResponse tokens;
-        public ArrayList<AristocratDataResponse> aristocrats;
+        public ArrayList<NobleDataResponse> nobles;
 
         public ArrayList<MinesCardDataResponse> firstLevelMinesCards;
         public ArrayList<MinesCardDataResponse> secondLevelMinesCards;
         public ArrayList<MinesCardDataResponse> thirdLevelMinesCards;
 
-        public ResponseData(TokensDataResponse tokens, ArrayList<AristocratDataResponse> aristocrats,
-                ArrayList<MinesCardDataResponse> firstLevelMinesCards,
+        public ResponseData(UserDataResponse user, RoomDataResponse room, TokensDataResponse tokens,
+                ArrayList<NobleDataResponse> nobles, ArrayList<MinesCardDataResponse> firstLevelMinesCards,
                 ArrayList<MinesCardDataResponse> secondLevelMinesCards,
                 ArrayList<MinesCardDataResponse> thirdLevelMinesCards) {
+            this.user = user;
+            this.room = room;
             this.tokens = tokens;
-            this.aristocrats = aristocrats;
+            this.nobles = nobles;
             this.firstLevelMinesCards = firstLevelMinesCards;
             this.secondLevelMinesCards = secondLevelMinesCards;
             this.thirdLevelMinesCards = thirdLevelMinesCards;
@@ -225,7 +278,98 @@ public class StartGame extends Reaction {
     @Override
     public void react() {
         DataDTO dataDTO = (DataDTO)userMessage.getData();
-        
+
+        try{
+            validateData(dataDTO, database);
+
+            User user = database.getUser(dataDTO.userDTO.uuid);
+            Room room = database.getRoom(dataDTO.roomDTO.uuid);
+            Game game = room.getGame();
+
+            Log.DEBUG("Game started by "+user.getName()+". Room UUID: "+room.getUuid());
+            game.startGame(room);
+
+            UserDataResponse userDataResponse = new UserDataResponse(user.getUuid(), user.getName());
+            RoomDataResponse roomDataResponse=new RoomDataResponse(room.getUuid());
+
+            TokensDataResponse tokensDataResponse=
+                new TokensDataResponse(
+                    game.getRubyTokens().getAvailableTokensCount(),
+                    game.getEmeraldTokens().getAvailableTokensCount(),
+                    game.getSapphireTokens().getAvailableTokensCount(), 
+                    game.getDiamondTokens().getAvailableTokensCount(), 
+                    game.getOnyxTokens().getAvailableTokensCount(), 
+                    game.getGoldTokens().getAvailableTokensCount());
+            
+            //Noble TO DO
+            
+            Deck deck = game.getRevealedCards(CardTier.LEVEL_1);
+            ArrayList<MinesCardDataResponse> firstLevelMinesCardsResponses=new ArrayList<>();
+            for(Card card : deck){
+                firstLevelMinesCardsResponses.add(new MinesCardDataResponse(card.getUuid(), connectionHashCode, null, connectionHashCode, connectionHashCode, connectionHashCode, connectionHashCode, connectionHashCode))
+            }
+
+            ArrayList<MinesCardDataResponse> secondLevelMinesCardsResponses=new ArrayList<>();
+            ArrayList<MinesCardDataResponse> thirdLevelMinesCardsResponses=new ArrayList<>();
+
+
+
+
+        }catch (Exception e) {
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.START_GAME_RESPONSE, userMessage.getMessageContextId().toString());
+            messenger.addMessageToSend(connectionHashCode, errorResponse);
+        }
+
+   
+    }
+
+    private void validateData(DataDTO dataDTO, Database database) throws  RoomDoesntExistException, UserDoesntExistException, RoomOwnershipException, InvalidUUIDException, RoomInGameException{
+        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"); 
+
+         // Check if user UUID matches the pattern
+         Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.uuid.toString());
+         if (!uuidMatcher.find())
+             throw new InvalidUUIDException("Invalid UUID format."); 
+ 
+         // Check if room UUID matches the pattern
+         uuidMatcher = uuidPattern.matcher(dataDTO.roomDTO.uuid.toString());
+         if (!uuidMatcher.find())
+             throw new InvalidUUIDException("Invalid UUID format."); 
+
+        User user = database.getUser(dataDTO.userDTO.uuid);
+        Room room =database.getRoom(dataDTO.roomDTO.uuid);
+
+        //Check if user exits
+        if (user==null){
+            throw new UserDoesntExistException("No such user in the database");
+        }
+
+        //Check if room exits
+        if(room==null){
+            throw new RoomDoesntExistException("No such room in the database");
+        }      
+
+        //Check if he owns only one room
+        int ownerships =0;
+        for(Room _room : database.getAllRooms()){
+            if(_room.getOwner()==user){
+                ownerships++;
+            }
+        }
+        if(ownerships!=1){
+            throw new RoomOwnershipException("User owns more than one or zero rooms");
+        }
+
+        //Check if user is the owner of the room
+        if(!room.getOwner().equals(user)){
+            throw new RoomOwnershipException("User is not an owner of a given room");
+        }
+
+        //Check if room is not in game
+        if(room.getGame()!=null){
+            throw new RoomInGameException("Room is during the match");
+        }
+
     }
     
 }
