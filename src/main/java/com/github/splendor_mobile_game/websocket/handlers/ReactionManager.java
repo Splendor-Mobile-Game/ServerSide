@@ -143,6 +143,14 @@ public class ReactionManager {
                 reactionNameString = reactionNameAnnotation.value();
             }
 
+            try {
+                UserRequestType.valueOf(reactionNameString);
+            } catch (IllegalArgumentException e) {
+                Log.ERROR("Class `" + clazz.getName() + "` has ReactionName=" + reactionNameString + 
+                    ", but no mathing variant in UserRequestType has been found!"
+                );
+            }
+
             // Add the reaction to the map
             this.reactions.put(reactionNameString, reactionClass);
             Log.INFO("Class `" + clazz.getName() + "` loaded as `" + reactionNameString + "`");
