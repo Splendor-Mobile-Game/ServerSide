@@ -6,23 +6,21 @@ import java.util.UUID;
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
-import com.github.splendor_mobile_game.websocket.communication.ReceivedMessage;
+import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
+import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMemberException;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
-import com.github.splendor_mobile_game.websocket.response.ResponseType;
 import com.github.splendor_mobile_game.websocket.response.Result;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 @ReactionName("LEAVE_ROOM")
 public class LeaveRoom extends Reaction{
@@ -31,16 +29,45 @@ public class LeaveRoom extends Reaction{
         super(connectionHashCode, userMessage, messenger, database);
 
     }
-    private class UserDTO{
+    public static class UserDTO{
         public UUID uuid;
+        public UserDTO(UUID uuid){
+            this.uuid=uuid;
+        }
     }
-    private class RoomDTO {
+    public static class RoomDTO {
         public UUID uuid;
+        public RoomDTO(UUID uuid){
+            this.uuid=uuid;
+        }
     }
     @DataClass
-    private class DataDTO{
+    public static class DataDTO{
         private UserDTO userDTO;
         private RoomDTO roomDTO;
+        public DataDTO(RoomDTO roomDTO, UserDTO userDTO) {
+            this.roomDTO = roomDTO;
+            this.userDTO = userDTO;
+        }
+    }
+    
+    public class ResponseData {
+        public UserDataResponse user;
+
+        public ResponseData(UserDataResponse user) {
+            this.user = user;
+        }
+        
+    }
+    
+    public class UserDataResponse {
+        public UUID id;
+        public String name;
+        public UserDataResponse(UUID id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+        
     }
 
     /* ----> EXAMPLE USER REQUEST <----
@@ -61,7 +88,7 @@ public class LeaveRoom extends Reaction{
     @Override
     public void react() {
 
-        DataDTO dataDTO = (DataDTO) receivedMessage.getData();
+        DataDTO dataDTO = (DataDTO) userMessage.getData();
 
         try {
 
@@ -75,34 +102,29 @@ public class LeaveRoom extends Reaction{
                 //checking if user who wants to leave room isn't owner, if that's true, setting new owner as another user from list of users
                 if(room.getOwner().equals(user))
                     room.setOwner(room.getAllUsers().get(0));
+            //TODO: inform other users who is new room owner
 
             //If last user wants to leave room, then remove empty room
             if(room.getPlayerCount()==0)
                 database.getAllRooms().remove(room);
 
-            JsonObject userJson = new JsonObject();
-            userJson.addProperty("uuid", dataDTO.userDTO.uuid.toString());
-            userJson.addProperty("name", user.getName());
+            UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, user.getName());
+            ResponseData responseData = new ResponseData(userDataResponse);
+            ServerMessage serverMessage = new ServerMessage(userMessage.getMessageContextId(), ServerMessageType.LEAVE_ROOM_RESPONSE, Result.OK, responseData);
 
-            JsonObject data = new JsonObject();
-            data.add("user", userJson);
-
-            JsonObject response = new JsonObject();
-            response.addProperty("messageContextId", userMessage.getMessageContextId());
-            response.addProperty("type", ResponseType.LEAVE_ROOM_RESPONSE.toString());
-            response.addProperty("result", Result.OK.toString());
-            response.add("data", data);
+            messenger.addMessageToSend(this.connectionHashCode, serverMessage);
+            
 
             // Send leave information to other players
             for (User u : usersTmp) {
-                messenger.addMessageToSend(u.getConnectionHasCode(), (new Gson()).toJson(response));
+                messenger.addMessageToSend(u.getConnectionHasCode(), serverMessage);
             }
 
 
         } catch(Exception e) {
 
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ResponseType.LEAVE_ROOM_RESPONSE, userMessage.getMessageContextId());
-            messenger.addMessageToSend(connectionHashCode, errorResponse.ToJson());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.LEAVE_ROOM_RESPONSE, userMessage.getMessageContextId().toString());
+            messenger.addMessageToSend(connectionHashCode, errorResponse);
 
         }
         
