@@ -1,5 +1,6 @@
 package com.github.splendor_mobile_game.websocket.config.exceptions;
 
+/** Exception thrown when the value of an environment variable is of the wrong type. */
 public class EnvValueWrongTypeException extends InvalidConfigException {
 
     public EnvValueWrongTypeException() {

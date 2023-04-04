@@ -1,21 +1,31 @@
 package com.github.splendor_mobile_game.websocket.communication;
 
+import java.util.UUID;
+
+import com.github.splendor_mobile_game.websocket.handlers.UserRequestType;
 import com.github.splendor_mobile_game.websocket.utils.json.JsonParser;
 import com.github.splendor_mobile_game.websocket.utils.json.Optional;
 import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonParserException;
 import com.google.gson.Gson;
 
-public class ReceivedMessage {
-    private String messageContextId;
-    private String type;
+// TODO: Java doc required
+public class UserMessage {
+    private UUID messageContextId;
+    private UserRequestType type;
     @Optional
     private Object data;
 
-    public ReceivedMessage(String message) throws InvalidReceivedMessage {
-        ReceivedMessage msg = ReceivedMessage.fromJson(message);
+    public UserMessage(String message) throws InvalidReceivedMessage {
+        UserMessage msg = UserMessage.fromJson(message);
         this.messageContextId = msg.messageContextId;
         this.type = msg.type;
         this.data = msg.getData();
+    }
+
+    public UserMessage(UUID messageContextId, UserRequestType type, Object data) {
+        this.messageContextId = messageContextId;
+        this.type = type;
+        this.data = data;
     }
 
     public void parseDataToClass(Class<?> clazz) throws InvalidReceivedMessage {
@@ -27,19 +37,19 @@ public class ReceivedMessage {
         }
     }
 
-    public static ReceivedMessage fromJson(String inputJson) throws InvalidReceivedMessage {
+    public static UserMessage fromJson(String inputJson) throws InvalidReceivedMessage {
         try {
-            return JsonParser.parseJson(inputJson, ReceivedMessage.class);
+            return JsonParser.parseJson(inputJson, UserMessage.class);
         } catch (JsonParserException e) {
             throw new InvalidReceivedMessage("Received message is invalid!", e);
         }
     }
 
-    public String getMessageContextId() {
+    public UUID getMessageContextId() {
         return messageContextId;
     }
 
-    public String getType() {
+    public UserRequestType getType() {
         return type;
     }
 
@@ -69,7 +79,7 @@ public class ReceivedMessage {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ReceivedMessage other = (ReceivedMessage) obj;
+        UserMessage other = (UserMessage) obj;
         if (messageContextId == null) {
             if (other.messageContextId != null)
                 return false;

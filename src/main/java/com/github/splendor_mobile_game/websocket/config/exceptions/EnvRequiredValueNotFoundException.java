@@ -1,5 +1,6 @@
 package com.github.splendor_mobile_game.websocket.config.exceptions;
 
+/** Exception thrown when a required environment variable is not found. */
 public class EnvRequiredValueNotFoundException extends InvalidConfigException {
 
     public EnvRequiredValueNotFoundException() {

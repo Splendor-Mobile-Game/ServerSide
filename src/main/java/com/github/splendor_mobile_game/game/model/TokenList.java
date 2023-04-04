@@ -14,6 +14,7 @@ public class TokenList {
 
     public TokenList(TokenType tokensType) {
         this.tokensType = tokensType;
+        this.tokens = new ArrayList<Token>();
     }
 
     public void addToken(Token token) {

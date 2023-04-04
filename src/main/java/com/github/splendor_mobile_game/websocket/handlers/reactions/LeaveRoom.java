@@ -27,8 +27,8 @@ import com.google.gson.JsonObject;
 @ReactionName("LEAVE_ROOM")
 public class LeaveRoom extends Reaction{
 
-    public LeaveRoom(int connectionHashCode, ReceivedMessage receivedMessage, Messenger messenger, Database database) {
-        super(connectionHashCode, receivedMessage, messenger, database);
+    public LeaveRoom(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
+        super(connectionHashCode, userMessage, messenger, database);
 
     }
     private class UserDTO{
@@ -88,7 +88,7 @@ public class LeaveRoom extends Reaction{
             data.add("user", userJson);
 
             JsonObject response = new JsonObject();
-            response.addProperty("messageContextId", receivedMessage.getMessageContextId());
+            response.addProperty("messageContextId", userMessage.getMessageContextId());
             response.addProperty("type", ResponseType.LEAVE_ROOM_RESPONSE.toString());
             response.addProperty("result", Result.OK.toString());
             response.add("data", data);
@@ -101,7 +101,7 @@ public class LeaveRoom extends Reaction{
 
         } catch(Exception e) {
 
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ResponseType.LEAVE_ROOM_RESPONSE, receivedMessage.getMessageContextId());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ResponseType.LEAVE_ROOM_RESPONSE, userMessage.getMessageContextId());
             messenger.addMessageToSend(connectionHashCode, errorResponse.ToJson());
 
         }
@@ -139,3 +139,4 @@ public class LeaveRoom extends Reaction{
     }
 
 }
+
