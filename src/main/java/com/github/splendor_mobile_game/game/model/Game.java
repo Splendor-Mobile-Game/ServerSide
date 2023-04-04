@@ -189,23 +189,17 @@ public class Game {
 
     private ArrayList<Noble> getRandomNobles(int amount){
         ArrayList<Noble> nobles = this.database.getAllNobles();
+        ArrayList<Noble> array = new ArrayList<>();
 
         // We draw cards until deck will be empty
         if ( nobles.size() < amount) amount=nobles.size();
 
-        ArrayList<Noble> array = new ArrayList<Noble>();
-
         Random rand = new Random();
         while(amount > 0) {
-            int index = rand.nextInt(nobles.size()); // Get random index
-            Noble drawnNoble=nobles.get(index);
-            if(array.contains(drawnNoble)){
-                continue;
-            }        
-            array.add(drawnNoble);
-                     
-            Log.DEBUG("Noble tile has been drawned of index: "+index);
-
+            int index = rand.nextInt(nobles.size()); // Get random index       
+            array.add(nobles.remove(index));
+            
+            Log.DEBUG("Noble tile has been drawned");
             amount--;
         }
 
