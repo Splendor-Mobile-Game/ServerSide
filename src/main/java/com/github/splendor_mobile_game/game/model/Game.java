@@ -1,5 +1,6 @@
 package com.github.splendor_mobile_game.game.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -21,13 +22,17 @@ public class Game {
     private Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>();
     private Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>();
 
+    private ArrayList<Noble> nobles;
+
     private int maxTokenStack = 7; // Default number of each token type
 
     private Database database;
 
     public Game(Database database) {
         this.database = database;
+
         database.loadCards();
+        database.loadNobles();
     }
 
 
@@ -87,12 +92,30 @@ public class Game {
         revealedCards.put(CardTier.LEVEL_2,new Deck(CardTier.LEVEL_2,getRandomCards((CardTier.LEVEL_2),4)));
         revealedCards.put(CardTier.LEVEL_3,new Deck(CardTier.LEVEL_3,getRandomCards((CardTier.LEVEL_3),4)));
 
+        // Choose random noble cards from database
+        nobles = getRandomNobles(4);//Always we draw four noblemen
+
         //Only for testing TO BE DELTED
         testForDuplicates(CardTier.LEVEL_1);
         testForDuplicates(CardTier.LEVEL_2);
         testForDuplicates(CardTier.LEVEL_3);
+        testForDuplicatesNoble();
 
         return true;
+    }
+
+    //Only for testing private function TO BE DELETED
+    private void testForDuplicatesNoble(){
+        ArrayList<Noble> array = nobles;
+
+        for(int i=0;i<array.size();++i){
+            for(int j=0;j<array.size();++j){
+                if(i!=j){
+                    if(array.get(i)==array.get(j))
+                        Log.ERROR("Found duplicate at i="+i+" and j="+j);
+                }
+            }
+        }
     }
 
     //Only for testing private function TO BE DELETED
@@ -108,6 +131,7 @@ public class Game {
             }
         }
     }
+
 
 
 
@@ -158,6 +182,31 @@ public class Game {
             //globalIndex in that context is an index of InMemoryDatabase.allCards
             int globalIndex=database.getAllCards().indexOf(drawnCard);          
             Log.DEBUG("Card has been drawn of tier "+tier.toString()+" and index "+globalIndex);
+        }
+
+        return array;
+    }
+
+    private ArrayList<Noble> getRandomNobles(int amount){
+        ArrayList<Noble> nobles = this.database.getAllNobles();
+
+        // We draw cards until deck will be empty
+        if ( nobles.size() < amount) amount=nobles.size();
+
+        ArrayList<Noble> array = new ArrayList<Noble>();
+
+        Random rand = new Random();
+        while(amount > 0) {
+            int index = rand.nextInt(nobles.size()); // Get random index
+            Noble drawnNoble=nobles.get(index);
+            if(array.contains(drawnNoble)){
+                continue;
+            }        
+            array.add(drawnNoble);
+                     
+            Log.DEBUG("Noble tile has been drawned of index: "+index);
+
+            amount--;
         }
 
         return array;

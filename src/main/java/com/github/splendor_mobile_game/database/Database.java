@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.model.Card;
+import com.github.splendor_mobile_game.game.model.Noble;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 
@@ -23,6 +24,10 @@ public interface Database {
     public ArrayList<User> getAllUsers();
 
     public ArrayList<Room> getAllRooms();
+
+    public void loadNobles();
+
+    public ArrayList<Noble> getAllNobles();
 
     public void loadCards();
 
