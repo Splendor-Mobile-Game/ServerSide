@@ -1,9 +1,12 @@
 package com.github.splendor_mobile_game.game.model;
 
+import java.util.UUID;
+
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 
 public class Card {
+    private final UUID uuid;
 
     private final CardTier cardTier;
 
@@ -19,6 +22,7 @@ public class Card {
 
 
     public Card(CardTier cardTier, int points, int emeraldCost, int sapphireCost, int rubyCost, int diamondCost, int onyxCost, TokenType token) {
+        this.uuid         = UUID.randomUUID();
         this.cardTier     = cardTier;
         this.points       = points;
         this.emeraldCost  = emeraldCost;
@@ -27,6 +31,10 @@ public class Card {
         this.diamondCost  = diamondCost;
         this.onyxCost     = onyxCost;
         this.additionalToken = token;
+    }
+
+    public UUID getUuid(){
+        return uuid;
     }
 
     public CardTier getCardTier() {
