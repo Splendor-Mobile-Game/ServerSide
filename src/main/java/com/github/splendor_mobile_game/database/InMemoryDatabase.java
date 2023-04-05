@@ -151,7 +151,8 @@ public class InMemoryDatabase implements Database {
 
     @Override
     public ArrayList<Noble> getAllNobles(){
-        return this.allNobles;
+        ArrayList<Noble> array=new ArrayList<>(this.allNobles);
+        return array;
     }
 
     @Override
