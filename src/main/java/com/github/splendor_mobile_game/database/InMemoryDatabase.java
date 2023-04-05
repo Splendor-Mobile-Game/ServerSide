@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Card;
+import com.github.splendor_mobile_game.game.model.Noble;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.utils.Log;
@@ -19,6 +20,7 @@ public class InMemoryDatabase implements Database {
     private ArrayList<User> allUsers = new ArrayList<>();
     private ArrayList<Room> allRooms = new ArrayList<>();
     private ArrayList<Card> allCards = new ArrayList<>();
+    private ArrayList<Noble> allNobles = new ArrayList<>();
 
     public InMemoryDatabase() {
 
@@ -71,6 +73,44 @@ public class InMemoryDatabase implements Database {
     }
 
     @Override
+    public void loadNobles(){
+        String csvFile = "resources/NobleDatabase.csv";
+        String line = "";
+        String csvSplitBy = ";";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+
+            line = br.readLine();   //skipping first line because there are headlines
+
+            while ((line = br.readLine()) != null) {
+
+                String[] data = line.split(csvSplitBy);
+
+                try {
+                    Noble nobleCard = new Noble(
+                        Integer.parseInt(data[2]),
+                        Integer.parseInt(data[1]),
+                        Integer.parseInt(data[3]),
+                        Integer.parseInt(data[4]),
+                        Integer.parseInt(data[0])
+                    );
+                                    
+                    this.allNobles.add(nobleCard);
+                } catch (IllegalArgumentException e) {
+                    Log.ERROR(e.getMessage());
+                }
+
+            }
+
+        } catch (IOException e) {
+            Log.ERROR(e.getMessage());
+        } catch (Exception e) {
+            Log.ERROR(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void loadCards() {
         String csvFile = "resources/CardDatabase.csv";
         String line = "";
@@ -107,6 +147,12 @@ public class InMemoryDatabase implements Database {
             Log.ERROR(e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public ArrayList<Noble> getAllNobles(){
+        ArrayList<Noble> array=new ArrayList<>(this.allNobles);
+        return array;
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.model.Card;
+import com.github.splendor_mobile_game.game.model.Noble;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 
@@ -55,8 +56,19 @@ public class SqliteDatabase implements Database {
     }
 
     @Override
+    public void loadNobles() {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
     public void loadCards() {
         // TODO Auto-generated method stub
+    }
+
+    @Override
+    public ArrayList<Noble> getAllNobles() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
