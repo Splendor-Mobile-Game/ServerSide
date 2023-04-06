@@ -74,6 +74,8 @@ public class Game {
         if (room.getPlayerCount() == 2) this.maxTokenStack = 4;
         if (room.getPlayerCount() == 3) this.maxTokenStack = 5;
 
+        room.ShuffleUsers();
+
         // Assign all tokenLists
         this.emeraldTokens  = createTokenList(TokenType.EMERALD);
         this.sapphireTokens = createTokenList(TokenType.SAPPHIRE);
@@ -94,6 +96,9 @@ public class Game {
 
         // Choose random noble cards from database
         nobles = getRandomNobles(4);//Always we draw four noblemen
+
+        // Select random order
+        Random random= new Random();
 
         //Only for testing TO BE DELTED
         testForDuplicates(CardTier.LEVEL_1);

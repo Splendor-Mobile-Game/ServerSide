@@ -111,6 +111,15 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *          ],
  *          "secondLevelMinesCards": [], // The same as above
  *          "thirdLevelMinesCards": [], // The same as above
+ *          "playersOrder": [
+ *              {
+ *                  "uuid": 81b7249e-d1f0-4030-a59d-0217ee3ac161
+ *              }
+ *              {
+ *                  ...
+ *              }
+ *              ...
+ *          ]
  *      }
  * }
  *
@@ -253,6 +262,14 @@ public class StartGame extends Reaction {
         
     }
 
+    public class PlayerOrderDataResponse{
+        UUID uuid;
+
+        public PlayerOrderDataResponse(UUID uuid) {
+            this.uuid = uuid;
+        }
+    }
+
     public class ResponseData{
         public UserDataResponse user;
         public RoomDataResponse room;
@@ -263,10 +280,13 @@ public class StartGame extends Reaction {
         public ArrayList<MinesCardDataResponse> secondLevelMinesCards;
         public ArrayList<MinesCardDataResponse> thirdLevelMinesCards;
 
+        public ArrayList<PlayerOrderDataResponse> playerOrder;
+
         public ResponseData(UserDataResponse user, RoomDataResponse room, TokensDataResponse tokens,
                 ArrayList<NobleDataResponse> nobles, ArrayList<MinesCardDataResponse> firstLevelMinesCards,
                 ArrayList<MinesCardDataResponse> secondLevelMinesCards,
-                ArrayList<MinesCardDataResponse> thirdLevelMinesCards) {
+                ArrayList<MinesCardDataResponse> thirdLevelMinesCards,
+                ArrayList<PlayerOrderDataResponse> playerOrder) {
             this.user = user;
             this.room = room;
             this.tokens = tokens;
@@ -274,6 +294,7 @@ public class StartGame extends Reaction {
             this.firstLevelMinesCards = firstLevelMinesCards;
             this.secondLevelMinesCards = secondLevelMinesCards;
             this.thirdLevelMinesCards = thirdLevelMinesCards;
+            this.playerOrder=playerOrder;
         }
         
     }
@@ -291,6 +312,8 @@ public class StartGame extends Reaction {
 
             Log.DEBUG("Game started by "+user.getName()+". Room UUID: "+room.getUuid());
             game.startGame(room);
+
+            
 
             UserDataResponse userDataResponse = new UserDataResponse(user.getUuid(), user.getName());
             RoomDataResponse roomDataResponse=new RoomDataResponse(room.getUuid());
@@ -351,11 +374,17 @@ public class StartGame extends Reaction {
                 );
             }
 
+            ArrayList<User> users= room.getAllUsers();
+            ArrayList<PlayerOrderDataResponse> playerOrderDataResponses=new ArrayList<>();
+            for(User _user : users){
+                playerOrderDataResponses.add(new PlayerOrderDataResponse(_user.getUuid()));
+            }
+
             ResponseData responseData = new ResponseData(
                 userDataResponse, roomDataResponse, 
                 tokensDataResponse, nobleDataResponses, 
                 firstLevelMinesCardsResponses, secondLevelMinesCardsResponses, 
-                thirdLevelMinesCardsResponses);
+                thirdLevelMinesCardsResponses,playerOrderDataResponses);
             ServerMessage serverMessage = new ServerMessage(
                 userMessage.getMessageContextId(), ServerMessageType.START_GAME_RESPONSE,
                  Result.OK, responseData);

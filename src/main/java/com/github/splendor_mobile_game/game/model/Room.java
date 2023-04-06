@@ -75,6 +75,19 @@ public class Room {
         return game;
     }
 
+    public void ShuffleUsers(){
+        Random random=new Random();
+
+        for(int i=0;i<10;i++){
+            int index1 = random.nextInt(playerCount);
+            int index2 = random.nextInt(playerCount);
+            
+            User temp = new User(users.get(index1));
+            users.set(index1, new User(users.get(index2)));
+            users.set(index2, temp);
+        }
+    }
+
 
     /**
      *

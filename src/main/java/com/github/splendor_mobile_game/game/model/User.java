@@ -11,6 +11,12 @@ public class User {
 
     private int connectionHasCode;
 
+    public User(User user){
+        this.uuid= user.uuid;
+        this.name=user.name;
+        this.connectionHasCode = user.connectionHasCode;
+    }
+
     public User(UUID uuid, String name, int connectionHasCode) {
         this.uuid = uuid;
         this.name = name;
