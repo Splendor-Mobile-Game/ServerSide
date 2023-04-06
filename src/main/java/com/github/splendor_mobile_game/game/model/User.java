@@ -67,7 +67,27 @@ public class User {
         this.tokens.put(type3, this.tokens.get(type3) + 1);
     }
 
-    
+    public void buyCard(Card card) throws Exception{
+        // if(card.getEmeraldCost() > this.tokens.get(TokenType.EMERALD) || 
+        // card.getSapphireCost() > this.tokens.get(TokenType.SAPPHIRE) ||
+        // card.getRubyCost() > this.tokens.get(TokenType.RUBY) ||
+        // card.getDiamondCost() > this.tokens.get(TokenType.DIAMOND) ||
+        // card.getOnyxCost() > this.tokens.get(TokenType.ONYX)) {
+        //     throw new Exception("You don't have enough tokens to buy this card");
+        // }
+
+        for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
+            if(set.getValue() <= card.getCost(set.getKey())) throw new Exception("You don't have enough coins to buy this card");
+        }
+
+        for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
+            this.tokens.put(set.getKey(), set.getValue() - card.getCost(set.getKey()));
+        }
+
+        purchasedCards.add(card);
+
+        
+    }
 
     public int getConnectionHasCode() {
         return connectionHasCode;

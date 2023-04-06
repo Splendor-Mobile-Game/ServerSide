@@ -61,28 +61,32 @@ public class Card {
         return points;
     }
 
-    public int getEmeraldCost() {
-        return emeraldCost;
-    }
+    // public int getEmeraldCost() {
+    //     return emeraldCost;
+    // }
 
-    public int getSapphireCost() {
-        return sapphireCost;
-    }
+    // public int getSapphireCost() {
+    //     return sapphireCost;
+    // }
 
-    public int getRubyCost() {
-        return rubyCost;
-    }
+    // public int getRubyCost() {
+    //     return rubyCost;
+    // }
 
-    public int getDiamondCost() {
-        return diamondCost;
-    }
+    // public int getDiamondCost() {
+    //     return diamondCost;
+    // }
 
-    public int getOnyxCost() {
-        return onyxCost;
+    // public int getOnyxCost() {
+    //     return onyxCost;
+    // }
+
+    public int getCost(TokenType type) {
+        return this.cost.get(type);
     }
 
     @Override
     public String toString() {
-        return String.format("%s %d %d %d %d %d %d %s", cardTier.toString(), points, emeraldCost, sapphireCost,  rubyCost,  diamondCost,  onyxCost,  additionalToken.toString());
+        return String.format("%s %d %d %d %d %d %d %s", cardTier.toString(), points, this.cost.get(TokenType.EMERALD), this.cost.get(TokenType.SAPPHIRE),  this.cost.get(TokenType.RUBY),  this.cost.get(TokenType.DIAMOND),  this.cost.get(TokenType.ONYX),  additionalToken.toString());
     }
 }
