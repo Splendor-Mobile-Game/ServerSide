@@ -90,13 +90,10 @@ public class User {
 
     }
 
-    // private boolean canIBuy(Card card) {
-    //     this.tokens.forEach((k,v) -> {
-    //         if(k != TokenType.GOLD_JOKER) {
-    //             if(v < card.getCost(k)) return false;
-    //         }
-    //     });
-    // }
+    public void reserveCard(Card card) {
+        this.reservedCards.add(card);
+        this.tokens.put(TokenType.GOLD_JOKER, this.tokens.get(TokenType.GOLD_JOKER) + 1);
+    }
 
     public int getConnectionHasCode() {
         return connectionHasCode;
