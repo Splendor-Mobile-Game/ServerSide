@@ -32,7 +32,7 @@ public class User {
 
         //putting every token type into the hashmap and setting its value to 0
         for (TokenType type : TokenType.values()) {
-            tokens.put(type, 0);
+            this.tokens.put(type, 0);
         }
     }
 
@@ -45,6 +45,10 @@ public class User {
         }
 
         return result;
+    }
+
+    public int getTokenCount(TokenType type) {
+        return this.tokens.get(type);
     }
 
     //method for adding two tokens (still needs to be validated if there are at least 4 tokens of this type on the table)
@@ -61,33 +65,38 @@ public class User {
 
     //method for adding three different tokens
     public void takeThreeTokens(TokenType type1, TokenType type2, TokenType type3) throws Exception {
-        if(type1 == type2 || type1 == type3 || type2 == type3) throw new Exception("No three different types selected");
+        if(type1 == type2 || type1 == type3 || type2 == type3) throw new Exception("No three different token types selected");
+        if(this.getTokenCount() > 7) throw new Exception("You can't have more than 10 tokens");
         this.tokens.put(type1, this.tokens.get(type1) + 1);
         this.tokens.put(type2, this.tokens.get(type2) + 1);
         this.tokens.put(type3, this.tokens.get(type3) + 1);
     }
 
-    public void buyCard(Card card) throws Exception{
-        // if(card.getEmeraldCost() > this.tokens.get(TokenType.EMERALD) || 
-        // card.getSapphireCost() > this.tokens.get(TokenType.SAPPHIRE) ||
-        // card.getRubyCost() > this.tokens.get(TokenType.RUBY) ||
-        // card.getDiamondCost() > this.tokens.get(TokenType.DIAMOND) ||
-        // card.getOnyxCost() > this.tokens.get(TokenType.ONYX)) {
-        //     throw new Exception("You don't have enough tokens to buy this card");
-        // }
+    //method for buying cards
+    public void buyCard(Card card) throws Exception {
 
         for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
-            if(set.getValue() <= card.getCost(set.getKey())) throw new Exception("You don't have enough coins to buy this card");
+            if(set.getKey() == TokenType.GOLD_JOKER) continue;
+            if(set.getValue() < card.getCost(set.getKey())) throw new Exception("You don't have enough tokens to buy this card");
         }
 
-        for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
-            this.tokens.put(set.getKey(), set.getValue() - card.getCost(set.getKey()));
-        }
+        this.tokens.forEach((k,v) -> {
+            if(k != TokenType.GOLD_JOKER) {
+                this.tokens.put(k, v - card.getCost(k));
+            }
+        });
 
         purchasedCards.add(card);
 
-        
     }
+
+    // private boolean canIBuy(Card card) {
+    //     this.tokens.forEach((k,v) -> {
+    //         if(k != TokenType.GOLD_JOKER) {
+    //             if(v < card.getCost(k)) return false;
+    //         }
+    //     });
+    // }
 
     public int getConnectionHasCode() {
         return connectionHasCode;
