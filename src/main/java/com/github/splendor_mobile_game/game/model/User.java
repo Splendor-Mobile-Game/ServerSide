@@ -49,7 +49,7 @@ public class User {
     //method which is taking tokens from user
     public void putDownTokens(TokenType type, int amount) throws Exception {
         if(this.tokens.get(type) - amount < 0) throw new Exception("You can't have less than 0 tokens");
-
+        this.tokens.put(type, this.tokens.get(type) - amount);
     }
 
     public int getConnectionHasCode() {
