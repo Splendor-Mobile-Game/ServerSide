@@ -29,6 +29,22 @@ public class User {
         }
     }
 
+    //method returning how many tokens user has
+    public int getTokenCount() {
+        int result = 0;
+
+        for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
+            result += set.getValue();
+        }
+
+        return result;
+    }
+
+    //method which is adding two tokens
+    public void takeTwoTokens(TokenType type) throws Exception {
+        if(this.getTokenCount() > 8) throw new Exception("You can't have more than 10 tokens");
+        this.tokens.put(type, this.tokens.get(type) + 2);
+    }
 
     public int getConnectionHasCode() {
         return connectionHasCode;
