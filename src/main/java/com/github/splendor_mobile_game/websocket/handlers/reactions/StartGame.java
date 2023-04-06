@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.helpers.NOPLoggerFactory;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.CardTier;
@@ -13,8 +14,10 @@ import com.github.splendor_mobile_game.game.enums.Color;
 import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Deck;
 import com.github.splendor_mobile_game.game.model.Game;
+import com.github.splendor_mobile_game.game.model.Noble;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
@@ -299,20 +302,64 @@ public class StartGame extends Reaction {
                     game.getSapphireTokens().getAvailableTokensCount(), 
                     game.getDiamondTokens().getAvailableTokensCount(), 
                     game.getOnyxTokens().getAvailableTokensCount(), 
-                    game.getGoldTokens().getAvailableTokensCount());
+                    game.getGoldTokens().getAvailableTokensCount()
+                );
             
-            //Noble TO DO
+            ArrayList<Noble> nobles = game.getNobles();
+            ArrayList<NobleDataResponse> nobleDataResponses = new ArrayList<>();
+            for(Noble noble : nobles){
+                nobleDataResponses.add(new NobleDataResponse(
+                    noble.getUuid(), noble.getPoints(), 
+                    noble.getRubyCost(), noble.getEmeraldCost(), 
+                    noble.getSapphireCost(), noble.getDiamondCost(), 
+                    noble.getOnyxCost())
+                );
+            }
+
+
             
             Deck deck = game.getRevealedCards(CardTier.LEVEL_1);
             ArrayList<MinesCardDataResponse> firstLevelMinesCardsResponses=new ArrayList<>();
             for(Card card : deck){
-                firstLevelMinesCardsResponses.add(new MinesCardDataResponse(card.getUuid(), connectionHashCode, null, connectionHashCode, connectionHashCode, connectionHashCode, connectionHashCode, connectionHashCode))
+                firstLevelMinesCardsResponses.add(new MinesCardDataResponse(
+                    card.getUuid(), card.getPoints(), 
+                    card.getAdditionalToken().color, card.getRubyCost(), 
+                    card.getEmeraldCost(), card.getSapphireCost(), 
+                    card.getDiamondCost(), card.getOnyxCost())
+                );
             }
 
+            deck = game.getRevealedCards(CardTier.LEVEL_2);
             ArrayList<MinesCardDataResponse> secondLevelMinesCardsResponses=new ArrayList<>();
+            for(Card card : deck){
+                secondLevelMinesCardsResponses.add(new MinesCardDataResponse(
+                    card.getUuid(), card.getPoints(), 
+                    card.getAdditionalToken().color, card.getRubyCost(), 
+                    card.getEmeraldCost(), card.getSapphireCost(), 
+                    card.getDiamondCost(), card.getOnyxCost())
+                );
+            }
+
+            deck = game.getRevealedCards(CardTier.LEVEL_3);
             ArrayList<MinesCardDataResponse> thirdLevelMinesCardsResponses=new ArrayList<>();
+            for(Card card : deck){
+                thirdLevelMinesCardsResponses.add(new MinesCardDataResponse(
+                    card.getUuid(), card.getPoints(), 
+                    card.getAdditionalToken().color, card.getRubyCost(), 
+                    card.getEmeraldCost(), card.getSapphireCost(), 
+                    card.getDiamondCost(), card.getOnyxCost())
+                );
+            }
 
-
+            ResponseData responseData = new ResponseData(
+                userDataResponse, roomDataResponse, 
+                tokensDataResponse, nobleDataResponses, 
+                firstLevelMinesCardsResponses, secondLevelMinesCardsResponses, 
+                thirdLevelMinesCardsResponses);
+            ServerMessage serverMessage = new ServerMessage(
+                userMessage.getMessageContextId(), ServerMessageType.START_GAME_RESPONSE,
+                 Result.OK, responseData);
+            messenger.addMessageToSend(this.connectionHashCode, serverMessage);
 
 
         }catch (Exception e) {

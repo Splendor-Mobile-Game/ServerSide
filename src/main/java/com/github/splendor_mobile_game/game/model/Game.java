@@ -136,6 +136,10 @@ public class Game {
         return revealedCards.get(tier);
     }
 
+    public ArrayList<Noble> getNobles(){
+        return this.nobles;
+    }
+
 
 
 
