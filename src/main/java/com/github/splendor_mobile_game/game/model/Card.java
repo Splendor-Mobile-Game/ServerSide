@@ -1,5 +1,7 @@
 package com.github.splendor_mobile_game.game.model;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.game.enums.CardTier;
@@ -14,22 +16,27 @@ public class Card {
 
     private final int points;
 
-    private final int emeraldCost;
-    private final int sapphireCost;
-    private final int rubyCost;
-    private final int diamondCost;
-    private final int onyxCost;
+    // private final int emeraldCost;
+    // private final int sapphireCost;
+    // private final int rubyCost;
+    // private final int diamondCost;
+    // private final int onyxCost;
+
+    private Map<TokenType, Integer> cost = new HashMap<TokenType, Integer>();
 
 
     public Card(CardTier cardTier, int points, int emeraldCost, int sapphireCost, int rubyCost, int diamondCost, int onyxCost, TokenType token) {
         this.uuid         = UUID.randomUUID();
         this.cardTier     = cardTier;
         this.points       = points;
-        this.emeraldCost  = emeraldCost;
-        this.sapphireCost = sapphireCost;
-        this.rubyCost     = rubyCost;
-        this.diamondCost  = diamondCost;
-        this.onyxCost     = onyxCost;
+
+        this.cost.put(TokenType.EMERALD, emeraldCost);
+        this.cost.put(TokenType.SAPPHIRE, sapphireCost);
+        this.cost.put(TokenType.RUBY, rubyCost);
+        this.cost.put(TokenType.DIAMOND, diamondCost);
+        this.cost.put(TokenType.ONYX, onyxCost);
+
+
         this.additionalToken = token;
     }
 
