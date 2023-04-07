@@ -144,12 +144,12 @@ public class CreateRoom extends Reaction {
             UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, dataDTO.userDTO.name);
             RoomDataResponse roomDataResponse = new RoomDataResponse(dataDTO.roomDTO.name);
             ResponseData responseData = new ResponseData(userDataResponse, roomDataResponse);
-            ServerMessage serverMessage = new ServerMessage(userMessage.getMessageContextId(), ServerMessageType.CREATE_ROOM_RESPONSE, Result.OK, responseData);
+            ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.CREATE_ROOM_RESPONSE, Result.OK, responseData);
 
             messenger.addMessageToSend(this.connectionHashCode, serverMessage);
 
         } catch (Exception e) {
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.CREATE_ROOM_RESPONSE, userMessage.getMessageContextId().toString());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.CREATE_ROOM_RESPONSE, userMessage.getContextId().toString());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
         }
     }

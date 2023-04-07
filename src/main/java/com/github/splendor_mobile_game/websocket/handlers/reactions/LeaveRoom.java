@@ -110,7 +110,7 @@ public class LeaveRoom extends Reaction{
 
             UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, user.getName());
             ResponseData responseData = new ResponseData(userDataResponse);
-            ServerMessage serverMessage = new ServerMessage(userMessage.getMessageContextId(), ServerMessageType.LEAVE_ROOM_RESPONSE, Result.OK, responseData);
+            ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.LEAVE_ROOM_RESPONSE, Result.OK, responseData);
 
             messenger.addMessageToSend(this.connectionHashCode, serverMessage);
             
@@ -123,7 +123,7 @@ public class LeaveRoom extends Reaction{
 
         } catch(Exception e) {
 
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.LEAVE_ROOM_RESPONSE, userMessage.getMessageContextId().toString());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.LEAVE_ROOM_RESPONSE, userMessage.getContextId().toString());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
 
         }
