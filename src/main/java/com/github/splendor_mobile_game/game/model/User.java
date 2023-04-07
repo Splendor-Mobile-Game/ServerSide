@@ -96,7 +96,12 @@ public class User {
 
     }
 
-    public void takeNoble(Noble noble) {
+    public void takeNoble(Noble noble) throws Exception {
+        for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
+            if(set.getKey() == TokenType.GOLD_JOKER) continue;
+            if(set.getValue() < noble.getCost(set.getKey())) throw new Exception("You don't have enough tokens for this Noble to visit you");
+        }
+
         this.visitingNobles.add(noble);
         this.updatePoints(noble.getPoints());
     }
