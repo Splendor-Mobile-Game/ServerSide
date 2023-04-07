@@ -3,15 +3,9 @@ package com.github.splendor_mobile_game.game.model;
 import java.util.Objects;
 import java.util.UUID;
 
+
+
 public class User {
-
-    private final String name;
-
-    private UUID uuid;
-
-    private int connectionHasCode;
-
-    public class User {
 
         private final String name;
         private UUID uuid;
@@ -65,5 +59,5 @@ public class User {
         public int hashCode() {
             return Objects.hash(name, uuid, connectionHasCode);
         }
-    }
-    
+}
+
