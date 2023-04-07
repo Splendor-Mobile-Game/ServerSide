@@ -83,4 +83,8 @@ public class ServerMessage {
         this.data = data;
     }
 
+    public Result getResult() {
+        return result;
+    }
+
 }
