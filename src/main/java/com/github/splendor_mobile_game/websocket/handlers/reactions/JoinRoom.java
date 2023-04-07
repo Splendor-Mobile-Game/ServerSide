@@ -1,5 +1,7 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,11 +83,11 @@ public class JoinRoom extends Reaction {
      */
 
      public class ResponseData {
-        public UserDataResponse user;
+        public List<UserDataResponse> users;
         public RoomDataResponse room;
 
-        public ResponseData(UserDataResponse user, RoomDataResponse room) {
-            this.user = user;
+        public ResponseData(List<UserDataResponse> users, RoomDataResponse room) {
+            this.users = users;
             this.room = room;
         }
         
@@ -129,8 +131,14 @@ public class JoinRoom extends Reaction {
             room.joinGame(user);
 
             RoomDataResponse roomData = new RoomDataResponse(room.getUuid(), room.getName());
-            UserDataResponse userData = new UserDataResponse(dataDTO.userDTO.uuid, user.getName());
-            ResponseData responseData = new ResponseData(userData, roomData);
+            
+            List<UserDataResponse> usersData = new ArrayList<UserDataResponse>();
+            for (User roomUser : room.getAllUsers()) {
+                UserDataResponse userDTO = new UserDataResponse(roomUser.getUuid(), roomUser.getName());
+                usersData.add(userDTO);
+            }
+            
+            ResponseData responseData = new ResponseData(usersData, roomData);
             ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.JOIN_ROOM_RESPONSE, Result.OK, responseData);
             
             // Send join information to other players
