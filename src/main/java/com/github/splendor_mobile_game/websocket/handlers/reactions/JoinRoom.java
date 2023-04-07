@@ -30,19 +30,35 @@ public class JoinRoom extends Reaction {
     public static class RoomDTO {
         public String enterCode;
         public String password;
+
+        public RoomDTO(String enterCode, String password) {
+            this.enterCode = enterCode;
+            this.password = password;
+        }
+
     }
 
     public static class UserDTO {
         public UUID uuid;
         public String name;
+
+        public UserDTO(UUID uuid, String name) {
+            this.uuid = uuid;
+            this.name = name;
+        }
+
     }
 
 
     @DataClass
     public static class DataDTO {
-
         private RoomDTO roomDTO;
         private UserDTO userDTO;
+
+        public DataDTO(RoomDTO roomDTO, UserDTO userDTO) {
+            this.roomDTO = roomDTO;
+            this.userDTO = userDTO;
+        }
 
     }
 
