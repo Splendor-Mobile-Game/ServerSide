@@ -132,6 +132,29 @@ public class Game {
         }
     }
 
+//    public void takeNobleTest() //will be deleted (only test function)
+//    {
+//        try {
+//            User u = database.getAllUsers().get(0);
+//
+//            ArrayList<Card> lista = database.getAllCards();
+//            u.tokens.put(TokenType.EMERALD,100);
+//            u.tokens.put(TokenType.ONYX,100);
+//            u.tokens.put(TokenType.DIAMOND,100);
+//            u.tokens.put(TokenType.SAPPHIRE,100);
+//            u.tokens.put(TokenType.RUBY,100);
+//
+//            for (int i = 0; i < 20; i++) {
+//                u.buyCard(lista.get(i));
+//            }
+//        }
+//        catch (Exception e)
+//        {
+//            Log.ERROR(e.getMessage());
+//
+//        }
+//    }
+
 
 
 

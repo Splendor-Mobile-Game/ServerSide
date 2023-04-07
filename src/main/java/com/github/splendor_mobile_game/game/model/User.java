@@ -20,7 +20,9 @@ public class User {
     private int points;
 
     //initialized tokens hashmap
-    private Map<TokenType, Integer> tokens = new HashMap<TokenType, Integer>();
+    public Map<TokenType, Integer> tokens = new HashMap<TokenType, Integer>();
+    //hashmap which contains how many points of each type of color user has
+    private HashMap<TokenType, Integer> cardPoints = new HashMap<>();
 
     //initialized purchased and reserved cards lists
     private ArrayList<Card> purchasedCards = new ArrayList<Card>();
@@ -91,15 +93,21 @@ public class User {
         });
 
         purchasedCards.add(card);
+        if (cardPoints.get(card.getAdditionalToken()) == null) {
+            cardPoints.put(card.getAdditionalToken(), 1);
+        }
+        else {
+            int val = cardPoints.get(card.getAdditionalToken());
+            cardPoints.replace(card.getAdditionalToken(), val + 1);
+        }
 
         this.updatePoints(card.getPoints());
 
     }
 
     public void takeNoble(Noble noble) throws Exception {
-        for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
-            if(set.getKey() == TokenType.GOLD_JOKER) continue;
-            if(set.getValue() < noble.getCost(set.getKey())) throw new Exception("You don't have enough tokens for this Noble to visit you");
+        for(Map.Entry<TokenType, Integer> set : cardPoints.entrySet()) {
+            if(set.getValue() < noble.getCost(set.getKey())) throw new Exception("You don't have enough cards for this Noble to visit you");
         }
 
         this.visitingNobles.add(noble);
