@@ -1,5 +1,6 @@
 package com.github.splendor_mobile_game.game.model;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +25,9 @@ public class User {
     //initialized purchased and reserved cards lists
     private ArrayList<Card> purchasedCards = new ArrayList<Card>();
     private ArrayList<Card> reservedCards = new ArrayList<Card>();
+
+    //initialized nobles list
+    private ArrayList<Noble> visitingNobles = new ArrayList<Noble>();
 
     public User(UUID uuid, String name, int connectionHasCode) {
         this.uuid = uuid;
@@ -88,12 +92,18 @@ public class User {
 
         purchasedCards.add(card);
 
-        this.updatePoints(card);
+        this.updatePoints(card.getPoints());
 
     }
 
-    private void updatePoints(Card card) {
-        this.points += card.getPoints();
+    public void takeNoble(Noble noble) {
+        this.visitingNobles.add(noble);
+        this.updatePoints(noble.getPoints());
+    }
+
+
+    private void updatePoints(int points) {
+        this.points += points;
     }
 
     public void reserveCard(Card card) {
