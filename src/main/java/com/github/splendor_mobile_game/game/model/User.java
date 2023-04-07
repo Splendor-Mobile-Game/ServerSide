@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.game.enums.TokenType;
+import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class User {
 
@@ -63,11 +64,13 @@ public class User {
         this.tokens.put(type, this.tokens.get(type) + 2);
     }
 
+
     //method for taking tokens from user
     public void putDownTokens(TokenType type, int amount) throws Exception {
         if(this.tokens.get(type) - amount < 0) throw new Exception("You can't have less than 0 tokens");
         this.tokens.put(type, this.tokens.get(type) - amount);
     }
+
 
     //method for adding three different tokens
     public void takeThreeTokens(TokenType type1, TokenType type2, TokenType type3) throws Exception {
@@ -92,7 +95,6 @@ public class User {
             }
         });
 
-        purchasedCards.add(card);
         if (cardPoints.get(card.getAdditionalToken()) == null) {
             cardPoints.put(card.getAdditionalToken(), 1);
         }
@@ -112,6 +114,7 @@ public class User {
 
         this.visitingNobles.add(noble);
         this.updatePoints(noble.getPoints());
+        Log.INFO("KUPIONO NOBLA o ID=" + noble.getUuid());
     }
 
 
