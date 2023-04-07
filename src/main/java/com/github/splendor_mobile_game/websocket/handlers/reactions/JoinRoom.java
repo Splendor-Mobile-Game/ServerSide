@@ -27,19 +27,19 @@ public class JoinRoom extends Reaction {
     }
 
 
-    private class RoomDTO {
+    public static class RoomDTO {
         public String enterCode;
         public String password;
     }
 
-    private class UserDTO {
+    public static class UserDTO {
         public UUID uuid;
         public String name;
     }
 
 
     @DataClass
-    private class DataDTO {
+    public static class DataDTO {
 
         private RoomDTO roomDTO;
         private UserDTO userDTO;
