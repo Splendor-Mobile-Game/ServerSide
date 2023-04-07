@@ -88,6 +88,12 @@ public class User {
 
         purchasedCards.add(card);
 
+        this.updatePoints(card);
+
+    }
+
+    private void updatePoints(Card card) {
+        this.points += card.getPoints();
     }
 
     public void reserveCard(Card card) {
