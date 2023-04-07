@@ -3,6 +3,7 @@ package com.github.splendor_mobile_game.websocket.communication;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.json.JsonParser;
 import com.github.splendor_mobile_game.websocket.utils.json.Optional;
@@ -85,6 +86,22 @@ public class ServerMessage {
 
     public Result getResult() {
         return result;
+    }
+
+    /**
+     * Converts the current ServerMessage object to an ErrorResponse object.
+     * 
+     * @return the ErrorResponse object
+     * @throws JsonParserException if the data object in this ServerMessage cannot be converted to an ErrorResponse object
+     * @throws UnsupportedOperationException if the result of this ServerMessage object is Result.OK
+     */
+    public ErrorResponse toErrorResponse() throws JsonParserException {
+        if (this.getResult() == Result.OK) {
+            throw new UnsupportedOperationException("This ServerMessage is not the ErrorResponse, because its result is OK");
+        }
+
+        ErrorResponse.Data data = (ErrorResponse.Data) this.getData();
+        return new ErrorResponse(this.getResult(), data.error, this.getType(), this.getContextId().toString());
     }
 
 }

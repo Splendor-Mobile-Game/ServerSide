@@ -9,14 +9,9 @@ import com.google.gson.Gson;
 public class ErrorResponse {
 
     /** Represents the data portion of the error response. */
-    private static class Data {
-        @SuppressWarnings("unused")
-        String error;
+    public static class Data {
+        public String error;
 
-        /**
-         * Initializes a new instance of the Data class.
-         * @param error the error message
-         */
         Data(String error) {
             this.error = error;
         }
