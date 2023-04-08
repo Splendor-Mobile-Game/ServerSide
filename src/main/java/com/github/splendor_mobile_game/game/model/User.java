@@ -11,10 +11,13 @@ public class User {
 
     private int connectionHasCode;
 
+    private boolean hasPerformedAction;
+
     public User(UUID uuid, String name, int connectionHasCode) {
         this.uuid = uuid;
         this.name = name;
         this.connectionHasCode = connectionHasCode;
+        this.hasPerformedAction = false;
     }
 
 
@@ -38,6 +41,13 @@ public class User {
         this.uuid = uuid;
     }
 
+    public boolean hasPerformedAction() {
+        return hasPerformedAction;
+    }
+
+    public void setPerformedAction(boolean hasPerformedAction) {
+        this.hasPerformedAction = hasPerformedAction;
+    }
 
     @Override
     public boolean equals(Object o) {
