@@ -24,8 +24,9 @@ public class User {
 
     //initialized tokens hashmap
     public Map<TokenType, Integer> tokens = new HashMap<TokenType, Integer>();
-    //hashmap which contains how many points of each type of color user has
-    private HashMap<TokenType, Integer> cardPoints = new HashMap<>();
+
+    //hashmap showing how many Bonuses user has
+    private Map<TokenType, Integer> cardBonuses = new HashMap<TokenType, Integer>();
 
     //initialized purchased and reserved cards lists
     private ArrayList<Card> purchasedCards = new ArrayList<Card>();
@@ -39,9 +40,10 @@ public class User {
         this.name = name;
         this.connectionHasCode = connectionHasCode;
 
-        //putting every token type into the hashmap and setting its value to 0
+        //putting every token type into hashmaps and setting its value to 0
         for (TokenType type : TokenType.values()) {
             this.tokens.put(type, 0);
+            if(type != TokenType.GOLD_JOKER) this.cardBonuses.put(type, 0);
         }
     }
 
@@ -90,24 +92,30 @@ public class User {
     //method for buying cards
     public void buyCard(Card card) throws NotEnoughTokensException {
 
+        int goldTokensUsed = 0;
+
         for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
             if(set.getKey() == TokenType.GOLD_JOKER) continue;
-            if(set.getValue() < card.getCost(set.getKey())) throw new NotEnoughTokensException("You don't have enough tokens to buy this card");
+            int tokensPlusBonuses = set.getValue() + this.cardBonuses.get(set.getKey());
+            if(tokensPlusBonuses < card.getCost(set.getKey())) {
+                int missingTokens = card.getCost(set.getKey()) - tokensPlusBonuses;
+                if((this.getTokenCount(TokenType.GOLD_JOKER) - goldTokensUsed) >= missingTokens) {
+                    goldTokensUsed += missingTokens;
+                } else {
+                    throw new NotEnoughTokensException("You don't have enough tokens to buy this card");
+                }
+            }
         }
 
         this.tokens.forEach((k,v) -> {
             if(k != TokenType.GOLD_JOKER) {
-                this.tokens.put(k, v - card.getCost(k));
+                int neededTokens = card.getCost(k) - this.cardBonuses.get(k);
+                int changedValue = v > neededTokens ? v - neededTokens : 0;
+                this.tokens.put(k, changedValue);
             }
         });
 
-        if (cardPoints.get(card.getAdditionalToken()) == null) {
-            cardPoints.put(card.getAdditionalToken(), 1);
-        }
-        else {
-            int val = cardPoints.get(card.getAdditionalToken());
-            cardPoints.replace(card.getAdditionalToken(), val + 1);
-        }
+        this.cardBonuses.put(card.getAdditionalToken(), this.cardBonuses.get(card.getAdditionalToken()) + 1);
 
         this.updatePoints(card.getPoints());
 
