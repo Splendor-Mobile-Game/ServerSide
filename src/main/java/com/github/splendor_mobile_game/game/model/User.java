@@ -1,6 +1,5 @@
 package com.github.splendor_mobile_game.game.model;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +34,7 @@ public class User {
 
     //initialized nobles list
     private ArrayList<Noble> visitingNobles = new ArrayList<Noble>();
+    private boolean hasPerformedAction;
 
     public User(UUID uuid, String name, int connectionHasCode) {
         this.uuid = uuid;
@@ -46,6 +46,7 @@ public class User {
             this.tokens.put(type, 0);
             if(type != TokenType.GOLD_JOKER) this.cardBonuses.put(type, 0);
         }
+        this.hasPerformedAction = false;
     }
 
     //method returning how many tokens user has
@@ -148,6 +149,7 @@ public class User {
         this.tokens.put(TokenType.GOLD_JOKER, this.tokens.get(TokenType.GOLD_JOKER) + 1);
     }
 
+
     public int getConnectionHasCode() {
         return connectionHasCode;
     }
@@ -168,6 +170,13 @@ public class User {
         this.uuid = uuid;
     }
 
+    public boolean hasPerformedAction() {
+        return hasPerformedAction;
+    }
+
+    public void setPerformedAction(boolean hasPerformedAction) {
+        this.hasPerformedAction = hasPerformedAction;
+    }
 
     @Override
     public boolean equals(Object o) {
