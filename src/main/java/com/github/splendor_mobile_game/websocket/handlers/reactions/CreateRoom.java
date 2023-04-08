@@ -146,7 +146,7 @@ public class CreateRoom extends Reaction {
             database.addUser(user);
             database.addRoom(room);
 
-            //room.startGame();
+            // room.startGame();
 
             UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, dataDTO.userDTO.name);
             RoomDataResponse roomDataResponse = new RoomDataResponse(dataDTO.roomDTO.name);

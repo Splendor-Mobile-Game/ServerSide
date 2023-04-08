@@ -60,7 +60,7 @@ public class Game {
         //testForDuplicates(CardTier.LEVEL_3);
         //testForDuplicatesNoble();
 
-        //takeNobleTest();
+        // takeNobleTest();
     }
 
     //Only for testing private function TO BE DELETED
@@ -94,57 +94,61 @@ public class Game {
 
 //    public void takeNobleTest() //will be deleted (only test function)
 //    {
-//        try {
-//            User u = database.getAllUsers().get(0);
-//
-//            Log.DEBUG("FAJNE DZIALA0");
-//
-//            u.tokens.put(TokenType.EMERALD,100);
-//            u.tokens.put(TokenType.ONYX,100);
-//            u.tokens.put(TokenType.DIAMOND,100);
-//            u.tokens.put(TokenType.SAPPHIRE,100);
-//            u.tokens.put(TokenType.RUBY,100);
-//
-//
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
-//
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
-//
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.RUBY));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.RUBY));
-//            u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.RUBY));
-//
+//         User u = database.getAllUsers().get(0);
+
+//         Log.DEBUG("FAJNE DZIALA0");
+
+//         u.tokens.put(TokenType.EMERALD,100);
+//         u.tokens.put(TokenType.ONYX,100);
+//         u.tokens.put(TokenType.DIAMOND,100);
+//         u.tokens.put(TokenType.SAPPHIRE,100);
+//         u.tokens.put(TokenType.RUBY,100);
+
+
+//         try {
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.RUBY));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.RUBY));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.RUBY));
+//         } catch (Exception e) {
+//             System.out.println(e.getMessage());
+//         }
+
 //            ArrayList<Noble> list = new ArrayList<>();
 //            list.add(database.getAllNobles().get(1));
 //            list.add(database.getAllNobles().get(4));
 //            list.add(database.getAllNobles().get(5));
-//            list.add(database.getAllNobles().get(8));
+//            list.add(database.getAllNobles().get(6));
 //            this.nobles = list;
-//
+
 //            Log.DEBUG("FAJNE DZIALA1");
-//
-//            for (Noble noble : nobles)
-//                u.takeNoble(noble);
-//
+
+//            for (Noble noble : nobles) {
+//                try {
+//                     u.takeNoble(noble);
+//                } catch (Exception e) {
+//                     Log.ERROR(e.getMessage());
+//                }
+//             }
+
 //            Log.DEBUG("FAJNE DZIALA2");
 //        }
-//        catch (Exception e)
-//        {
-//            Log.ERROR(e.getMessage());
-//        }
-//    }
+       
 
 
     private Card getRandomCard(CardTier tier){

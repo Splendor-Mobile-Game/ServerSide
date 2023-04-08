@@ -127,10 +127,12 @@ public class User {
     public void takeNoble(Noble noble) throws NotEnoughBonusPointsException {
         for(Map.Entry<TokenType, Integer> set : this.cardBonuses.entrySet()) {
             if(set.getValue() < noble.getCost((set.getKey()))) throw new NotEnoughBonusPointsException("You don't have enough cards for this Noble to visit you");
-
-            this.visitingNobles.add(noble);
-            this.addPoints(noble.getPoints());
         }
+
+        this.visitingNobles.add(noble);
+        this.addPoints(noble.getPoints());
+
+        Log.INFO("Kupiono nobla o id " + noble.getUuid());
     }
 
     private void addPoints(int points) {
