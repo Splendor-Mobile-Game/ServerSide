@@ -148,66 +148,6 @@ public class CreateRoom extends Reaction {
 
             //room.startGame();
 
-            //User class testing code
-
-            try {
-                user.takeThreeTokens(TokenType.DIAMOND, TokenType.EMERALD, TokenType.RUBY);
-                user.takeThreeTokens(TokenType.DIAMOND, TokenType.EMERALD, TokenType.RUBY);
-                user.takeThreeTokens(TokenType.DIAMOND, TokenType.EMERALD, TokenType.RUBY);
-            } catch (SameTokenTypesException e) {
-                System.out.println(e.getMessage());
-            }
-
-            Card testCard = new Card(CardTier.LEVEL_2, 3, 3,0,1,3,0, TokenType.EMERALD);
-
-            System.out.println(user.getTokenCount());
-            System.out.println("Diamond");
-            System.out.println(user.getTokenCount(TokenType.DIAMOND));
-            System.out.println("Emerald");
-            System.out.println(user.getTokenCount(TokenType.EMERALD));
-            System.out.println("Ruby");
-            System.out.println(user.getTokenCount(TokenType.RUBY));
-
-            System.out.println();
-            System.out.println();
-
-            try {
-                user.buyCard(testCard);
-            } catch (NotEnoughTokensException e) {
-                System.out.println(e.getMessage());
-            }
-
-            System.out.println(user.getTokenCount());
-            System.out.println("Diamond");
-            System.out.println(user.getTokenCount(TokenType.DIAMOND));
-            System.out.println("Emerald");
-            System.out.println(user.getTokenCount(TokenType.EMERALD));
-            System.out.println("Ruby");
-            System.out.println(user.getTokenCount(TokenType.RUBY));
-
-            user.takeTwoTokens(TokenType.GOLD_JOKER);
-
-            System.out.println();
-            System.out.println();
-
-            Card testCard2 = new Card(CardTier.LEVEL_2, 3, 2,0,0,1,0, TokenType.EMERALD);
-
-            try {
-                user.buyCard(testCard2);
-            } catch (NotEnoughTokensException e) {
-                System.out.println(e.getMessage());
-            }
-
-            System.out.println(user.getTokenCount());
-            System.out.println("Diamond");
-            System.out.println(user.getTokenCount(TokenType.DIAMOND));
-            System.out.println("Emerald");
-            System.out.println(user.getTokenCount(TokenType.EMERALD));
-            System.out.println("Ruby");
-            System.out.println(user.getTokenCount(TokenType.RUBY));
-
-            //end of User class testing code
-
             UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, dataDTO.userDTO.name);
             RoomDataResponse roomDataResponse = new RoomDataResponse(dataDTO.roomDTO.name);
             ResponseData responseData = new ResponseData(userDataResponse, roomDataResponse);
