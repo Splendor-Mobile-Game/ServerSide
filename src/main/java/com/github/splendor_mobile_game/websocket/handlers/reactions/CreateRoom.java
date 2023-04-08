@@ -29,12 +29,10 @@ public class CreateRoom extends Reaction {
     public static class RoomDTO {
         public String name;
         public String password;
-        public UUID uuid;
 
-        public RoomDTO(String name, String password, UUID uuid) {
+        public RoomDTO(String name, String password) {
             this.name = name;
             this.password = password;
-            this.uuid = uuid;
         }
 
     }
@@ -146,7 +144,7 @@ public class CreateRoom extends Reaction {
             database.addRoom(room);
 
             UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, dataDTO.userDTO.name);
-            RoomDataResponse roomDataResponse = new RoomDataResponse(dataDTO.roomDTO.name, dataDTO.roomDTO.uuid);
+            RoomDataResponse roomDataResponse = new RoomDataResponse(dataDTO.roomDTO.name, room.getUuid());
             ResponseData responseData = new ResponseData(userDataResponse, roomDataResponse);
             ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.CREATE_ROOM_RESPONSE, Result.OK, responseData);
 
