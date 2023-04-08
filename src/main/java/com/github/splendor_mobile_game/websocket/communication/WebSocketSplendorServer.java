@@ -101,7 +101,7 @@ public class WebSocketSplendorServer extends WebSocketServer {
     */
     @Override
     public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
-        Log.DEBUG("New connection" + webSocket.hashCode() + " from " + webSocket.getRemoteSocketAddress());
+        Log.DEBUG("New connection " + webSocket.hashCode() + " from " + webSocket.getRemoteSocketAddress());
 
         // Make new instance of given ConnectionHandler in constructor
         // It have callbacks that our WebSocketConnectionHandler will be invoking
@@ -140,7 +140,7 @@ public class WebSocketSplendorServer extends WebSocketServer {
     @Override
     public void onClose(WebSocket webSocket, int code, String reason, boolean remote) {
         // Log the connection end with the code, reason and whether it was closed remotely or locally
-        Log.DEBUG("WebSocket connection closed with remote address " + webSocket.getRemoteSocketAddress() + 
+        Log.DEBUG("WebSocket connection `" + webSocket.hashCode() + "` closed with remote address " + webSocket.getRemoteSocketAddress() + 
             ". Close code: " + code + ". Reason: " + reason + ". Remote: " + remote + "."
         );
         
