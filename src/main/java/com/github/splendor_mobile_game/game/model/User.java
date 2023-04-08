@@ -75,12 +75,14 @@ public class User {
 
 
     //method for adding three different tokens
-    public void takeThreeTokens(TokenType type1, TokenType type2, TokenType type3) throws Exception {
+    public boolean takeThreeTokens(TokenType type1, TokenType type2, TokenType type3) throws Exception {
         if(type1 == type2 || type1 == type3 || type2 == type3) throw new Exception("No three different token types selected");
-        if(this.getTokenCount() > 7) throw new Exception("You can't have more than 10 tokens");
         this.tokens.put(type1, this.tokens.get(type1) + 1);
         this.tokens.put(type2, this.tokens.get(type2) + 1);
         this.tokens.put(type3, this.tokens.get(type3) + 1);
+
+        if(this.getTokenCount() > 10) return false;
+        return true;
     }
 
     //method for buying cards
