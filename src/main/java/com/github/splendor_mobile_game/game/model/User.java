@@ -23,7 +23,7 @@ public class User {
     private int points;
 
     //initialized tokens hashmap
-    public Map<TokenType, Integer> tokens = new HashMap<TokenType, Integer>();
+    private Map<TokenType, Integer> tokens = new HashMap<TokenType, Integer>();
 
     //hashmap showing how many Bonuses user has
     private Map<TokenType, Integer> cardBonuses = new HashMap<TokenType, Integer>();
@@ -115,21 +115,23 @@ public class User {
             }
         });
 
+        this.tokens.put(TokenType.GOLD_JOKER, this.tokens.get(TokenType.GOLD_JOKER) - goldTokensUsed);
+
         this.cardBonuses.put(card.getAdditionalToken(), this.cardBonuses.get(card.getAdditionalToken()) + 1);
 
         this.updatePoints(card.getPoints());
 
     }
 
-    public void takeNoble(Noble noble) throws Exception {
-        for(Map.Entry<TokenType, Integer> set : cardPoints.entrySet()) {
-            if(set.getValue() < noble.getCost(set.getKey())) throw new Exception("You don't have enough cards for this Noble to visit you");
-        }
+    // public void takeNoble(Noble noble) throws Exception {
+    //     for(Map.Entry<TokenType, Integer> set : cardPoints.entrySet()) {
+    //         if(set.getValue() < noble.getCost(set.getKey())) throw new Exception("You don't have enough cards for this Noble to visit you");
+    //     }
 
-        this.visitingNobles.add(noble);
-        this.updatePoints(noble.getPoints());
-        Log.INFO("KUPIONO NOBLA o ID=" + noble.getUuid());
-    }
+    //     this.visitingNobles.add(noble);
+    //     this.updatePoints(noble.getPoints());
+    //     Log.INFO("KUPIONO NOBLA o ID=" + noble.getUuid());
+    // }
 
 
     private void updatePoints(int points) {
