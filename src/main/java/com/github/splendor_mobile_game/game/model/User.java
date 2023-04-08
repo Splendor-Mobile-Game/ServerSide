@@ -59,9 +59,11 @@ public class User {
     }
 
     //method for adding two tokens (still needs to be validated if there are at least 4 tokens of this type on the table)
-    public void takeTwoTokens(TokenType type) throws Exception {
-        if(this.getTokenCount() > 8) throw new Exception("You can't have more than 10 tokens");
+    public boolean takeTwoTokens(TokenType type) {
         this.tokens.put(type, this.tokens.get(type) + 2);
+
+        if(this.getTokenCount() > 10) return false;
+        return true;
     }
 
 
