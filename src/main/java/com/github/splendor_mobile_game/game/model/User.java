@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.github.splendor_mobile_game.game.Exceptions.NotEnoughBonusPointsException;
 import com.github.splendor_mobile_game.game.Exceptions.NotEnoughTokensException;
 import com.github.splendor_mobile_game.game.Exceptions.SameTokenTypesException;
 import com.github.splendor_mobile_game.game.enums.TokenType;
@@ -123,16 +124,14 @@ public class User {
 
     }
 
-    // public void takeNoble(Noble noble) throws Exception {
-    //     for(Map.Entry<TokenType, Integer> set : cardPoints.entrySet()) {
-    //         if(set.getValue() < noble.getCost(set.getKey())) throw new Exception("You don't have enough cards for this Noble to visit you");
-    //     }
+    public void takeNoble(Noble noble) throws NotEnoughBonusPointsException {
+        for(Map.Entry<TokenType, Integer> set : this.cardBonuses.entrySet()) {
+            if(set.getValue() < noble.getCost((set.getKey()))) throw new NotEnoughBonusPointsException("You don't have enough cards for this Noble to visit you");
 
-    //     this.visitingNobles.add(noble);
-    //     this.updatePoints(noble.getPoints());
-    //     Log.INFO("KUPIONO NOBLA o ID=" + noble.getUuid());
-    // }
-
+            this.visitingNobles.add(noble);
+            this.updatePoints(noble.getPoints());
+        }
+    }
 
     private void updatePoints(int points) {
         this.points += points;
