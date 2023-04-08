@@ -120,7 +120,7 @@ public class User {
 
         this.cardBonuses.put(card.getAdditionalToken(), this.cardBonuses.get(card.getAdditionalToken()) + 1);
 
-        this.updatePoints(card.getPoints());
+        this.addPoints(card.getPoints());
 
     }
 
@@ -129,12 +129,16 @@ public class User {
             if(set.getValue() < noble.getCost((set.getKey()))) throw new NotEnoughBonusPointsException("You don't have enough cards for this Noble to visit you");
 
             this.visitingNobles.add(noble);
-            this.updatePoints(noble.getPoints());
+            this.addPoints(noble.getPoints());
         }
     }
 
-    private void updatePoints(int points) {
+    private void addPoints(int points) {
         this.points += points;
+    }
+
+    public int getPoints() {
+        return this.points;
     }
 
     public void reserveCard(Card card) {
