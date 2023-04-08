@@ -133,7 +133,11 @@ public class JoinRoom extends Reaction {
             RoomDataResponse roomData = new RoomDataResponse(room.getUuid(), room.getName());
             
             List<UserDataResponse> usersData = new ArrayList<UserDataResponse>();
+            usersData.add(new UserDataResponse(room.getOwner().getUuid(), room.getOwner().getName()));
+            
             for (User roomUser : room.getAllUsers()) {
+                if (roomUser.equals(room.getOwner()))
+                    continue;
                 UserDataResponse userDTO = new UserDataResponse(roomUser.getUuid(), roomUser.getName());
                 usersData.add(userDTO);
             }
