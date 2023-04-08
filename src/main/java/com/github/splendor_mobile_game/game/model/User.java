@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.github.splendor_mobile_game.game.Exceptions.NotEnoughTokensException;
 import com.github.splendor_mobile_game.game.Exceptions.SameTokenTypesException;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.websocket.utils.Log;
@@ -87,11 +88,11 @@ public class User {
     }
 
     //method for buying cards
-    public void buyCard(Card card) throws Exception {
+    public void buyCard(Card card) throws NotEnoughTokensException {
 
         for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
             if(set.getKey() == TokenType.GOLD_JOKER) continue;
-            if(set.getValue() < card.getCost(set.getKey())) throw new Exception("You don't have enough tokens to buy this card");
+            if(set.getValue() < card.getCost(set.getKey())) throw new NotEnoughTokensException("You don't have enough tokens to buy this card");
         }
 
         this.tokens.forEach((k,v) -> {
