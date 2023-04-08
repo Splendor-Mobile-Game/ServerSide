@@ -18,6 +18,8 @@ public class Game {
     private TokenList diamondTokens;
     private TokenList onyxTokens;
     private TokenList goldTokens;
+    private User currentOrder;
+    private final ArrayList<User> users = new ArrayList<>();
 
     private Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>();
     private Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>();
@@ -35,6 +37,19 @@ public class Game {
         database.loadNobles();
     }
 
+    public User getCurrentPlayer() {
+        return currentOrder;
+    }
+
+    public User changeTurn(){
+        int index = users.indexOf(currentOrder);
+        
+        if(index == users.size()-1)
+            return users.get(0);
+        
+        else
+            return users.get(index+1);
+    }
 
     public TokenList getEmeraldTokens() {
         return emeraldTokens;
