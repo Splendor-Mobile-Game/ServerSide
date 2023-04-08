@@ -83,12 +83,14 @@ public class CreateRoom extends Reaction {
     }
 
     public class RoomDataResponse {
-        public String name;
         public UUID uuid;
+        public String name;
+        public String enterCode;
 
-        public RoomDataResponse(String name, UUID uuid) {
+        public RoomDataResponse(UUID uuid, String name, String enterCode) {
             this.name = name;
             this.uuid = uuid;
+            this.enterCode = enterCode;
         }
 
     }
@@ -144,7 +146,7 @@ public class CreateRoom extends Reaction {
             database.addRoom(room);
 
             UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, dataDTO.userDTO.name);
-            RoomDataResponse roomDataResponse = new RoomDataResponse(dataDTO.roomDTO.name, room.getUuid());
+            RoomDataResponse roomDataResponse = new RoomDataResponse(room.getUuid(), dataDTO.roomDTO.name, room.getEnterCode());
             ResponseData responseData = new ResponseData(userDataResponse, roomDataResponse);
             ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.CREATE_ROOM_RESPONSE, Result.OK, responseData);
 
