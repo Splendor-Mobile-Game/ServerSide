@@ -97,6 +97,7 @@ public class LeaveRoom extends Reaction{
             Room room = database.getRoom(dataDTO.roomDTO.uuid);
             ArrayList<User> usersTmp = room.getAllUsers();
             room.leaveGame(user);
+            database.getAllUsers().remove(user);
 
             if(room.getPlayerCount()>0)
                 //checking if user who wants to leave room isn't owner, if that's true, setting new owner as another user from list of users
