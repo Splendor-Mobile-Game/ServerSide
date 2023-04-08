@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+import com.github.splendor_mobile_game.game.Exceptions.SameTokenTypesException;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
@@ -75,8 +76,8 @@ public class User {
 
 
     //method for adding three different tokens
-    public boolean takeThreeTokens(TokenType type1, TokenType type2, TokenType type3) throws Exception {
-        if(type1 == type2 || type1 == type3 || type2 == type3) throw new Exception("No three different token types selected");
+    public boolean takeThreeTokens(TokenType type1, TokenType type2, TokenType type3) throws SameTokenTypesException {
+        if(type1 == type2 || type1 == type3 || type2 == type3) throw new SameTokenTypesException("No three different token types selected");
         this.tokens.put(type1, this.tokens.get(type1) + 1);
         this.tokens.put(type2, this.tokens.get(type2) + 1);
         this.tokens.put(type3, this.tokens.get(type3) + 1);
