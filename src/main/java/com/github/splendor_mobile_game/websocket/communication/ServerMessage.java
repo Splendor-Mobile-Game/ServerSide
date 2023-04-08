@@ -8,6 +8,7 @@ import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.json.JsonParser;
 import com.github.splendor_mobile_game.websocket.utils.json.Optional;
 import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonParserException;
+import com.google.gson.Gson;
 
 /**
  * Represents a message sent by the server to the client.
@@ -100,7 +101,7 @@ public class ServerMessage {
             throw new UnsupportedOperationException("This ServerMessage is not the ErrorResponse, because its result is OK");
         }
 
-        ErrorResponse.Data data = (ErrorResponse.Data) this.getData();
+        ErrorResponse.Data data = (ErrorResponse.Data) JsonParser.parseJson((new Gson()).toJson(this.getData()), ErrorResponse.Data.class);
         return new ErrorResponse(this.getResult(), data.error, this.getType(), this.getContextId().toString());
     }
 
