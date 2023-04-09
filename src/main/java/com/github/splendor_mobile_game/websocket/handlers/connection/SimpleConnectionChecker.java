@@ -2,6 +2,9 @@ package com.github.splendor_mobile_game.websocket.handlers.connection;
 
 import org.java_websocket.WebSocket;
 
+import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.model.Room;
+import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
 /**
@@ -14,9 +17,10 @@ public class SimpleConnectionChecker extends ConnectionChecker {
     /**
      * Constructor for SimpleConnectionChecker.
      * @param connection The WebSocket connection to check.
+     * @param database The database with users, rooms and games
      */
-    public SimpleConnectionChecker(WebSocket connection) {
-        super(connection);
+    public SimpleConnectionChecker(WebSocket connection, Database database) {
+        super(connection, database);
     }
 
     /**
@@ -43,6 +47,19 @@ public class SimpleConnectionChecker extends ConnectionChecker {
     @Override
     public void onConnectionClose() {
         Log.TRACE(this.connection.hashCode() + " has been closed!");
+
+        User user = database.getUserByConnectionHashCode(connection.hashCode());
+        
+        if (user != null) {
+            Room room = database.getRoomWithUser(user.getUuid());
+            if (room != null) {
+                room.leaveGame(user);
+                Log.DEBUG("User `" + user.getConnectionHashCode() + "` has been removed from its room, because connection has been lost.");    
+            }
+            database.getAllUsers().remove(user);
+            Log.DEBUG("User `" + user.getConnectionHashCode() + "` has been removed from entire database, because connection has been lost.");
+        }
+        
     }
 
 }

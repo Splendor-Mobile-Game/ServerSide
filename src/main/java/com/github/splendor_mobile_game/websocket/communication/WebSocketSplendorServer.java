@@ -78,9 +78,11 @@ public class WebSocketSplendorServer extends WebSocketServer {
         this.database = database;
         
         // Check that the specified ConnectionHandler class has a constructor with a WebSocket parameter
-        if (!Reflection.hasOneParameterConstructor(outerConnectionHandlerClass, WebSocket.class)) {
+        try {
+            Reflection.getConstructorWithParameters(outerConnectionHandlerClass, WebSocket.class, Database.class);
+        } catch (NoSuchMethodException e) {
             throw new ConnectionCheckerWithoutDefaultConstructorException(
-                outerConnectionHandlerClass.getName() + " doesn't have constructor with WebSocket as argument, but it's required!"
+                outerConnectionHandlerClass.getName() + " doesn't have constructor with WebSocket and Database as arguments, but those are required!"
             );
         }
         
@@ -108,8 +110,8 @@ public class WebSocketSplendorServer extends WebSocketServer {
         ConnectionChecker outerConnectionHandlerInstance;
         try {
             Constructor<? extends ConnectionChecker> constructor = this.outerConnectionHandlerClass
-                    .getDeclaredConstructor(WebSocket.class);
-            outerConnectionHandlerInstance = constructor.newInstance(webSocket);
+                    .getDeclaredConstructor(WebSocket.class, Database.class);
+            outerConnectionHandlerInstance = constructor.newInstance(webSocket, database);
         } catch (Exception e) {
             // This exception won't ever happen, because we check for that in the constructor of this class
             Log.ERROR("How did that happen?");
@@ -145,7 +147,7 @@ public class WebSocketSplendorServer extends WebSocketServer {
         );
         
         // Remove the reference to the connection handler and WebSocket instance associated with the closed connection
-        connectionHandlers.remove(webSocket.hashCode());
+        connectionHandlers.remove(webSocket.hashCode()).interrupt();
         connections.remove(webSocket.hashCode());
     }
 
