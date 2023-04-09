@@ -193,12 +193,7 @@ public class JoinRoom extends Reaction {
 
 
         // Check if user is already a member of any room
-        User user = database.getUser(dataDTO.userDTO.uuid);
-        if (user != null) {
-            for (Room r : database.getAllRooms())
-                if (r.getAllUsers().contains(user))
-                    throw new UserAlreadyInRoomException("Leave your current room before joining another.");
-        }
+        database.isUserInRoom(dataDTO.userDTO.uuid);
     }
 
 

@@ -12,6 +12,7 @@ import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Noble;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserAlreadyInRoomException;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
 
@@ -23,7 +24,8 @@ public class InMemoryDatabase implements Database {
     private ArrayList<Noble> allNobles = new ArrayList<>();
 
     public InMemoryDatabase() {
-
+        loadCards();
+        loadNobles();
     }
 
 
@@ -184,4 +186,13 @@ public class InMemoryDatabase implements Database {
             .orElse(null);
     }
 
+    @Override
+    public void isUserInRoom(UUID uuid) throws UserAlreadyInRoomException {
+        User user = getUser(uuid);
+        if (user != null) {
+            for (Room r : getAllRooms())
+                if (r.getAllUsers().contains(user))
+                    throw new UserAlreadyInRoomException("Leave your current room before joining another.");
+        }
+    }
 }

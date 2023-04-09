@@ -8,6 +8,7 @@ import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Noble;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserAlreadyInRoomException;
 
 public interface Database {
 
@@ -38,4 +39,6 @@ public interface Database {
     public ArrayList<Card> getAllCards();
 
     public ArrayList<Card> getSpecifiedCards(CardTier tier);
+
+    public void isUserInRoom(UUID uuid) throws UserAlreadyInRoomException;
 }
