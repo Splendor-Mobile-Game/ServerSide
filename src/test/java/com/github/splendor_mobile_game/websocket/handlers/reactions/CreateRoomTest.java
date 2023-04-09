@@ -83,7 +83,7 @@ public class CreateRoomTest {
         User user = database.getAllUsers().get(0);
         
         // User's connection hashcode is the same as the client send the request
-        assertThat(user.getConnectionHasCode()).isEqualTo(clientConnectionHashCode);
+        assertThat(user.getConnectionHashCode()).isEqualTo(clientConnectionHashCode);
         
         // Check for name
         assertThat(user.getName()).isEqualTo("James");

@@ -85,8 +85,20 @@ public class SqliteDatabase implements Database {
     }
 
     @Override
-    public void isUserInRoom(UUID uuid) throws UserAlreadyInRoomException {
+    public User getUserByConnectionHashCode(int connectionHashCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getUserByConnectionHashCode'");
+    }
 
+    @Override
+    public Room getRoomWithUser(UUID userUuid) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getRoomWithUser'");
+    }
+
+    public void isUserInRoom(UUID uuid) throws UserAlreadyInRoomException {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getRoomWithUser'");
     }
 
 

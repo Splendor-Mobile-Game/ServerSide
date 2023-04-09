@@ -169,6 +169,22 @@ public class InMemoryDatabase implements Database {
         return tempCardList;
     }
 
+    @Override
+    public User getUserByConnectionHashCode(int connectionHashCode) {
+        return this.allUsers.stream()
+            .filter(user -> user.getConnectionHashCode() == connectionHashCode)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public Room getRoomWithUser(UUID userUuid) {
+        User user = this.getUser(userUuid);
+        return this.allRooms.stream()
+            .filter(room -> room.userExists(user))
+            .findFirst()
+            .orElse(null);
+    }
 
     @Override
     public void isUserInRoom(UUID uuid) throws UserAlreadyInRoomException {

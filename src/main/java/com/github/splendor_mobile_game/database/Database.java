@@ -14,9 +14,13 @@ public interface Database {
 
     public User getUser(UUID uuid);
 
+    public User getUserByConnectionHashCode(int connectionHashCode);
+
     public void addUser(User user);
 
     public Room getRoom(UUID uuid);
+
+    public Room getRoomWithUser(UUID userUuid);
 
     public Room getRoom(String name);
 
