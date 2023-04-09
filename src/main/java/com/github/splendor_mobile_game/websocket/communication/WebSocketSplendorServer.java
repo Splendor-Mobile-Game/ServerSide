@@ -79,10 +79,10 @@ public class WebSocketSplendorServer extends WebSocketServer {
         
         // Check that the specified ConnectionHandler class has a constructor with a WebSocket parameter
         try {
-            Reflection.getConstructorWithParameters(outerConnectionHandlerClass, WebSocket.class, Database.class);
+            Reflection.getConstructorWithParameters(outerConnectionHandlerClass, WebSocket.class, Database.class, Map.class);
         } catch (NoSuchMethodException e) {
             throw new ConnectionCheckerWithoutDefaultConstructorException(
-                outerConnectionHandlerClass.getName() + " doesn't have constructor with WebSocket and Database as arguments, but those are required!"
+                outerConnectionHandlerClass.getName() + " doesn't have constructor with WebSocket, Database and Map as arguments, but those are required!"
             );
         }
         
@@ -110,8 +110,8 @@ public class WebSocketSplendorServer extends WebSocketServer {
         ConnectionChecker outerConnectionHandlerInstance;
         try {
             Constructor<? extends ConnectionChecker> constructor = this.outerConnectionHandlerClass
-                    .getDeclaredConstructor(WebSocket.class, Database.class);
-            outerConnectionHandlerInstance = constructor.newInstance(webSocket, database);
+                    .getDeclaredConstructor(WebSocket.class, Database.class, Map.class);
+            outerConnectionHandlerInstance = constructor.newInstance(webSocket, database, connections);
         } catch (Exception e) {
             // This exception won't ever happen, because we check for that in the constructor of this class
             Log.ERROR("How did that happen?");

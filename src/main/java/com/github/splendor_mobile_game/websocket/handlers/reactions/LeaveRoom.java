@@ -51,7 +51,7 @@ public class LeaveRoom extends Reaction{
         }
     }
     
-    public class ResponseData {
+    public static class ResponseData {
         public UserDataResponse user;
 
         public ResponseData(UserDataResponse user) {
@@ -60,7 +60,7 @@ public class LeaveRoom extends Reaction{
         
     }
     
-    public class UserDataResponse {
+    public static class UserDataResponse {
         public UUID id;
         public String name;
         public UserDataResponse(UUID id, String name) {

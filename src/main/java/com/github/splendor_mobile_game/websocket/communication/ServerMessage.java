@@ -105,4 +105,8 @@ public class ServerMessage {
         return new ErrorResponse(this.getResult(), data.error, this.getType(), this.getContextId().toString());
     }
 
+    public String toJson() {
+        return (new Gson()).toJson(this);
+    }
+
 }
