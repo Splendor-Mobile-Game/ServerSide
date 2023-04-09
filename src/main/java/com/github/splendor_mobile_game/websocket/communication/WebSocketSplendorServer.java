@@ -20,6 +20,7 @@ import com.github.splendor_mobile_game.websocket.handlers.connection.ConnectionC
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.CustomException;
+import com.github.splendor_mobile_game.websocket.utils.ExceptionUtils;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.github.splendor_mobile_game.websocket.utils.reflection.Reflection;
 
@@ -152,16 +153,36 @@ public class WebSocketSplendorServer extends WebSocketServer {
     }
 
     /**
-     * Callback for string messages received from the remote host
+     * Callback for string messages received from the remote host.
      *
-     * @param connection    The <tt>WebSocket</tt> instance this event is occurring on.
-     * @param message       The UTF-8 decoded message that was received.
-     **/
+     * @param connection The WebSocket instance this event is occurring on.
+     * @param message The UTF-8 decoded message that was received.
+     */
     @Override
     public void onMessage(WebSocket connection, String message) {
-        Log.TRACE("Message received from (" +
-            connection.hashCode() + ":" + connection.getRemoteSocketAddress() + "): " + message
-        );
+        try {
+            this.handleMessage(connection, message);
+
+        } catch (CustomException exception) {
+            CustomException customException = (CustomException) exception;
+            Log.ERROR(customException.toString());
+            connection.send(customException.toJsonResponse());
+
+        } catch (Exception exception) {
+            Log.ERROR("Server error: " + exception.getMessage() + "\n" + ExceptionUtils.getStackTrace(exception));
+            ErrorResponse response = new ErrorResponse(Result.ERROR, exception.getMessage() + "\n" + ExceptionUtils.getStackTrace(exception));
+            connection.send(response.ToJson());
+        }
+    }
+
+    /**
+     * Handles incoming messages from clients and sends appropriate responses.
+     *
+     * @param connection The WebSocket connection instance on which the message was received.
+     * @param message The message received from the client.
+     */
+    private void handleMessage(WebSocket connection, String message) throws CustomException, RuntimeException {
+        Log.TRACE("Message received from (" + connection.hashCode() + ":" + connection.getRemoteSocketAddress() + "): " + message);
 
         // Parse the message
         UserMessage receivedMessage = new UserMessage(message);
@@ -211,7 +232,7 @@ public class WebSocketSplendorServer extends WebSocketServer {
                 connection.hashCode() + ":" + connection.getRemoteSocketAddress() + "): " + text
             );
         }
-
+    
     }
 
     /**
@@ -235,8 +256,8 @@ public class WebSocketSplendorServer extends WebSocketServer {
             webSocket.send(customException.toJsonResponse());
         } else {
             // If it's not a CustomException, log the error message and send a generic ErrorResponse object to the client
-            Log.ERROR("Server error: " + exception.getMessage());
-            ErrorResponse response = new ErrorResponse(Result.ERROR, exception.getMessage());
+            Log.ERROR("Server error: " + exception.getMessage() + "\n" + ExceptionUtils.getStackTrace(exception));
+            ErrorResponse response = new ErrorResponse(Result.ERROR, exception.getMessage() + "\n" + ExceptionUtils.getStackTrace(exception));
             webSocket.send(response.ToJson());
         }
     }

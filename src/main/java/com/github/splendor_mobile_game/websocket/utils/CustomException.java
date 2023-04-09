@@ -10,6 +10,8 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  */
 public class CustomException extends RuntimeException {
 
+    private Result result = Result.ERROR;
+
     public CustomException() {
     }
 
@@ -17,17 +19,32 @@ public class CustomException extends RuntimeException {
         super(message);
     }
 
+    public CustomException(String message, Result result) {
+        super(message);
+        this.result = result;
+    }
+
     public CustomException(Throwable cause) {
         super(cause);
+    }
+
+    public CustomException(Throwable cause, Result result) {
+        super(cause);
+        this.result = result;
     }
 
     public CustomException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    public CustomException(String message, Throwable cause, Result result) {
+        super(message, cause);
+        this.result = result;
+    }
+
     @Override
     public String toString() {
-        return this.getMessage() + "\n" + this.getCause().getMessage();
+        return this.getMessage() + "\n" + ExceptionUtils.getStackTrace(this);
     }
 
     /**
@@ -36,7 +53,7 @@ public class CustomException extends RuntimeException {
      * @return a JSON string representation of an error response object
      */
     public String toJsonResponse() {
-        return (new ErrorResponse(Result.FAILURE, this.toString())).ToJson();
+        return (new ErrorResponse(this.result, this.toString())).ToJson();
     }
 
 }
