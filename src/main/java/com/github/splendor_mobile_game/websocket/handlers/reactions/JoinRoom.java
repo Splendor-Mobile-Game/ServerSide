@@ -147,7 +147,7 @@ public class JoinRoom extends Reaction {
             
             // Send join information to other players
             for (User u : room.getAllUsers()) {
-                messenger.addMessageToSend(u.getConnectionHasCode(), serverMessage);
+                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
             }
 
         } catch(Exception e) {
@@ -179,7 +179,7 @@ public class JoinRoom extends Reaction {
         // Check if room exists
         Room room = database.getRoom(dataDTO.roomDTO.enterCode);
         if (room == null)
-            throw new RoomDoesntExistException("Could not find a room with specified UUID.");
+            throw new RoomDoesntExistException("Could not find a room with specified enterCode.");
 
 
         // Check if password is valid

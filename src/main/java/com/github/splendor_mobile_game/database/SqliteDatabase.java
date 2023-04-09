@@ -82,4 +82,16 @@ public class SqliteDatabase implements Database {
         // TODO Auto-generated method stub
         return null;
     }
+
+    @Override
+    public User getUserByConnectionHashCode(int connectionHashCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getUserByConnectionHashCode'");
+    }
+
+    @Override
+    public Room getRoomWithUser(UUID userUuid) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getRoomWithUser'");
+    }
 }

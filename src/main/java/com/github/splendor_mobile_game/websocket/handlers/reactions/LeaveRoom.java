@@ -118,7 +118,7 @@ public class LeaveRoom extends Reaction{
 
             // Send leave information to other players
             for (User u : usersTmp) {
-                messenger.addMessageToSend(u.getConnectionHasCode(), serverMessage);
+                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
             }
 
 

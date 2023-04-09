@@ -21,7 +21,7 @@ public class User {
     }
 
 
-    public int getConnectionHasCode() {
+    public int getConnectionHashCode() {
         return connectionHasCode;
     }
 
@@ -54,7 +54,7 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return name.equals(user.name) && uuid.equals(user.uuid) && connectionHasCode == user.getConnectionHasCode();
+        return name.equals(user.name) && uuid.equals(user.uuid) && connectionHasCode == user.getConnectionHashCode();
     }
 
     @Override
