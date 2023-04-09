@@ -12,75 +12,33 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
 
-    private TokenList emeraldTokens;
-    private TokenList sapphireTokens;
-    private TokenList rubyTokens;
-    private TokenList diamondTokens;
-    private TokenList onyxTokens;
-    private TokenList goldTokens;
-
-    private Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>();
-    private Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>();
-
+    private final HashMap<TokenType, Integer> tokensOnTable = new HashMap<>();
+    private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
+    private final Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>(); // Cards of each tier visible on the table
     private ArrayList<Noble> nobles;
+    /** Maximum number of non-gold tokens generated for game. Depends on player count */
+    private int maxNonGoldTokensOnStart = 7;
+    private final Database database;
 
-    private int maxTokenStack = 7; // Default number of each token type
-
-    private Database database;
-
-    public Game(Database database) {
+    public Game(Database database, int playerCount) {
         this.database = database;
 
-        database.loadCards();
-        database.loadNobles();
+        start(playerCount);
     }
 
 
-    public TokenList getEmeraldTokens() {
-        return emeraldTokens;
-    }
-
-    public TokenList getSapphireTokens() {
-        return sapphireTokens;
-    }
-
-    public TokenList getRubyTokens() {
-        return rubyTokens;
-    }
-
-    public TokenList getDiamondTokens() {
-        return diamondTokens;
-    }
-
-    public TokenList getOnyxTokens() {
-        return onyxTokens;
-    }
-
-    public TokenList getGoldTokens() {
-        return goldTokens;
-    }
-
-    public int getMaxTokenStack() {
-        return maxTokenStack;
-    }
-
-
-
-    public boolean startGame(Room room) {
-        if (room.getPlayerCount() < 2) return false; // Minimum number of players to start a game is 2.
-        if (room.getPlayerCount() > 4) return false; // Maximum number of players to start a game is 4.
-
+    private void start(int playerCount) {
         // Calculate number of tokens of each type
-        if (room.getPlayerCount() == 2) this.maxTokenStack = 4;
-        if (room.getPlayerCount() == 3) this.maxTokenStack = 5;
+        if (playerCount == 2) this.maxNonGoldTokensOnStart = 4;
+        if (playerCount == 3) this.maxNonGoldTokensOnStart = 5;
 
         // Assign all tokenLists
-        this.emeraldTokens  = createTokenList(TokenType.EMERALD);
-        this.sapphireTokens = createTokenList(TokenType.SAPPHIRE);
-        this.rubyTokens     = createTokenList(TokenType.RUBY);
-        this.diamondTokens  = createTokenList(TokenType.DIAMOND);
-        this.onyxTokens     = createTokenList(TokenType.ONYX);
-        this.goldTokens     = createTokenList(TokenType.GOLD_JOKER);
+        tokensOnTable.put(TokenType.EMERALD,    maxNonGoldTokensOnStart);
+        tokensOnTable.put(TokenType.SAPPHIRE,   maxNonGoldTokensOnStart);
+        tokensOnTable.put(TokenType.RUBY,       maxNonGoldTokensOnStart);
+        tokensOnTable.put(TokenType.DIAMOND,    maxNonGoldTokensOnStart);
+        tokensOnTable.put(TokenType.ONYX,       maxNonGoldTokensOnStart);
+        tokensOnTable.put(TokenType.GOLD_JOKER, 5);
 
         //Get ALL cards from database
         decks.put(CardTier.LEVEL_1,new Deck(CardTier.LEVEL_1,database.getSpecifiedCards(CardTier.LEVEL_1)));
@@ -95,13 +53,14 @@ public class Game {
         // Choose random noble cards from database
         nobles = getRandomNobles(4);//Always we draw four noblemen
 
-        //Only for testing TO BE DELTED
-        testForDuplicates(CardTier.LEVEL_1);
-        testForDuplicates(CardTier.LEVEL_2);
-        testForDuplicates(CardTier.LEVEL_3);
-        testForDuplicatesNoble();
 
-        return true;
+        //Only for testing TO BE DELTED
+        //testForDuplicates(CardTier.LEVEL_1);
+        //testForDuplicates(CardTier.LEVEL_2);
+        //testForDuplicates(CardTier.LEVEL_3);
+        //testForDuplicatesNoble();
+
+        // takeNobleTest();
     }
 
     //Only for testing private function TO BE DELETED
@@ -133,26 +92,64 @@ public class Game {
     }
 
 
+//    public void takeNobleTest() //will be deleted (only test function)
+//    {
+//         User u = database.getAllUsers().get(0);
+
+//         Log.DEBUG("FAJNE DZIALA0");
+
+//         u.tokens.put(TokenType.EMERALD,100);
+//         u.tokens.put(TokenType.ONYX,100);
+//         u.tokens.put(TokenType.DIAMOND,100);
+//         u.tokens.put(TokenType.SAPPHIRE,100);
+//         u.tokens.put(TokenType.RUBY,100);
 
 
+//         try {
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.SAPPHIRE));
 
-    /**
-     *
-     * @param tokenType -> Color of the token
-     * @return TokenList -> Object representing all available tokens
-     */
-    private TokenList createTokenList(TokenType tokenType) {
-        TokenList tokenList = new TokenList(tokenType);
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.EMERALD));
 
-        int numberOfRepeats = maxTokenStack;
-        if (tokenType == TokenType.GOLD_JOKER) numberOfRepeats = 5; // There are only 5 golden tokens
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.RUBY));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.RUBY));
+//             u.buyCard(new Card(CardTier.LEVEL_1, 1, 2, 2, 2, 2, 2, TokenType.RUBY));
+//         } catch (Exception e) {
+//             System.out.println(e.getMessage());
+//         }
 
-        for (int i=0; i < numberOfRepeats; i++) {
-            tokenList.addToken(new Token(tokenType));
-        }
+//            ArrayList<Noble> list = new ArrayList<>();
+//            list.add(database.getAllNobles().get(1));
+//            list.add(database.getAllNobles().get(4));
+//            list.add(database.getAllNobles().get(5));
+//            list.add(database.getAllNobles().get(6));
+//            this.nobles = list;
 
-        return tokenList;
-    }
+//            Log.DEBUG("FAJNE DZIALA1");
+
+//            for (Noble noble : nobles) {
+//                try {
+//                     u.takeNoble(noble);
+//                } catch (Exception e) {
+//                     Log.ERROR(e.getMessage());
+//                }
+//             }
+
+//            Log.DEBUG("FAJNE DZIALA2");
+//        }
+       
+
 
     private Card getRandomCard(CardTier tier){
         return getRandomCards(tier,1).get(0);
