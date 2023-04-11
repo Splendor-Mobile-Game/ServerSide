@@ -1,8 +1,12 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.UUID;
+
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
+import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
@@ -15,10 +19,10 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  * 
  * Example of user request
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "GET_TOKENS",
  *      "data": {
- *          "tokensChange": {
+ *          "tokensChangeDTO": {
  *              "red": 1,
  *              "blue": 1,
  *              "green": 1,
@@ -29,10 +33,10 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  * }
  * or something like this
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "GET_TOKENS",
  *      "data": {
- *          "tokensChange": {
+ *          "tokensChangeDTO": {
  *              "red": 0,
  *              "blue": 2,
  *              "green": 0,
@@ -44,29 +48,29 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  * if the situation arises that player would get more than 10 tokens in total,
  * then player have to give back some other tokens, so the following might be possible.
  * Consider a player has 9 tokens. They get 3 more and give back some 2, so the balance is 10 at max.
- * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "GET_TOKENS",
- *      "data": {
- *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
- *          "tokensChange": {
- *              "red": 1,
- *              "blue": 1,
- *              "green": 1,
- *              "white": -2,
- *              "black": 0
- *          }
- *      }
- * }
+  {
+       "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+       "type": "GET_TOKENS",
+       "data": {
+           "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
+           "tokensChangeDTO": {
+               "red": 1,
+               "blue": 1,
+               "green": 1,
+               "white": -2,
+               "black": 0
+           }
+       }
+  }
  * 
  * Example of server announcement
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "GET_TOKENS_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
  *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
- *          "tokensChange": {
+ *          "tokensChangeDTO": {
  *              "red": 1,
  *              "blue": 1,
  *              "green": 1,
@@ -88,7 +92,7 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  * 
  * In such invalid request you should send message only to the requester. For example
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "GET_TOKENS_RESPONSE",
  *      "result": "FAILURE"
  *      "data": {
@@ -104,18 +108,38 @@ public class GetTokens extends Reaction {
         super(connectionHashCode, userMessage, messenger, database);
     }
 
-    public class ResponseData {
-        public String str;
+    public class TokensChangeDTO {
+        public int red;
+        public int blue;
+        public int green;
+        public int white;
+        public int black;
 
-        public ResponseData(String str) {
-            this.str = str;
+        public TokensChangeDTO(int red, int blue, int green, int white, int black) {
+            this.red = red;
+            this.blue = blue;
+            this.green = green;
+            this.white = white;
+            this.black = black;
         }
-        
+    }
+
+    @DataClass
+    public static class DataDTO {
+        public UUID userUuid;
+        public TokensChangeDTO tokensChangeDTO;
+
+        public DataDTO(UUID userUuid, TokensChangeDTO tokensChangeDTO) {
+            this.userUuid = userUuid;
+            this.tokensChangeDTO = tokensChangeDTO;
+        }
     }
 
     @Override
     public void react() {
-        
+        DataDTO dataDTO = (DataDTO) userMessage.getData();
+        Room room = database.getRoomWithUser(dataDTO.userUuid);
+        // System.out.println(room.getPlayerCount());
     }
     
 }
