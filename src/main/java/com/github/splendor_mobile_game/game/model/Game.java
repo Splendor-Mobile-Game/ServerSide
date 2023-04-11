@@ -23,7 +23,7 @@ public class Game {
     private int maxNonGoldTokensOnStart = 7;
     private final Database database;
 
-    public Game(Database database, ArrayList<User> users) {
+    public Game(Database database, int users) {
         this.database = database;
 
         currentOrder = users.get(0);
@@ -37,11 +37,14 @@ public class Game {
     public User changeTurn(){
         int index = users.indexOf(currentOrder);
         
-        if(index == users.size()-1)
-            return users.get(0);
-        
-        else
-            return users.get(index+1);
+        if(index == users.size()-1){
+            currentOrder = users.get(0);
+            return currentOrder;
+        } 
+        else{
+            currentOrder = users.get(index+1);
+            return currentOrder;
+        }
     }
 
     private void start(int playerCount) {
