@@ -3,7 +3,10 @@ package com.github.splendor_mobile_game.websocket.handlers.reactions;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.enums.Color;
+import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Room;
+import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.DataClass;
@@ -11,6 +14,7 @@ import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
 import com.github.splendor_mobile_game.websocket.response.Result;
 
 /**
@@ -23,11 +27,11 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  *      "type": "GET_TOKENS",
  *      "data": {
  *          "tokensChangeDTO": {
- *              "red": 1,
- *              "blue": 1,
- *              "green": 1,
- *              "white": 0,
- *              "black": 0
+ *              "RUBY": 1,
+ *              "SAPPHIRE": 1,
+ *              "EMERALD": 1,
+ *              "DIAMOND": 0,
+ *              "ONYX": 0
  *          }
  *      }
  * }
@@ -37,11 +41,11 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  *      "type": "GET_TOKENS",
  *      "data": {
  *          "tokensChangeDTO": {
- *              "red": 0,
- *              "blue": 2,
- *              "green": 0,
- *              "white": 0,
- *              "black": 0
+ *              "RUBY": 0,
+ *              "SAPPHIRE": 2,
+ *              "EMERALD": 0,
+ *              "DIAMOND": 0,
+ *              "ONYX": 0
  *          }
  *      }
  * }
@@ -54,11 +58,11 @@ import com.github.splendor_mobile_game.websocket.response.Result;
        "data": {
            "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
            "tokensChangeDTO": {
-               "red": 1,
-               "blue": 1,
-               "green": 1,
-               "white": -2,
-               "black": 0
+               "RUBY": 1,
+*              "SAPPHIRE": 1,
+*              "EMERALD": 1,
+*              "DIAMOND": -2,
+*              "ONYX": 0
            }
        }
   }
@@ -66,16 +70,16 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  * Example of server announcement
  * {
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "GET_TOKENS_ANNOUNCEMENT",
+ *      "type": "GET_TOKENS_RESPONSE",
  *      "result": "OK",
  *      "data": {
  *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
  *          "tokensChangeDTO": {
- *              "red": 1,
- *              "blue": 1,
- *              "green": 1,
- *              "white": -2,
- *              "black": 0
+ *             "RUBY": 1,
+*              "SAPPHIRE": 1,
+*              "EMERALD": 1,
+*              "DIAMOND": -2,
+*              "ONYX": 0
  *          }
  *      }
  * }
@@ -138,8 +142,19 @@ public class GetTokens extends Reaction {
     @Override
     public void react() {
         DataDTO dataDTO = (DataDTO) userMessage.getData();
-        Room room = database.getRoomWithUser(dataDTO.userUuid);
-        // System.out.println(room.getPlayerCount());
+       
+        try {
+            validateData(dataDTO, database);
+            // Room room = database.getRoomWithUser(dataDTO.userUuid);
+            // User user = room.getUserByUuid(dataDTO.userUuid);
+            // System.out.println(user.getName());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void validateData(DataDTO dataDTO, Database database) throws RoomDoesntExistException {
+        if(database.getRoomWithUser(dataDTO.userUuid) == null) throw new RoomDoesntExistException("Room with this user not found");
     }
     
 }

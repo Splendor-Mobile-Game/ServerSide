@@ -54,6 +54,13 @@ public class Room {
         return playerCount;
     }
 
+    public User getUserByUuid(UUID uuid) {
+        for(User u : users) {
+            if(u.getUuid() == uuid) return u;
+        }
+        return null;
+    }
+
     public ArrayList<User> getAllUsers() {
         return users;
     }

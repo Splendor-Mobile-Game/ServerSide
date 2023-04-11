@@ -119,6 +119,8 @@ public class User {
 
         this.tokens.put(TokenType.GOLD_JOKER, this.tokens.get(TokenType.GOLD_JOKER) - goldTokensUsed);
 
+        this.purchasedCards.add(card);
+
         this.cardBonuses.put(card.getAdditionalToken(), this.cardBonuses.get(card.getAdditionalToken()) + 1);
 
         this.addPoints(card.getPoints());
