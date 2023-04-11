@@ -1,10 +1,13 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.response.Result;
 
 /**
  * Players send this request if now is their turn and they want to get tokens from the table.
@@ -101,9 +104,18 @@ public class GetTokens extends Reaction {
         super(connectionHashCode, userMessage, messenger, database);
     }
 
+    public class ResponseData {
+        public String str;
+
+        public ResponseData(String str) {
+            this.str = str;
+        }
+        
+    }
+
     @Override
     public void react() {
-        // TODO Auto-generated method stub
+        
     }
     
 }
