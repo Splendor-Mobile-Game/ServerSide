@@ -240,6 +240,16 @@ public class GetTokens extends Reaction {
     }
 
     private boolean threeTokensTakenCheck(User user, Map<TokenType, Integer> tokenMap, Room room) {
+        int oneTokenAmount = 0;
+
+        for(Map.Entry<TokenType, Integer> set : tokenMap.entrySet()) {
+            if(set.getValue() > 1) return false;
+            if(set.getValue() == 1) oneTokenAmount++;
+        }
+
+        if(oneTokenAmount == 3) return true;
+        if(oneTokenAmount == 2 && user.getTokenCount() == 8) return true;
+        if(oneTokenAmount == 1 && user.getTokenCount() == 9) return true;
         return false;
     }
     
