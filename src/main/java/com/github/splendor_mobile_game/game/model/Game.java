@@ -63,6 +63,10 @@ public class Game {
         // takeNobleTest();
     }
 
+    public int getTokenCount(TokenType type) {
+        return tokensOnTable.get(type);
+    }
+
     //Only for testing private function TO BE DELETED
     private void testForDuplicatesNoble(){
         ArrayList<Noble> array = nobles;

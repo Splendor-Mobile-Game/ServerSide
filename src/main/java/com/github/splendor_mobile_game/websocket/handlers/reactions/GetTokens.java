@@ -23,6 +23,7 @@ import com.github.splendor_mobile_game.websocket.handlers.exceptions.TooManyRetu
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.TooManyTokensException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMemberException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotFoundException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.WrongTokenChoiceException;
 import com.github.splendor_mobile_game.websocket.response.Result;
 
 /**
@@ -187,7 +188,7 @@ public class GetTokens extends Reaction {
         }
     }
 
-    private void validateData(DataDTO dataDTO, Database database) throws RoomDoesntExistException, TooManyTokensException, TooManyReturnedTokensException {
+    private void validateData(DataDTO dataDTO, Database database) throws RoomDoesntExistException, TooManyTokensException, TooManyReturnedTokensException, WrongTokenChoiceException {
         if(database.getRoomWithUser(dataDTO.userUuid) == null) throw new RoomDoesntExistException("Room with this user not found");
 
         Room room = database.getRoomWithUser(dataDTO.userUuid);
@@ -207,18 +208,16 @@ public class GetTokens extends Reaction {
         if(user.getTokenCount() + dataDTO.tokensChangeDTO.getTokenCount() > 10) throw new TooManyTokensException("You can't have more than 10 tokens");
         if(tokensWithAdded > 10 && tokensWithAddedAndReturned < 10)  throw new TooManyReturnedTokensException("If you return tokens, you have to finish on 10");
 
-        if(tokenAmountCheck(user, dataDTO)) {
-
-        }
+        if(!tokenAmountCheck(user, tokenMap, room)) throw new WrongTokenChoiceException("You haven't choosen tokens correctly");
 
     }
 
-    private boolean tokenAmountCheck(User user, Map<TokenType, Integer> tokenMap) {
-        if(twoTokensTakenCheck(user, tokenMap) || threeTokensTakenCheck(user, tokenMap)) return true;
+    private boolean tokenAmountCheck(User user, Map<TokenType, Integer> tokenMap, Room room) {
+        if(twoTokensTakenCheck(user, tokenMap, room) || threeTokensTakenCheck(user, tokenMap, room)) return true;
         return false;
     }
 
-    private boolean twoTokensTakenCheck(User user, Map<TokenType, Integer> tokenMap) {
+    private boolean twoTokensTakenCheck(User user, Map<TokenType, Integer> tokenMap, Room room) {
 
         ArrayList<TokenType> twoTokensTypes = new ArrayList<TokenType>();
         ArrayList<TokenType> oneTokenTypes = new ArrayList<TokenType>();
@@ -230,13 +229,17 @@ public class GetTokens extends Reaction {
         }
 
         if(twoTokensTypes.size() == 1 && oneTokenTypes.size() == 0) {
+            if(room.getGame().getTokenCount(twoTokensTypes.get(0)) < 4) return false;
             return true;
         }
-        else if(user.getTokenCount() == 9 && oneTokenTypes.size() == 1 && twoTokensTypes.size() == 0) return true;
+        else if(user.getTokenCount() == 9 && oneTokenTypes.size() == 1 && twoTokensTypes.size() == 0) {
+            if(room.getGame().getTokenCount(oneTokenTypes.get(0)) < 4) return false;
+            return true;
+        }
         else return false;
     }
 
-    private boolean threeTokensTakenCheck(User user, Map<TokenType, Integer> tokenMap) {
+    private boolean threeTokensTakenCheck(User user, Map<TokenType, Integer> tokenMap, Room room) {
         return false;
     }
     
