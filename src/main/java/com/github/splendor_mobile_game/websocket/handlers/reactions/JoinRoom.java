@@ -1,5 +1,7 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,22 +29,38 @@ public class JoinRoom extends Reaction {
     }
 
 
-    private class RoomDTO {
+    public static class RoomDTO {
         public String enterCode;
         public String password;
+
+        public RoomDTO(String enterCode, String password) {
+            this.enterCode = enterCode;
+            this.password = password;
+        }
+
     }
 
-    private class UserDTO {
+    public static class UserDTO {
         public UUID uuid;
         public String name;
+
+        public UserDTO(UUID uuid, String name) {
+            this.uuid = uuid;
+            this.name = name;
+        }
+
     }
 
 
     @DataClass
-    private class DataDTO {
-
+    public static class DataDTO {
         private RoomDTO roomDTO;
         private UserDTO userDTO;
+
+        public DataDTO(RoomDTO roomDTO, UserDTO userDTO) {
+            this.roomDTO = roomDTO;
+            this.userDTO = userDTO;
+        }
 
     }
 
@@ -65,11 +83,11 @@ public class JoinRoom extends Reaction {
      */
 
      public class ResponseData {
-        public UserDataResponse user;
+        public List<UserDataResponse> users;
         public RoomDataResponse room;
 
-        public ResponseData(UserDataResponse user, RoomDataResponse room) {
-            this.user = user;
+        public ResponseData(List<UserDataResponse> users, RoomDataResponse room) {
+            this.users = users;
             this.room = room;
         }
         
@@ -113,13 +131,23 @@ public class JoinRoom extends Reaction {
             room.joinGame(user);
 
             RoomDataResponse roomData = new RoomDataResponse(room.getUuid(), room.getName());
-            UserDataResponse userData = new UserDataResponse(dataDTO.userDTO.uuid, user.getName());
-            ResponseData responseData = new ResponseData(userData, roomData);
+            
+            List<UserDataResponse> usersData = new ArrayList<UserDataResponse>();
+            usersData.add(new UserDataResponse(room.getOwner().getUuid(), room.getOwner().getName()));
+            
+            for (User roomUser : room.getAllUsers()) {
+                if (roomUser.equals(room.getOwner()))
+                    continue;
+                UserDataResponse userDTO = new UserDataResponse(roomUser.getUuid(), roomUser.getName());
+                usersData.add(userDTO);
+            }
+            
+            ResponseData responseData = new ResponseData(usersData, roomData);
             ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.JOIN_ROOM_RESPONSE, Result.OK, responseData);
             
             // Send join information to other players
             for (User u : room.getAllUsers()) {
-                messenger.addMessageToSend(u.getConnectionHasCode(), serverMessage);
+                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
             }
 
         } catch(Exception e) {
@@ -151,7 +179,7 @@ public class JoinRoom extends Reaction {
         // Check if room exists
         Room room = database.getRoom(dataDTO.roomDTO.enterCode);
         if (room == null)
-            throw new RoomDoesntExistException("Could not find a room with specified UUID.");
+            throw new RoomDoesntExistException("Could not find a room with specified enterCode.");
 
 
         // Check if password is valid
@@ -165,12 +193,7 @@ public class JoinRoom extends Reaction {
 
 
         // Check if user is already a member of any room
-        User user = database.getUser(dataDTO.userDTO.uuid);
-        if (user != null) {
-            for (Room r : database.getAllRooms())
-                if (r.getAllUsers().contains(user))
-                    throw new UserAlreadyInRoomException("Leave your current room before joining another.");
-        }
+        database.isUserInRoom(dataDTO.userDTO.uuid);
     }
 
 

@@ -53,32 +53,28 @@ public class WebSocketConnectionChecker implements Runnable {
      */
     @Override
     public void run() {
-        // Loop until the connection is closed
-        while (!connection.isClosed()) {
-
-            try {
+        try {
+            // Loop until the connection is closed
+            while (!connection.isClosed()) {
                 // Sleep for the specified interval
                 Thread.sleep(this.checkIntervalMs);
-            } catch (InterruptedException e) {
-                return;
+                
+                // Calculate the time since the last pong message was received
+                long timeSinceLastPongMs = (System.nanoTime() - this.getLastPong(connection)) / 1000000;
+                
+                // Call the outerConnectionReactor's onConnectionCheck method to handle the connection check
+                this.connectionChecker.onConnectionCheck(timeSinceLastPongMs);
             }
-
-            // Calculate the time since the last pong message was received
-            long timeSinceLastPongMs = (System.nanoTime() - this.getLastPong(connection)) / 1000000;
-
-            // Call the outerConnectionReactor's onConnectionCheck method to handle the connection check
-            this.connectionChecker.onConnectionCheck(timeSinceLastPongMs);
+        } catch (InterruptedException e) {
+            this.close();
         }
-
-        // Call the onClose method to handle connection closure
-        this.onClose();
     }
 
     /**
      * The onClose method cancels the timer and calls the connectionChecker's onConnectionClose method
      * to propagate the connection closure event.
      */
-    private void onClose() {
+    private void close() {
         timer.cancel();
         this.connectionChecker.onConnectionClose();
     }

@@ -9,14 +9,9 @@ import com.google.gson.Gson;
 public class ErrorResponse {
 
     /** Represents the data portion of the error response. */
-    private static class Data {
-        @SuppressWarnings("unused")
-        String error;
+    public static class Data {
+        public String error;
 
-        /**
-         * Initializes a new instance of the Data class.
-         * @param error the error message
-         */
         Data(String error) {
             this.error = error;
         }
@@ -24,10 +19,10 @@ public class ErrorResponse {
 
     // TODO: Use UUID class
     /** The unique ID of the message context. */
-    public String messageContextId;
+    public String contextId;
 
     /** The type of the response. */
-    public ServerMessageType serverMessageType;
+    public ServerMessageType type;
 
     /** The result of the response. */
     public Result result;
@@ -43,8 +38,8 @@ public class ErrorResponse {
      * @param messageContextId the unique ID of the message context
      */
     public ErrorResponse(Result result, String error, ServerMessageType serverMessageType, String messageContextId) {
-        this.messageContextId = messageContextId;
-        this.serverMessageType = serverMessageType;
+        this.contextId = messageContextId;
+        this.type = serverMessageType;
         this.result = result;
         this.data = new Data(error);
     }

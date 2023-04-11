@@ -51,7 +51,7 @@ public class LeaveRoom extends Reaction{
         }
     }
     
-    public class ResponseData {
+    public static class ResponseData {
         public UserDataResponse user;
 
         public ResponseData(UserDataResponse user) {
@@ -60,7 +60,7 @@ public class LeaveRoom extends Reaction{
         
     }
     
-    public class UserDataResponse {
+    public static class UserDataResponse {
         public UUID id;
         public String name;
         public UserDataResponse(UUID id, String name) {
@@ -97,6 +97,7 @@ public class LeaveRoom extends Reaction{
             Room room = database.getRoom(dataDTO.roomDTO.uuid);
             ArrayList<User> usersTmp = room.getAllUsers();
             room.leaveGame(user);
+            database.getAllUsers().remove(user);
 
             if(room.getPlayerCount()>0)
                 //checking if user who wants to leave room isn't owner, if that's true, setting new owner as another user from list of users
@@ -117,7 +118,7 @@ public class LeaveRoom extends Reaction{
 
             // Send leave information to other players
             for (User u : usersTmp) {
-                messenger.addMessageToSend(u.getConnectionHasCode(), serverMessage);
+                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
             }
 
 
