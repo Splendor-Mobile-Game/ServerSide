@@ -1,5 +1,8 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TooManyListenersException;
 import java.util.UUID;
 
@@ -186,12 +189,55 @@ public class GetTokens extends Reaction {
 
     private void validateData(DataDTO dataDTO, Database database) throws RoomDoesntExistException, TooManyTokensException, TooManyReturnedTokensException {
         if(database.getRoomWithUser(dataDTO.userUuid) == null) throw new RoomDoesntExistException("Room with this user not found");
+
         Room room = database.getRoomWithUser(dataDTO.userUuid);
         User user = room.getUserByUuid(dataDTO.userUuid);
+
+        Map<TokenType, Integer> tokenMap = new HashMap<TokenType, Integer>();
+
+        tokenMap.put(TokenType.RUBY, dataDTO.tokensChangeDTO.ruby);
+        tokenMap.put(TokenType.SAPPHIRE, dataDTO.tokensChangeDTO.sapphire);
+        tokenMap.put(TokenType.EMERALD, dataDTO.tokensChangeDTO.emerald);
+        tokenMap.put(TokenType.DIAMOND, dataDTO.tokensChangeDTO.diamond);
+        tokenMap.put(TokenType.ONYX, dataDTO.tokensChangeDTO.onyx);
+
         int tokensWithAdded = user.getTokenCount() + dataDTO.tokensChangeDTO.getAddedTokenCount();
         int tokensWithAddedAndReturned = tokensWithAdded - dataDTO.tokensChangeDTO.getReturnedTokenCount();
+
         if(user.getTokenCount() + dataDTO.tokensChangeDTO.getTokenCount() > 10) throw new TooManyTokensException("You can't have more than 10 tokens");
         if(tokensWithAdded > 10 && tokensWithAddedAndReturned < 10)  throw new TooManyReturnedTokensException("If you return tokens, you have to finish on 10");
+
+        if(tokenAmountCheck(user, dataDTO)) {
+
+        }
+
+    }
+
+    private boolean tokenAmountCheck(User user, Map<TokenType, Integer> tokenMap) {
+        if(twoTokensTakenCheck(user, tokenMap) || threeTokensTakenCheck(user, tokenMap)) return true;
+        return false;
+    }
+
+    private boolean twoTokensTakenCheck(User user, Map<TokenType, Integer> tokenMap) {
+
+        ArrayList<TokenType> twoTokensTypes = new ArrayList<TokenType>();
+        ArrayList<TokenType> oneTokenTypes = new ArrayList<TokenType>();
+
+        for(Map.Entry<TokenType, Integer> set : tokenMap.entrySet()) {
+            if(set.getValue() > 2) return false;
+            if(set.getValue() == 2) twoTokensTypes.add(set.getKey());
+            if(set.getValue() == 1) oneTokenTypes.add(set.getKey());
+        }
+
+        if(twoTokensTypes.size() == 1 && oneTokenTypes.size() == 0) {
+            return true;
+        }
+        else if(user.getTokenCount() == 9 && oneTokenTypes.size() == 1 && twoTokensTypes.size() == 0) return true;
+        else return false;
+    }
+
+    private boolean threeTokensTakenCheck(User user, Map<TokenType, Integer> tokenMap) {
+        return false;
     }
     
 }
