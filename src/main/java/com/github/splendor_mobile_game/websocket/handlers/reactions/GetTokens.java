@@ -1,5 +1,6 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.TooManyListenersException;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
@@ -15,6 +16,10 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.TooManyReturnedTokensException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.TooManyTokensException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMemberException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotFoundException;
 import com.github.splendor_mobile_game.websocket.response.Result;
 
 /**
@@ -113,18 +118,44 @@ public class GetTokens extends Reaction {
     }
 
     public class TokensChangeDTO {
-        public int red;
-        public int blue;
-        public int green;
-        public int white;
-        public int black;
+        public int ruby;
+        public int sapphire;
+        public int emerald;
+        public int diamond;
+        public int onyx;
 
         public TokensChangeDTO(int red, int blue, int green, int white, int black) {
-            this.red = red;
-            this.blue = blue;
-            this.green = green;
-            this.white = white;
-            this.black = black;
+            this.ruby = red;
+            this.sapphire = blue;
+            this.emerald = green;
+            this.diamond = white;
+            this.onyx = black;
+        }
+
+        public int getTokenCount() {
+            return ruby + sapphire + emerald + diamond + onyx;
+        }
+
+        public int getAddedTokenCount() {
+            int result = 0;
+            if(ruby > 0) result += ruby;
+            if(sapphire > 0) result += ruby;
+            if(emerald > 0) result += ruby;
+            if(diamond > 0) result += ruby;
+            if(onyx > 0) result += ruby;
+
+            return result;
+        }
+
+        public int getReturnedTokenCount() {
+            int result = 0;
+            if(ruby < 0) result += ruby;
+            if(sapphire < 0) result += ruby;
+            if(emerald < 0) result += ruby;
+            if(diamond < 0) result += ruby;
+            if(onyx < 0) result += ruby;
+
+            return result * (-1);
         }
     }
 
@@ -153,8 +184,14 @@ public class GetTokens extends Reaction {
         }
     }
 
-    private void validateData(DataDTO dataDTO, Database database) throws RoomDoesntExistException {
+    private void validateData(DataDTO dataDTO, Database database) throws RoomDoesntExistException, TooManyTokensException, TooManyReturnedTokensException {
         if(database.getRoomWithUser(dataDTO.userUuid) == null) throw new RoomDoesntExistException("Room with this user not found");
+        Room room = database.getRoomWithUser(dataDTO.userUuid);
+        User user = room.getUserByUuid(dataDTO.userUuid);
+        int tokensWithAdded = user.getTokenCount() + dataDTO.tokensChangeDTO.getAddedTokenCount();
+        int tokensWithAddedAndReturned = tokensWithAdded - dataDTO.tokensChangeDTO.getReturnedTokenCount();
+        if(user.getTokenCount() + dataDTO.tokensChangeDTO.getTokenCount() > 10) throw new TooManyTokensException("You can't have more than 10 tokens");
+        if(tokensWithAdded > 10 && tokensWithAddedAndReturned < 10)  throw new TooManyReturnedTokensException("If you return tokens, you have to finish on 10");
     }
     
 }
