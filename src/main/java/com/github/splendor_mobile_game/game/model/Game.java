@@ -23,7 +23,7 @@ public class Game {
     private int maxNonGoldTokensOnStart = 7;
     private final Database database;
 
-    public Game(Database database, int users) {
+    public Game(Database database, ArrayList<User> users) {
         this.database = database;
 
         currentOrder = users.get(0);
