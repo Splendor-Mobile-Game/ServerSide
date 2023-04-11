@@ -12,13 +12,6 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
 
-
-    private TokenList emeraldTokens;
-    private TokenList sapphireTokens;
-    private TokenList rubyTokens;
-    private TokenList diamondTokens;
-    private TokenList onyxTokens;
-    private TokenList goldTokens;
     private User currentOrder;
     private final ArrayList<User> users = new ArrayList<>();
     private final HashMap<TokenType, Integer> tokensOnTable = new HashMap<>();
@@ -30,10 +23,11 @@ public class Game {
     private int maxNonGoldTokensOnStart = 7;
     private final Database database;
 
-    public Game(Database database, int playerCount) {
+    public Game(Database database, ArrayList<User> users) {
         this.database = database;
 
-        start(playerCount);
+        currentOrder = users.get(0);
+        start(users.size());
     }
 
     public User getCurrentPlayer() {
