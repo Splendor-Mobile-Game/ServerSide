@@ -108,6 +108,19 @@ public class Reflection {
         return annotatedClasses;
     }
 
+    // TODO: This function can be unit tested
+    /**
+     * Finds the first (alphabetically) nested class within a class that is annotated with a specific annotation.
+     *
+     * @param parent the class to search within
+     * @param annotation the annotation to search for
+     * @return the first nested class that is annotated with the specified annotation, or null if no such class exists
+     */
+    public static Class<?> findFirstClassWithAnnotationWithinClass(Class<?> parent, Class<? extends Annotation> annotation) {
+        List<Class<?>> annotatedClasses = findClassesWithAnnotationWithinClass(parent, annotation);
+        if (!annotatedClasses.isEmpty()) {
+            return annotatedClasses.get(0);
+        }
         return null;
     }
 

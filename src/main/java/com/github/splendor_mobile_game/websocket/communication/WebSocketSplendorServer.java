@@ -181,7 +181,7 @@ public class WebSocketSplendorServer extends WebSocketServer {
         }
 
         // Parse the data given in the message
-        Class<?> dataClass = Reflection.findClassWithAnnotationWithinClass(reactionClass, DataClass.class);
+        Class<?> dataClass = Reflection.findFirstClassWithAnnotationWithinClass(reactionClass, DataClass.class);
 
         if (dataClass == null && receivedMessage.getData() != null) {
             Log.WARNING(connection.hashCode() + 
