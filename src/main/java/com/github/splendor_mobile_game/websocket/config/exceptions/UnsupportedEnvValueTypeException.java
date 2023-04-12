@@ -1,6 +1,8 @@
 package com.github.splendor_mobile_game.websocket.config.exceptions;
 
+/** Exception thrown when an unsupported environment variable value type is encountered. */
 public class UnsupportedEnvValueTypeException extends InvalidConfigException {
+
     public UnsupportedEnvValueTypeException() {
     }
 
@@ -15,4 +17,5 @@ public class UnsupportedEnvValueTypeException extends InvalidConfigException {
     public UnsupportedEnvValueTypeException(String message, Throwable cause) {
         super(message, cause);
     }
+    
 }

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 
+// TODO: Java doc required
 public class Log {
 
     public enum LogLevel{
@@ -23,7 +24,6 @@ public class Log {
     
 
     private static boolean savingToFile;
-    // private String logsDir;
     private static File fileToWrite;
 
     public static void setSavingLogsToFile(String logsDir) {
@@ -95,7 +95,7 @@ public class Log {
         String logMessage = Log.getHeader() + message;
 
         if(consoleLogLevels.contains(LogLevel.INFO)){
-            System.out.println(ColoredText.Green(logMessage));
+            System.out.println(ColoredText.green(logMessage));
         }
 
         if (fileLogLevels.contains(LogLevel.INFO) && Log.savingToFile) {
@@ -105,8 +105,9 @@ public class Log {
 
     public static void DEBUG(String message) {
         String logMessage = Log.getHeader() + message;
+
         if(consoleLogLevels.contains(LogLevel.DEBUG)){
-            System.out.println(ColoredText.Blue(logMessage));
+            System.out.println(ColoredText.blue(logMessage));
         }
         
         if (fileLogLevels.contains(LogLevel.DEBUG) && Log.savingToFile) {
@@ -116,8 +117,9 @@ public class Log {
 
     public static void WARNING(String message) {
         String logMessage = Log.getHeader() + message;
+        
         if(consoleLogLevels.contains(LogLevel.WARNING)){
-            System.out.println(ColoredText.Yellow(logMessage));
+            System.out.println(ColoredText.yellow(logMessage));
         }
         
         if (fileLogLevels.contains(LogLevel.WARNING) && Log.savingToFile) {
@@ -127,8 +129,9 @@ public class Log {
 
     public static void ERROR(String message) {
         String logMessage = Log.getHeader() + message;
+        
         if(consoleLogLevels.contains(LogLevel.ERROR)){
-            System.out.println(ColoredText.Red(logMessage));
+            System.out.println(ColoredText.red(logMessage));
         }
         
         if (fileLogLevels.contains(LogLevel.ERROR) && Log.savingToFile) {

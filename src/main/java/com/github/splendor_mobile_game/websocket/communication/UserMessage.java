@@ -8,25 +8,52 @@ import com.github.splendor_mobile_game.websocket.utils.json.Optional;
 import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonParserException;
 import com.google.gson.Gson;
 
+/**
+ * Represents a message sent by a user.
+ */
 public class UserMessage {
-    private UUID messageContextId;
+
+    private UUID contextId;
+
     private UserRequestType type;
+
     @Optional
     private Object data;
 
-    public UserMessage(String message) throws InvalidReceivedMessage {
-        UserMessage msg = UserMessage.fromJson(message);
-        this.messageContextId = msg.messageContextId;
+    /**
+     * Creates a new UserMessage by parsing the provided JSON message.
+     * Heavly used on the server side.
+     *
+     * @param json the JSON message to parse
+     * @throws InvalidReceivedMessage if the provided message is invalid
+     */
+    public UserMessage(String json) throws InvalidReceivedMessage {
+        UserMessage msg = UserMessage.fromJson(json);
+
+        this.contextId = msg.contextId;
         this.type = msg.type;
         this.data = msg.getData();
     }
 
-    public UserMessage(UUID messageContextId, UserRequestType type, Object data) {
-        this.messageContextId = messageContextId;
+    /**
+     * Creates a new UserMessage with the provided message context ID, type, and data.
+     *
+     * @param contextId the message context ID
+     * @param type the request type
+     * @param data the data associated with the message
+     */
+    public UserMessage(UUID contextId, UserRequestType type, Object data) {
+        this.contextId = contextId;
         this.type = type;
         this.data = data;
     }
 
+    /**
+     * Parses the data object to the provided class using JSON serialization.
+     *
+     * @param clazz the class to which the data should be parsed
+     * @throws InvalidReceivedMessage if the data cannot be parsed to the provided class
+     */
     public void parseDataToClass(Class<?> clazz) throws InvalidReceivedMessage {
         try {
             // TODO: Perfomance loss because of redundant json parsing
@@ -36,16 +63,23 @@ public class UserMessage {
         }
     }
 
-    public static UserMessage fromJson(String inputJson) throws InvalidReceivedMessage {
+    /**
+     * Parses a JSON string to a UserMessage object.
+     *
+     * @param json the JSON string to parse
+     * @return the UserMessage object
+     * @throws InvalidReceivedMessage if the provided message is invalid
+     */
+    private static UserMessage fromJson(String json) throws InvalidReceivedMessage {
         try {
-            return JsonParser.parseJson(inputJson, UserMessage.class);
+            return JsonParser.parseJson(json, UserMessage.class);
         } catch (JsonParserException e) {
             throw new InvalidReceivedMessage("Received message is invalid!", e);
         }
     }
 
-    public UUID getMessageContextId() {
-        return messageContextId;
+    public UUID getContextId() {
+        return contextId;
     }
 
     public UserRequestType getType() {
@@ -64,7 +98,7 @@ public class UserMessage {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((messageContextId == null) ? 0 : messageContextId.hashCode());
+        result = prime * result + ((contextId == null) ? 0 : contextId.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         result = prime * result + ((data == null) ? 0 : data.hashCode());
         return result;
@@ -79,10 +113,10 @@ public class UserMessage {
         if (getClass() != obj.getClass())
             return false;
         UserMessage other = (UserMessage) obj;
-        if (messageContextId == null) {
-            if (other.messageContextId != null)
+        if (contextId == null) {
+            if (other.contextId != null)
                 return false;
-        } else if (!messageContextId.equals(other.messageContextId))
+        } else if (!contextId.equals(other.contextId))
             return false;
         if (type == null) {
             if (other.type != null)

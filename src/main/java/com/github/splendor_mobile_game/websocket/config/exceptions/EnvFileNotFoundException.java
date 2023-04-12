@@ -1,5 +1,6 @@
 package com.github.splendor_mobile_game.websocket.config.exceptions;
 
+/** Exception thrown when an environment file is not found. */
 public class EnvFileNotFoundException extends InvalidConfigException {
 
     public EnvFileNotFoundException() {
