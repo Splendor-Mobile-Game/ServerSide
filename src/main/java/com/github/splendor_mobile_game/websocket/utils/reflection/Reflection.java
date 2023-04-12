@@ -2,6 +2,8 @@ package com.github.splendor_mobile_game.websocket.utils.reflection;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
@@ -88,16 +90,23 @@ public class Reflection {
 
     // TODO: This function can be unit tested
     /**
-     * Finds a nested class within a class that is annotated with a specific annotation.
-     * 
-     * @param parent     the class to search within
+     * Finds all nested classes within a class that are annotated with a specific annotation.
+     *
+     * @param parent the class to search within
      * @param annotation the annotation to search for
-     * @return the nested class that is annotated with the specified annotation, or null if no such class exists
+     * @return a list of nested classes that are annotated with the specified annotation, or an empty list if no such classes exist
      */
-    public static Class<?> findClassWithAnnotationWithinClass(Class<?> parent, Class<? extends Annotation> annotation) {
-        for (Class<?> clazz : parent.getDeclaredClasses())
-            if (clazz.isAnnotationPresent(annotation))
-                return clazz;
+    public static List<Class<?>> findClassesWithAnnotationWithinClass(Class<?> parent, Class<? extends Annotation> annotation) {
+        List<Class<?>> annotatedClasses = new ArrayList<>();
+
+        for (Class<?> clazz : parent.getDeclaredClasses()) {
+            if (clazz.isAnnotationPresent(annotation)) {
+                annotatedClasses.add(clazz);
+            }
+        }
+        
+        return annotatedClasses;
+    }
 
         return null;
     }
