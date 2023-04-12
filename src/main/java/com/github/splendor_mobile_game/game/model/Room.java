@@ -37,7 +37,7 @@ public class Room {
     }
 
     public void startGame() {
-        this.game = new Game(database, getPlayerCount());
+        this.game = new Game(database, users);
     }
 
     public void displayScoreboard() {
