@@ -293,8 +293,8 @@ public class GetTokens extends Reaction {
 
         if(user.getTokenCount() <= 7 && negativeTokenAmount > 0) return false;
 
-        if(oneTokenAmount == 3) return true;
         if(negativeTokenAmount == 0) {
+            if(user.getTokenCount() <= 7 && oneTokenAmount == 3) return true;
             if(user.getTokenCount() == 8 && oneTokenAmount == 2) return true;
             if(user.getTokenCount() == 9 && oneTokenAmount == 1) return true;
         } else if(negativeTokenAmount == 1) {
