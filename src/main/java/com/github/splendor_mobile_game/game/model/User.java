@@ -65,30 +65,36 @@ public class User {
     }
 
     //method for adding two tokens (still needs to be validated if there are at least 4 tokens of this type on the table)
-    public boolean takeTwoTokens(TokenType type) {
-        this.tokens.put(type, this.tokens.get(type) + 2);
+    // public boolean takeTwoTokens(TokenType type) {
+    //     this.tokens.put(type, this.tokens.get(type) + 2);
 
-        if(this.getTokenCount() > 10) return false;
-        return true;
-    }
-
-
-    //method for taking tokens from user
-    public void putDownTokens(TokenType type, int amount) throws Exception {
-        if(this.tokens.get(type) - amount < 0) throw new Exception("You can't have less than 0 tokens");
-        this.tokens.put(type, this.tokens.get(type) - amount);
-    }
+    //     if(this.getTokenCount() > 10) return false;
+    //     return true;
+    // }
 
 
-    //method for adding three different tokens
-    public boolean takeThreeTokens(TokenType type1, TokenType type2, TokenType type3) throws SameTokenTypesException {
-        if(type1 == type2 || type1 == type3 || type2 == type3) throw new SameTokenTypesException("No three different token types selected");
-        this.tokens.put(type1, this.tokens.get(type1) + 1);
-        this.tokens.put(type2, this.tokens.get(type2) + 1);
-        this.tokens.put(type3, this.tokens.get(type3) + 1);
+    // //method for taking tokens from user
+    // public void putDownTokens(TokenType type, int amount) throws Exception {
+    //     if(this.tokens.get(type) - amount < 0) throw new Exception("You can't have less than 0 tokens");
+    //     this.tokens.put(type, this.tokens.get(type) - amount);
+    // }
 
-        if(this.getTokenCount() > 10) return false;
-        return true;
+
+    // //method for adding three different tokens
+    // public boolean takeThreeTokens(TokenType type1, TokenType type2, TokenType type3) throws SameTokenTypesException {
+    //     if(type1 == type2 || type1 == type3 || type2 == type3) throw new SameTokenTypesException("No three different token types selected");
+    //     this.tokens.put(type1, this.tokens.get(type1) + 1);
+    //     this.tokens.put(type2, this.tokens.get(type2) + 1);
+    //     this.tokens.put(type3, this.tokens.get(type3) + 1);
+
+    //     if(this.getTokenCount() > 10) return false;
+    //     return true;
+    // }
+
+    public void manageTokens(Map<TokenType, Integer> tokensChange) {
+        this.tokens.forEach((k,v) -> {
+            this.tokens.put(k, v + tokensChange.get(k));
+        });
     }
 
     //method for buying cards

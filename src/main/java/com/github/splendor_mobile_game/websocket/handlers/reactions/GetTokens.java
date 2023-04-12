@@ -25,6 +25,7 @@ import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMem
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotFoundException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.WrongTokenChoiceException;
 import com.github.splendor_mobile_game.websocket.response.Result;
+import com.github.splendor_mobile_game.websocket.utils.Log;
 
 /**
  * Players send this request if now is their turn and they want to get tokens from the table.
@@ -65,13 +66,13 @@ import com.github.splendor_mobile_game.websocket.response.Result;
        "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
        "type": "GET_TOKENS",
        "data": {
-           "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
+           "userUuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
            "tokensChangeDTO": {
-               "RUBY": 1,
-*              "SAPPHIRE": 1,
-*              "EMERALD": 1,
-*              "DIAMOND": -2,
-*              "ONYX": 0
+                "ruby": 2,
+                "sapphire": 0,
+                "emerald": 0,
+                "diamond": 0,
+                "onyx": 0
            }
        }
   }
@@ -181,10 +182,10 @@ public class GetTokens extends Reaction {
         try {
             validateData(dataDTO, database);
             // Room room = database.getRoomWithUser(dataDTO.userUuid);
-            // User user = room.getUserByUuid(dataDTO.userUuid);
+            // User user = database.getUser(dataDTO.userUuid);
             // System.out.println(user.getName());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            Log.ERROR(e.getMessage());
         }
     }
 
@@ -192,7 +193,10 @@ public class GetTokens extends Reaction {
         if(database.getRoomWithUser(dataDTO.userUuid) == null) throw new RoomDoesntExistException("Room with this user not found");
 
         Room room = database.getRoomWithUser(dataDTO.userUuid);
-        User user = room.getUserByUuid(dataDTO.userUuid);
+        User user = database.getUser(dataDTO.userUuid);
+
+        //only for testing, will be removed when game start reaction will be done
+        room.startGame();
 
         Map<TokenType, Integer> tokenMap = new HashMap<TokenType, Integer>();
 
@@ -202,10 +206,13 @@ public class GetTokens extends Reaction {
         tokenMap.put(TokenType.DIAMOND, dataDTO.tokensChangeDTO.diamond);
         tokenMap.put(TokenType.ONYX, dataDTO.tokensChangeDTO.onyx);
 
+        System.out.println(dataDTO.tokensChangeDTO.ruby);
+        System.out.println(dataDTO.tokensChangeDTO.sapphire);
+
         int tokensWithAdded = user.getTokenCount() + dataDTO.tokensChangeDTO.getAddedTokenCount();
         int tokensWithAddedAndReturned = tokensWithAdded - dataDTO.tokensChangeDTO.getReturnedTokenCount();
 
-        if(user.getTokenCount() + dataDTO.tokensChangeDTO.getTokenCount() > 10) throw new TooManyTokensException("You can't have more than 10 tokens");
+        if(tokensWithAddedAndReturned > 10) throw new TooManyTokensException("You can't have more than 10 tokens");
         if(tokensWithAdded > 10 && tokensWithAddedAndReturned < 10)  throw new TooManyReturnedTokensException("If you return tokens, you have to finish on 10");
 
         if(!tokenAmountCheck(user, tokenMap, room)) throw new WrongTokenChoiceException("You haven't choosen tokens correctly");
@@ -213,7 +220,22 @@ public class GetTokens extends Reaction {
     }
 
     private boolean tokenAmountCheck(User user, Map<TokenType, Integer> tokenMap, Room room) {
-        if(!twoTokensTakenCheck(user, tokenMap, room) && !threeTokensTakenCheck(user, tokenMap, room)) return true;
+
+        //checking if user has enough tokens for possible return
+        for(Map.Entry<TokenType, Integer> set : tokenMap.entrySet()) {
+            if(set.getValue() < 0 && set.getValue()*(-1) > user.getTokenCount(set.getKey())) return false;
+        }
+
+        boolean isUserTakingTwo = twoTokensTakenCheck(user, tokenMap, room);
+        boolean isUserTakingThree = threeTokensTakenCheck(user, tokenMap, room);
+
+        //checking if user tries to take two tokens
+        if(isUserTakingTwo && !isUserTakingThree) return true;
+        
+        //checking if user tries to take three tokens
+        if(!isUserTakingTwo && isUserTakingThree) return true;
+
+        //if user isn't trying to take two or three tokens returning false
         return false;
     }
 
@@ -221,35 +243,67 @@ public class GetTokens extends Reaction {
 
         ArrayList<TokenType> twoTokensTypes = new ArrayList<TokenType>();
         ArrayList<TokenType> oneTokenTypes = new ArrayList<TokenType>();
+        int negativeTokenAmount = 0;
 
         for(Map.Entry<TokenType, Integer> set : tokenMap.entrySet()) {
+            //if user tries to take more than 2 tokens of some type, he definitelly doesn't try to take 2
             if(set.getValue() > 2) return false;
+
+            //checking what types user tries to take 2 tokens of
             if(set.getValue() == 2) twoTokensTypes.add(set.getKey());
+
+            //checking same thing considering user might try to already return one of taken tokens
             if(set.getValue() == 1) oneTokenTypes.add(set.getKey());
+
+            //checking how many types user is trying to return
+            if(set.getValue() < 0) negativeTokenAmount++;
         }
 
+        //checking if user tries to return some tokens when he can't return anything
+        if(user.getTokenCount() <= 8 && negativeTokenAmount > 0) return false;
+
         if(twoTokensTypes.size() == 1 && oneTokenTypes.size() == 0) {
+            //checking if user can take two tokens of type he is trying to
             if(room.getGame().getTokenCount(twoTokensTypes.get(0)) < 4) return false;
             return true;
         }
         else if(user.getTokenCount() == 9 && oneTokenTypes.size() == 1 && twoTokensTypes.size() == 0) {
+            //as above but considering user is trying to already return one of taken tokens
             if(room.getGame().getTokenCount(oneTokenTypes.get(0)) < 4) return false;
             return true;
         }
+        //now we are sure ( I hope :) ) user isn't trying to take two tokens so we can return false
         else return false;
     }
 
     private boolean threeTokensTakenCheck(User user, Map<TokenType, Integer> tokenMap, Room room) {
         int oneTokenAmount = 0;
+        int negativeTokenAmount = 0;
 
         for(Map.Entry<TokenType, Integer> set : tokenMap.entrySet()) {
+            //if user is trying more than one token of specific type he definitelly doesn't try to take three different tokens
             if(set.getValue() > 1) return false;
+
+            //checking which types user is trying to take
             if(set.getValue() == 1) oneTokenAmount++;
+
+            //checking if user tries to return some tokens
+            if(set.getValue() < 0) negativeTokenAmount++;
         }
 
+        if(user.getTokenCount() <= 7 && negativeTokenAmount > 0) return false;
+
         if(oneTokenAmount == 3) return true;
-        if(oneTokenAmount == 2 && user.getTokenCount() == 8) return true;
-        if(oneTokenAmount == 1 && user.getTokenCount() == 9) return true;
+        if(negativeTokenAmount == 0) {
+            if(user.getTokenCount() == 8 && oneTokenAmount == 2) return true;
+            if(user.getTokenCount() == 9 && oneTokenAmount == 1) return true;
+        } else if(negativeTokenAmount == 1) {
+            if(user.getTokenCount() == 8 && oneTokenAmount == 3) return true;
+            if(user.getTokenCount() == 9 && oneTokenAmount == 2) return true;
+        } else if(negativeTokenAmount == 2) {
+            if(user.getTokenCount() == 9 && oneTokenAmount == 3) return true;
+        }
+
         return false;
     }
     
