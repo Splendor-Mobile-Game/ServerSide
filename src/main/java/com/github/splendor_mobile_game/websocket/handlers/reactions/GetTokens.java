@@ -213,7 +213,7 @@ public class GetTokens extends Reaction {
     }
 
     private boolean tokenAmountCheck(User user, Map<TokenType, Integer> tokenMap, Room room) {
-        if(twoTokensTakenCheck(user, tokenMap, room) || threeTokensTakenCheck(user, tokenMap, room)) return true;
+        if(!twoTokensTakenCheck(user, tokenMap, room) && !threeTokensTakenCheck(user, tokenMap, room)) return true;
         return false;
     }
 
@@ -253,4 +253,7 @@ public class GetTokens extends Reaction {
         return false;
     }
     
+    private void addTokens(User user, Map<TokenType, Integer> tokenMap) {
+
+    }
 }
