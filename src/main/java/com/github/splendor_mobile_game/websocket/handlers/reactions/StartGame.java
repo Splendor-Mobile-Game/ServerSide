@@ -26,6 +26,7 @@ import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUID
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomInGameException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomOwnershipException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomPlayerCountException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
@@ -472,7 +473,7 @@ public class StartGame extends Reaction {
 
 
 
-    private void validateData(DataDTO dataDTO, Database database) throws  RoomDoesntExistException, UserDoesntExistException, RoomOwnershipException, InvalidUUIDException, RoomInGameException{
+    private void validateData(DataDTO dataDTO, Database database) throws  RoomDoesntExistException, UserDoesntExistException, RoomOwnershipException, InvalidUUIDException, RoomInGameException, RoomPlayerCountException{
         Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"); 
 
          // Check if user UUID matches the pattern
@@ -517,6 +518,11 @@ public class StartGame extends Reaction {
         //Check if room is not in game
         if(room.getGame()!=null){
             throw new RoomInGameException("Room is during the match");
+        }
+
+        //Check number of players
+        if(!(room.getPlayerCount()>=2 && room.getPlayerCount()<=4)){
+            throw new RoomPlayerCountException("Cannot start game due to insufficient or overload number of players");
         }
 
     }
