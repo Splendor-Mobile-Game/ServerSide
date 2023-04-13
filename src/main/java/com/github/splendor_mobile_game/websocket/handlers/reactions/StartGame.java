@@ -67,166 +67,166 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *         },
  *         "nobles":[
  *             {
- *                 "uuid":"030866e8-cef4-4fa2-aca7-7d95f631a7c9",
+ *                 "uuid":"5190c790-c9b9-4a72-85ed-8803eea15d1c",
  *                 "prestige":3,
- *                 "redMinesRequired":0,
- *                 "greenMinesRequired":0,
- *                 "blueMinesRequired":0,
- *                 "whiteMinesRequired":4,
- *                 "blackMinesRequired":4
+ *                 "rubyMinesRequired":0,
+ *                 "emeraldMinesRequired":0,
+ *                 "sapphireMinesRequired":3,
+ *                 "diamondMinesRequired":3,
+ *                 "onyxMinesRequired":3
  *             },
  *             {
- *                 "uuid":"4e7fdd16-061d-4208-9202-6ada74b4e782",
+ *                 "uuid":"5fd47d77-3e99-4eb3-8436-5e818a17041d",
  *                 "prestige":3,
- *                 "redMinesRequired":4,
- *                 "greenMinesRequired":0,
- *                 "blueMinesRequired":0,
- *                 "whiteMinesRequired":0,
- *                 "blackMinesRequired":4
+ *                 "rubyMinesRequired":3,
+ *                 "emeraldMinesRequired":0,
+ *                 "sapphireMinesRequired":0,
+ *                 "diamondMinesRequired":3,
+ *                 "onyxMinesRequired":3
  *             },
  *             {
- *                 "uuid":"03fbb775-1e17-4d6d-a658-66b18ef9e081",
+ *                 "uuid":"2552e762-46ea-457d-93e9-f2eebe047f44",
  *                 "prestige":3,
- *                 "redMinesRequired":4,
- *                 "greenMinesRequired":4,
- *                 "blueMinesRequired":0,
- *                 "whiteMinesRequired":0,
- *                 "blackMinesRequired":0
+ *                 "rubyMinesRequired":0,
+ *                 "emeraldMinesRequired":4,
+ *                 "sapphireMinesRequired":4,
+ *                 "diamondMinesRequired":0,
+ *                 "onyxMinesRequired":0
  *             },
  *             {
- *                 "uuid":"caacfa2c-bbc3-4cb9-bab4-1d2cf6b7d55f",
+ *                 "uuid":"0dae8b0c-afd0-4379-b64b-c169cb7528c6",
  *                 "prestige":3,
- *                 "redMinesRequired":0,
- *                 "greenMinesRequired":3,
- *                 "blueMinesRequired":3,
- *                 "whiteMinesRequired":3,
- *                 "blackMinesRequired":0
+ *                 "rubyMinesRequired":0,
+ *                 "emeraldMinesRequired":0,
+ *                 "sapphireMinesRequired":0,
+ *                 "diamondMinesRequired":4,
+ *                 "onyxMinesRequired":4
  *             }
  *         ],
  *         "firstLevelMinesCards":[
  *             {
- *                 "uuid":"68d6a978-4715-4afe-85ab-a9a16c0a1c40",
+ *                 "uuid":"00838a34-35a5-4057-8e54-d44f8e9e5b6f",
+ *                 "prestige":1,
+ *                 "color":"BLUE",
+ *                 "rubyTokensRequired":4,
+ *                 "emeraldTokensRequired":0,
+ *                 "sapphireTokensRequired":0,
+ *                 "diamondTokensRequired":0,
+ *                 "onyxTokensRequired":0
+ *             },
+ *             {
+ *                 "uuid":"593a7332-77d7-4f30-872d-4d310a16126d",
+ *                 "prestige":1,
+ *                 "color":"BLACK",
+ *                 "rubyTokensRequired":0,
+ *                 "emeraldTokensRequired":0,
+ *                 "sapphireTokensRequired":4,
+ *                 "diamondTokensRequired":0,
+ *                 "onyxTokensRequired":0
+ *             },
+ *             {
+ *                 "uuid":"3aad3655-2831-4c5f-b6d6-5ba59bb4c28c",
  *                 "prestige":0,
  *                 "color":"BLUE",
- *                 "redTokensRequired":1,
- *                 "greenTokensRequired":1,
- *                 "blueTokensRequired":0,
- *                 "whiteTokensRequired":1,
- *                 "blackTokensRequired":1
+ *                 "rubyTokensRequired":2,
+ *                 "emeraldTokensRequired":2,
+ *                 "sapphireTokensRequired":0,
+ *                 "diamondTokensRequired":1,
+ *                 "onyxTokensRequired":0
  *             },
  *             {
- *                 "uuid":"6dcfa310-93eb-402d-8098-0ea1650f6f70",
+ *                 "uuid":"8e0f6fb5-004a-4ed8-89b3-49955fdd5ee5",
  *                 "prestige":0,
- *                 "color":"RED",
- *                 "redTokensRequired":0,
- *                 "greenTokensRequired":1,
- *                 "blueTokensRequired":1,
- *                 "whiteTokensRequired":2,
- *                 "blackTokensRequired":1
- *             },
- *             {
- *                 "uuid":"baedee13-1057-4514-8d5a-ffdfe620ecc1",
- *                 "prestige":0,
- *                 "color":"GREEN",
- *                 "redTokensRequired":0,
- *                 "greenTokensRequired":0,
- *                 "blueTokensRequired":1,
- *                 "whiteTokensRequired":2,
- *                 "blackTokensRequired":0
- *             },
- *             {
- *                 "uuid":"22bc7e1a-eb05-4f71-a368-2ba857060538",
- *                 "prestige":0,
- *                 "color":"GREEN",
- *                 "redTokensRequired":2,
- *                 "greenTokensRequired":0,
- *                 "blueTokensRequired":2,
- *                 "whiteTokensRequired":0,
- *                 "blackTokensRequired":0
+ *                 "color":"BLACK",
+ *                 "rubyTokensRequired":3,
+ *                 "emeraldTokensRequired":1,
+ *                 "sapphireTokensRequired":0,
+ *                 "diamondTokensRequired":0,
+ *                 "onyxTokensRequired":1
  *             }
  *         ],
  *         "secondLevelMinesCards":[
  *             {
- *                 "uuid":"acdfd086-a9cf-499e-95ed-ce563fc40c76",
- *                 "prestige":1,
- *                 "color":"BLUE",
- *                 "redTokensRequired":0,
- *                 "greenTokensRequired":3,
- *                 "blueTokensRequired":2,
- *                 "whiteTokensRequired":0,
- *                 "blackTokensRequired":3
- *             },
- *             {
- *                 "uuid":"154f2f30-64b6-483b-ac2f-68b323c08868",
+ *                 "uuid":"822a6dc4-ad8f-4c27-a618-ee769be89b03",
  *                 "prestige":2,
  *                 "color":"GREEN",
- *                 "redTokensRequired":0,
- *                 "greenTokensRequired":5,
- *                 "blueTokensRequired":0,
- *                 "whiteTokensRequired":0,
- *                 "blackTokensRequired":0
+ *                 "rubyTokensRequired":0,
+ *                 "emeraldTokensRequired":5,
+ *                 "sapphireTokensRequired":0,
+ *                 "diamondTokensRequired":0,
+ *                 "onyxTokensRequired":0
  *             },
  *             {
- *                 "uuid":"96890791-2bdf-4194-9d60-35b1da949619",
- *                 "prestige":3,
- *                 "color":"BLACK",
- *                 "redTokensRequired":0,
- *                 "greenTokensRequired":0,
- *                 "blueTokensRequired":0,
- *                 "whiteTokensRequired":0,
- *                 "blackTokensRequired":6
- *             },
- *             {
- *                 "uuid":"7508853a-0d03-42b7-99d8-c574c2bcdadd",
+ *                 "uuid":"b57e6ff6-69aa-4504-a9e1-0ca50b9461f6",
  *                 "prestige":2,
  *                 "color":"WHITE",
- *                 "redTokensRequired":4,
- *                 "greenTokensRequired":1,
- *                 "blueTokensRequired":0,
- *                 "whiteTokensRequired":0,
- *                 "blackTokensRequired":2
+ *                 "rubyTokensRequired":5,
+ *                 "emeraldTokensRequired":0,
+ *                 "sapphireTokensRequired":0,
+ *                 "diamondTokensRequired":0,
+ *                 "onyxTokensRequired":3
+ *             },
+ *             {
+ *                 "uuid":"a87fb24c-37c4-4359-a6dc-4505df7e8848",
+ *                 "prestige":2,
+ *                 "color":"WHITE",
+ *                 "rubyTokensRequired":5,
+ *                 "emeraldTokensRequired":0,
+ *                 "sapphireTokensRequired":0,
+ *                 "diamondTokensRequired":0,
+ *                 "onyxTokensRequired":0
+ *             },
+ *             {
+ *                 "uuid":"88b96c47-66d8-45ca-ae47-dd536298ab52",
+ *                 "prestige":2,
+ *                 "color":"RED",
+ *                 "rubyTokensRequired":0,
+ *                 "emeraldTokensRequired":2,
+ *                 "sapphireTokensRequired":4,
+ *                 "diamondTokensRequired":1,
+ *                 "onyxTokensRequired":0
  *             }
  *         ],
  *         "thirdLevelMinesCards":[
  *             {
- *                 "uuid":"1c0772e5-3dc6-4da3-b83a-37d03f024c15",
+ *                 "uuid":"a4fd23b5-d0d0-4960-96a0-3f5c5a68a479",
  *                 "prestige":4,
- *                 "color":"BLUE",
- *                 "redTokensRequired":0,
- *                 "greenTokensRequired":0,
- *                 "blueTokensRequired":0,
- *                 "whiteTokensRequired":7,
- *                 "blackTokensRequired":0
+ *                 "color":"WHITE",
+ *                 "rubyTokensRequired":0,
+ *                 "emeraldTokensRequired":0,
+ *                 "sapphireTokensRequired":0,
+ *                 "diamondTokensRequired":0,
+ *                 "onyxTokensRequired":7
  *             },
  *             {
- *                 "uuid":"c1fe9182-9e3d-45a3-bb40-1cd415075bba",
+ *                 "uuid":"1b262ffc-8ca4-44d1-a6f2-063cf0d7619b",
  *                 "prestige":4,
- *                 "color":"GREEN",
- *                 "redTokensRequired":0,
- *                 "greenTokensRequired":3,
- *                 "blueTokensRequired":6,
- *                 "whiteTokensRequired":3,
- *                 "blackTokensRequired":0
+ *                 "color":"BLACK",
+ *                 "rubyTokensRequired":7,
+ *                 "emeraldTokensRequired":0,
+ *                 "sapphireTokensRequired":0,
+ *                 "diamondTokensRequired":0,
+ *                 "onyxTokensRequired":0
  *             },
  *             {
- *                 "uuid":"6c392cc8-a581-4ac2-8e61-042d6c863a35",
- *                 "prestige":4,
- *                 "color":"BLUE",
- *                 "redTokensRequired":0,
- *                 "greenTokensRequired":0,
- *                 "blueTokensRequired":3,
- *                 "whiteTokensRequired":6,
- *                 "blackTokensRequired":3
- *             },
- *             {
- *                 "uuid":"671e4f8a-3ea4-450a-bdbf-c49bdf41f264",
+ *                 "uuid":"14ffcc43-d178-4476-afc4-9cdd55e0cc38",
  *                 "prestige":3,
- *                 "color":"BLUE",
- *                 "redTokensRequired":3,
- *                 "greenTokensRequired":3,
- *                 "blueTokensRequired":0,
- *                 "whiteTokensRequired":3,
- *                 "blackTokensRequired":5
+ *                 "color":"BLACK",
+ *                 "rubyTokensRequired":3,
+ *                 "emeraldTokensRequired":5,
+ *                 "sapphireTokensRequired":3,
+ *                 "diamondTokensRequired":3,
+ *                 "onyxTokensRequired":0
+ *             },
+ *             {
+ *                 "uuid":"07b7827f-f31d-491f-95f3-da92f46eeb45",
+ *                 "prestige":5,
+ *                 "color":"GREEN",
+ *                 "rubyTokensRequired":0,
+ *                 "emeraldTokensRequired":3,
+ *                 "sapphireTokensRequired":7,
+ *                 "diamondTokensRequired":0,
+ *                 "onyxTokensRequired":0
  *             }
  *         ],
  *         "userToPlay":{
@@ -401,10 +401,13 @@ public class StartGame extends Reaction {
         DataDTO dataDTO = (DataDTO)userMessage.getData();
 
         try{
-            validateData(dataDTO, database);
+            //validateData(dataDTO, database);
 
-            User user = database.getUser(dataDTO.userDTO.uuid);
-            Room room = database.getRoom(dataDTO.roomDTO.uuid);
+            User user = new User(dataDTO.userDTO.uuid, "janek", connectionHashCode);
+            Room room = new Room(dataDTO.roomDTO.uuid, "pokoj", "123", user, database);
+
+            //User user = database.getUser(dataDTO.userDTO.uuid);
+            //Room room = database.getRoom(dataDTO.roomDTO.uuid);
 
             room.startGame();
             Game game = room.getGame();
