@@ -109,6 +109,7 @@ public class Game {
         return true;
     }
 
+
     //Only for testing private function TO BE DELETED
     private void testForDuplicatesNoble(){
         ArrayList<Noble> array = nobles;

@@ -111,15 +111,10 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *          ],
  *          "secondLevelMinesCards": [], // The same as above
  *          "thirdLevelMinesCards": [], // The same as above
- *          "playersOrder": [
- *              {
- *                  "uuid": 81b7249e-d1f0-4030-a59d-0217ee3ac161
- *              }
- *              {
- *                  ...
- *              }
- *              ...
- *          ]
+ *          "userToPlay":{
+ *              "uuid": "8bceab0a-d67f-44b2-ad4f-cda592cb4b13",
+ *              "name":"James"
+ *          }
  *      }
  * }
  *
@@ -262,14 +257,6 @@ public class StartGame extends Reaction {
         
     }
 
-    public class PlayerOrderDataResponse{
-        UUID uuid;
-
-        public PlayerOrderDataResponse(UUID uuid) {
-            this.uuid = uuid;
-        }
-    }
-
     public class ResponseData{
         public UserDataResponse user;
         public RoomDataResponse room;
@@ -280,13 +267,13 @@ public class StartGame extends Reaction {
         public ArrayList<MinesCardDataResponse> secondLevelMinesCards;
         public ArrayList<MinesCardDataResponse> thirdLevelMinesCards;
 
-        public ArrayList<PlayerOrderDataResponse> playerOrder;
+        public UserDataResponse userToPlay;
 
         public ResponseData(UserDataResponse user, RoomDataResponse room, TokensDataResponse tokens,
                 ArrayList<NobleDataResponse> nobles, ArrayList<MinesCardDataResponse> firstLevelMinesCards,
                 ArrayList<MinesCardDataResponse> secondLevelMinesCards,
                 ArrayList<MinesCardDataResponse> thirdLevelMinesCards,
-                ArrayList<PlayerOrderDataResponse> playerOrder) {
+                UserDataResponse userToPlay) {
             this.user = user;
             this.room = room;
             this.tokens = tokens;
@@ -294,7 +281,7 @@ public class StartGame extends Reaction {
             this.firstLevelMinesCards = firstLevelMinesCards;
             this.secondLevelMinesCards = secondLevelMinesCards;
             this.thirdLevelMinesCards = thirdLevelMinesCards;
-            this.playerOrder=playerOrder;
+            this.userToPlay=userToPlay;
         }
         
     }
@@ -374,17 +361,14 @@ public class StartGame extends Reaction {
                 );
             }
 
-            ArrayList<User> users= room.getAllUsers();
-            ArrayList<PlayerOrderDataResponse> playerOrderDataResponses=new ArrayList<>();
-            for(User _user : users){
-                playerOrderDataResponses.add(new PlayerOrderDataResponse(_user.getUuid()));
-            }
+            
 
+           
             ResponseData responseData = new ResponseData(
                 userDataResponse, roomDataResponse, 
                 tokensDataResponse, nobleDataResponses, 
                 firstLevelMinesCardsResponses, secondLevelMinesCardsResponses, 
-                thirdLevelMinesCardsResponses,playerOrderDataResponses);
+                thirdLevelMinesCardsResponses,);
             ServerMessage serverMessage = new ServerMessage(
                 userMessage.getMessageContextId(), ServerMessageType.START_GAME_RESPONSE,
                  Result.OK, responseData);
