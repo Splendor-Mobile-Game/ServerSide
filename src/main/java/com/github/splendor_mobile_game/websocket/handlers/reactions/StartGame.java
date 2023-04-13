@@ -38,12 +38,11 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *
  * Example of user request:
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "START_GAME",
  *      "data": {
  *          "userDTO":{
- *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
- *              "name":"James"
+ *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
  *          },
  *          "roomDTO":{
  *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
@@ -58,8 +57,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *     "result":"OK",
  *     "data":{
  *         "user":{
- *             "uuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7",
- *             "name":"James"
+ *             "uuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7"
  *         },
  *         "room":{
  *             "uuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7"
@@ -237,8 +235,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *             }
  *         ],
  *         "userToPlay":{
- *             "uuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7",
- *             "name":"James"
+ *             "uuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7"
  *         }
  *     }
  * }
@@ -272,11 +269,9 @@ public class StartGame extends Reaction {
 
     public static class UserDTO {
         public UUID uuid;
-        public String name;
 
-        public UserDTO(UUID uuid, String name) {
+        public UserDTO(UUID uuid) {
             this.uuid = uuid;
-            this.name = name;
         }
 
     }
@@ -307,11 +302,9 @@ public class StartGame extends Reaction {
 
     public class UserDataResponse {
         public UUID uuid;
-        public String name;
 
-        public UserDataResponse(UUID uuid, String name) {
+        public UserDataResponse(UUID uuid) {
             this.uuid = uuid;
-            this.name = name;
         }      
     }
 
@@ -430,13 +423,13 @@ public class StartGame extends Reaction {
 
             User user = database.getUser(dataDTO.userDTO.uuid);
             Room room = database.getRoom(dataDTO.roomDTO.uuid);
-            
+
             room.startGame();
             Game game = room.getGame();
 
             Log.DEBUG("Game started by "+user.getName()+". Room UUID: "+room.getUuid());         
 
-            UserDataResponse userDataResponse = new UserDataResponse(user.getUuid(), user.getName());
+            UserDataResponse userDataResponse = new UserDataResponse(user.getUuid());
             RoomDataResponse roomDataResponse=new RoomDataResponse(room.getUuid());
 
             TokensDataResponse tokensDataResponse=
@@ -467,7 +460,7 @@ public class StartGame extends Reaction {
             ArrayList<MinesCardDataResponse> secondLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_2));
             ArrayList<MinesCardDataResponse> thirdLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_3));
 
-            UserDataResponse userToPlayResponse=new UserDataResponse(game.getCurrentPlayer().getUuid(), game.getCurrentPlayer().getName());
+            UserDataResponse userToPlayResponse=new UserDataResponse(game.getCurrentPlayer().getUuid());
                   
             ResponseData responseData = new ResponseData(
                 userDataResponse, roomDataResponse, 
