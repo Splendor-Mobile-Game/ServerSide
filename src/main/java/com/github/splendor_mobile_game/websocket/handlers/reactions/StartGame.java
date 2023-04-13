@@ -46,9 +46,9 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      "type": "START_GAME",
  *      "data": {
  *          "userDTO":{
- *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
  *              "name":"James"
- *          }
+ *          },
  *          "roomDTO":{
  *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
  *          }
@@ -57,67 +57,196 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *
  * Example of server announcement in successful case:
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "GAME_STARTED_ANNOUNCEMENT",
- *      "result": "OK",
- *      "data": {
- *          "user":{
- *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
- *              "name":"James"
- *          }
- *          "room":{
- *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
- *          }
- *          "tokens": {
- *              "red": 7,
- *              "green": 7,
- *              "blue": 7,
- *              "white": 7,
- *              "black": 7,
- *              "gold": 5,
- *          },
- *          "nobles": [
- *              {
- *                   "uuid": "81b7249e-d1f0-4030-a59d-0217ee3ac161",
- *                   "prestige": 3,
- *                   "redMinesRequired": 4,
- *                   "blueMinesRequired": 4
- *               },
- *               {
- *                   "uuid": "8bceab0a-d67f-44b2-ad4f-cda592cb4b13",
- *                   "prestige": 3,
- *                   "greenMinesRequired": 2,
- *                   "whiteMinesRequired": 3,
- *                   "blackMinesRequired": 3
- *               },
- *               ...
- *               ...
- *               ...
- *          ],
- *          "firstLevelMinesCards": [
- *              {
- *                  "prestige": 2,
- *                  "bonusColor": "green",
- *                  "greenTokensRequired": 2,
- *                  "whiteTokensRequired": 3
- *              },
- *              {
- *                  "prestige": 0,
- *                  "bonusColor": "white",
- *                  "blackTokensRequired": 3
- *              }
- *              ...
- *              ...
- *              ...
- *          ],
- *          "secondLevelMinesCards": [], // The same as above
- *          "thirdLevelMinesCards": [], // The same as above
- *          "userToPlay":{
- *              "uuid": "8bceab0a-d67f-44b2-ad4f-cda592cb4b13",
- *              "name":"James"
- *          }
- *      }
+ *     "contextId":"02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *     "type":"START_GAME_RESPONSE",
+ *     "result":"OK",
+ *     "data":{
+ *         "user":{
+ *             "uuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7",
+ *             "name":"James"
+ *         },
+ *         "room":{
+ *             "uuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *         },
+ *         "tokens":{
+ *             "ruby":7,
+ *             "emerald":7,
+ *             "sapphire":7,
+ *             "diamond":7,
+ *             "onyx":7,
+ *             "gold":5
+ *         },
+ *         "nobles":[
+ *             {
+ *                 "uuid":"030866e8-cef4-4fa2-aca7-7d95f631a7c9",
+ *                 "prestige":3,
+ *                 "redMinesRequired":0,
+ *                 "greenMinesRequired":0,
+ *                 "blueMinesRequired":0,
+ *                 "whiteMinesRequired":4,
+ *                 "blackMinesRequired":4
+ *             },
+ *             {
+ *                 "uuid":"4e7fdd16-061d-4208-9202-6ada74b4e782",
+ *                 "prestige":3,
+ *                 "redMinesRequired":4,
+ *                 "greenMinesRequired":0,
+ *                 "blueMinesRequired":0,
+ *                 "whiteMinesRequired":0,
+ *                 "blackMinesRequired":4
+ *             },
+ *             {
+ *                 "uuid":"03fbb775-1e17-4d6d-a658-66b18ef9e081",
+ *                 "prestige":3,
+ *                 "redMinesRequired":4,
+ *                 "greenMinesRequired":4,
+ *                 "blueMinesRequired":0,
+ *                 "whiteMinesRequired":0,
+ *                 "blackMinesRequired":0
+ *             },
+ *             {
+ *                 "uuid":"caacfa2c-bbc3-4cb9-bab4-1d2cf6b7d55f",
+ *                 "prestige":3,
+ *                 "redMinesRequired":0,
+ *                 "greenMinesRequired":3,
+ *                 "blueMinesRequired":3,
+ *                 "whiteMinesRequired":3,
+ *                 "blackMinesRequired":0
+ *             }
+ *         ],
+ *         "firstLevelMinesCards":[
+ *             {
+ *                 "uuid":"68d6a978-4715-4afe-85ab-a9a16c0a1c40",
+ *                 "prestige":0,
+ *                 "color":"BLUE",
+ *                 "redTokensRequired":1,
+ *                 "greenTokensRequired":1,
+ *                 "blueTokensRequired":0,
+ *                 "whiteTokensRequired":1,
+ *                 "blackTokensRequired":1
+ *             },
+ *             {
+ *                 "uuid":"6dcfa310-93eb-402d-8098-0ea1650f6f70",
+ *                 "prestige":0,
+ *                 "color":"RED",
+ *                 "redTokensRequired":0,
+ *                 "greenTokensRequired":1,
+ *                 "blueTokensRequired":1,
+ *                 "whiteTokensRequired":2,
+ *                 "blackTokensRequired":1
+ *             },
+ *             {
+ *                 "uuid":"baedee13-1057-4514-8d5a-ffdfe620ecc1",
+ *                 "prestige":0,
+ *                 "color":"GREEN",
+ *                 "redTokensRequired":0,
+ *                 "greenTokensRequired":0,
+ *                 "blueTokensRequired":1,
+ *                 "whiteTokensRequired":2,
+ *                 "blackTokensRequired":0
+ *             },
+ *             {
+ *                 "uuid":"22bc7e1a-eb05-4f71-a368-2ba857060538",
+ *                 "prestige":0,
+ *                 "color":"GREEN",
+ *                 "redTokensRequired":2,
+ *                 "greenTokensRequired":0,
+ *                 "blueTokensRequired":2,
+ *                 "whiteTokensRequired":0,
+ *                 "blackTokensRequired":0
+ *             }
+ *         ],
+ *         "secondLevelMinesCards":[
+ *             {
+ *                 "uuid":"acdfd086-a9cf-499e-95ed-ce563fc40c76",
+ *                 "prestige":1,
+ *                 "color":"BLUE",
+ *                 "redTokensRequired":0,
+ *                 "greenTokensRequired":3,
+ *                 "blueTokensRequired":2,
+ *                 "whiteTokensRequired":0,
+ *                 "blackTokensRequired":3
+ *             },
+ *             {
+ *                 "uuid":"154f2f30-64b6-483b-ac2f-68b323c08868",
+ *                 "prestige":2,
+ *                 "color":"GREEN",
+ *                 "redTokensRequired":0,
+ *                 "greenTokensRequired":5,
+ *                 "blueTokensRequired":0,
+ *                 "whiteTokensRequired":0,
+ *                 "blackTokensRequired":0
+ *             },
+ *             {
+ *                 "uuid":"96890791-2bdf-4194-9d60-35b1da949619",
+ *                 "prestige":3,
+ *                 "color":"BLACK",
+ *                 "redTokensRequired":0,
+ *                 "greenTokensRequired":0,
+ *                 "blueTokensRequired":0,
+ *                 "whiteTokensRequired":0,
+ *                 "blackTokensRequired":6
+ *             },
+ *             {
+ *                 "uuid":"7508853a-0d03-42b7-99d8-c574c2bcdadd",
+ *                 "prestige":2,
+ *                 "color":"WHITE",
+ *                 "redTokensRequired":4,
+ *                 "greenTokensRequired":1,
+ *                 "blueTokensRequired":0,
+ *                 "whiteTokensRequired":0,
+ *                 "blackTokensRequired":2
+ *             }
+ *         ],
+ *         "thirdLevelMinesCards":[
+ *             {
+ *                 "uuid":"1c0772e5-3dc6-4da3-b83a-37d03f024c15",
+ *                 "prestige":4,
+ *                 "color":"BLUE",
+ *                 "redTokensRequired":0,
+ *                 "greenTokensRequired":0,
+ *                 "blueTokensRequired":0,
+ *                 "whiteTokensRequired":7,
+ *                 "blackTokensRequired":0
+ *             },
+ *             {
+ *                 "uuid":"c1fe9182-9e3d-45a3-bb40-1cd415075bba",
+ *                 "prestige":4,
+ *                 "color":"GREEN",
+ *                 "redTokensRequired":0,
+ *                 "greenTokensRequired":3,
+ *                 "blueTokensRequired":6,
+ *                 "whiteTokensRequired":3,
+ *                 "blackTokensRequired":0
+ *             },
+ *             {
+ *                 "uuid":"6c392cc8-a581-4ac2-8e61-042d6c863a35",
+ *                 "prestige":4,
+ *                 "color":"BLUE",
+ *                 "redTokensRequired":0,
+ *                 "greenTokensRequired":0,
+ *                 "blueTokensRequired":3,
+ *                 "whiteTokensRequired":6,
+ *                 "blackTokensRequired":3
+ *             },
+ *             {
+ *                 "uuid":"671e4f8a-3ea4-450a-bdbf-c49bdf41f264",
+ *                 "prestige":3,
+ *                 "color":"BLUE",
+ *                 "redTokensRequired":3,
+ *                 "greenTokensRequired":3,
+ *                 "blueTokensRequired":0,
+ *                 "whiteTokensRequired":3,
+ *                 "blackTokensRequired":5
+ *             }
+ *         ],
+ *         "userToPlay":{
+ *             "uuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7",
+ *             "name":"James"
+ *         }
+ *     }
  * }
+ *
  *
  * Example of implementation details:
  * - Check if the user is the host and is in a game.
@@ -175,6 +304,11 @@ public class StartGame extends Reaction {
             this.roomDTO=roomDTO;
         }   
     }
+
+
+
+
+
     public class UserDataResponse {
         public UUID uuid;
         public String name;
@@ -194,19 +328,19 @@ public class StartGame extends Reaction {
     }
 
     public class TokensDataResponse{
-        public int red;
-        public int green;
-        public int blue;
-        public int white;
-        public int black;
+        public int ruby;
+        public int emerald;
+        public int sapphire;
+        public int diamond;
+        public int onyx;
         public int gold;
 
-        public TokensDataResponse(int red, int green, int blue, int white, int black, int gold) {
-            this.red = red;
-            this.green = green;
-            this.blue = blue;
-            this.white = white;
-            this.black = black;
+        public TokensDataResponse(int ruby, int emerald, int sapphire, int diamond, int onyx, int gold) {
+            this.ruby = ruby;
+            this.emerald = emerald;
+            this.sapphire = sapphire;
+            this.diamond = diamond;
+            this.onyx = onyx;
             this.gold = gold;
         }
     }
@@ -287,6 +421,10 @@ public class StartGame extends Reaction {
         
     }
 
+
+
+
+
     @Override
     public void react() {
         DataDTO dataDTO = (DataDTO)userMessage.getData();
@@ -296,6 +434,7 @@ public class StartGame extends Reaction {
 
             User user = database.getUser(dataDTO.userDTO.uuid);
             Room room = database.getRoom(dataDTO.roomDTO.uuid);
+            
             room.startGame();
             Game game = room.getGame();
 
@@ -327,19 +466,18 @@ public class StartGame extends Reaction {
                     noble.getCost(TokenType.ONYX)
                 ));
             }
-
-
-            
+    
             ArrayList<MinesCardDataResponse> firstLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_1));
             ArrayList<MinesCardDataResponse> secondLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_2));
             ArrayList<MinesCardDataResponse> thirdLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_3));
-            
-           
+
+            UserDataResponse userToPlayResponse=new UserDataResponse(game.getCurrentPlayer().getUuid(), game.getCurrentPlayer().getName());
+                  
             ResponseData responseData = new ResponseData(
                 userDataResponse, roomDataResponse, 
                 tokensDataResponse, nobleDataResponses, 
                 firstLevelMinesCardsResponses, secondLevelMinesCardsResponses, 
-                thirdLevelMinesCardsResponses,userDataResponse);
+                thirdLevelMinesCardsResponses,userToPlayResponse);
             ServerMessage serverMessage = new ServerMessage(
                 userMessage.getContextId(), ServerMessageType.START_GAME_RESPONSE,
                  Result.OK, responseData);
@@ -352,23 +490,12 @@ public class StartGame extends Reaction {
         }
     }
 
-    private ArrayList<MinesCardDataResponse> createMinesCardDataResponses(Deck deck){
-        ArrayList<MinesCardDataResponse> minesCardsResponses=new ArrayList<>();
-        for(Card card : deck){
-            minesCardsResponses.add(new MinesCardDataResponse(
-                card.getUuid(), 
-                card.getPoints(), 
-                card.getAdditionalToken().color, 
-                card.getCost(TokenType.RUBY),
-                card.getCost(TokenType.EMERALD),
-                card.getCost(TokenType.SAPPHIRE),
-                card.getCost(TokenType.DIAMOND),
-                card.getCost(TokenType.ONYX)       
-            ));
-        }
 
-        return minesCardsResponses;
-    }
+
+
+
+
+
 
     private void validateData(DataDTO dataDTO, Database database) throws  RoomDoesntExistException, UserDoesntExistException, RoomOwnershipException, InvalidUUIDException, RoomInGameException{
         Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"); 
@@ -417,6 +544,24 @@ public class StartGame extends Reaction {
             throw new RoomInGameException("Room is during the match");
         }
 
+    }
+
+    private ArrayList<MinesCardDataResponse> createMinesCardDataResponses(Deck deck){
+        ArrayList<MinesCardDataResponse> minesCardsResponses=new ArrayList<>();
+        for(Card card : deck){
+            minesCardsResponses.add(new MinesCardDataResponse(
+                card.getUuid(), 
+                card.getPoints(), 
+                card.getAdditionalToken().color, 
+                card.getCost(TokenType.RUBY),
+                card.getCost(TokenType.EMERALD),
+                card.getCost(TokenType.SAPPHIRE),
+                card.getCost(TokenType.DIAMOND),
+                card.getCost(TokenType.ONYX)       
+            ));
+        }
+
+        return minesCardsResponses;
     }
     
 }
