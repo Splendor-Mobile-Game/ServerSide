@@ -12,20 +12,40 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
 
+    private User currentOrder;
+    private final ArrayList<User> users = new ArrayList<>();
     private final HashMap<TokenType, Integer> tokensOnTable = new HashMap<>();
     private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
     private final Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>(); // Cards of each tier visible on the table
+
     private ArrayList<Noble> nobles;
     /** Maximum number of non-gold tokens generated for game. Depends on player count */
     private int maxNonGoldTokensOnStart = 7;
     private final Database database;
 
-    public Game(Database database, int playerCount) {
+    public Game(Database database, ArrayList<User> users) {
         this.database = database;
 
-        start(playerCount);
+        currentOrder = users.get(0);
+        start(users.size());
     }
 
+    public User getCurrentPlayer() {
+        return currentOrder;
+    }
+
+    public User changeTurn(){
+        int index = users.indexOf(currentOrder);
+        
+        if(index == users.size()-1){
+            currentOrder = users.get(0);
+            return currentOrder;
+        } 
+        else{
+            currentOrder = users.get(index+1);
+            return currentOrder;
+        }
+    }
 
     private void start(int playerCount) {
         // Calculate number of tokens of each type
