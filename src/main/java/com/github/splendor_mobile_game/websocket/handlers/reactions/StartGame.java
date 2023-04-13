@@ -401,13 +401,10 @@ public class StartGame extends Reaction {
         DataDTO dataDTO = (DataDTO)userMessage.getData();
 
         try{
-            //validateData(dataDTO, database);
+            validateData(dataDTO, database);
 
-            User user = new User(dataDTO.userDTO.uuid, "janek", connectionHashCode);
-            Room room = new Room(dataDTO.roomDTO.uuid, "pokoj", "123", user, database);
-
-            //User user = database.getUser(dataDTO.userDTO.uuid);
-            //Room room = database.getRoom(dataDTO.roomDTO.uuid);
+            User user = database.getUser(dataDTO.userDTO.uuid);
+            Room room = database.getRoom(dataDTO.roomDTO.uuid);
 
             room.startGame();
             Game game = room.getGame();
