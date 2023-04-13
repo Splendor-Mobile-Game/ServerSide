@@ -56,12 +56,6 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *     "type":"START_GAME_RESPONSE",
  *     "result":"OK",
  *     "data":{
- *         "user":{
- *             "uuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7"
- *         },
- *         "room":{
- *             "uuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7"
- *         },
  *         "tokens":{
  *             "ruby":7,
  *             "emerald":7,
@@ -299,23 +293,6 @@ public class StartGame extends Reaction {
 
 
 
-
-    public class UserDataResponse {
-        public UUID uuid;
-
-        public UserDataResponse(UUID uuid) {
-            this.uuid = uuid;
-        }      
-    }
-
-    public class RoomDataResponse{
-        public UUID uuid;
-
-        public RoomDataResponse(UUID uuid) {
-            this.uuid = uuid;
-        }
-    }
-
     public class TokensDataResponse{
         public int ruby;
         public int emerald;
@@ -338,21 +315,21 @@ public class StartGame extends Reaction {
         public UUID uuid;
         public int prestige;
 
-        public int redMinesRequired;
-        public int greenMinesRequired;
-        public int blueMinesRequired;
-        public int whiteMinesRequired;
-        public int blackMinesRequired;
+        public int rubyMinesRequired;
+        public int emeraldMinesRequired;
+        public int sapphireMinesRequired;
+        public int diamondMinesRequired;
+        public int onyxMinesRequired;
 
-        public NobleDataResponse(UUID uuid, int prestige, int redMinesRequired, int greenMinesRequired,
-                int blueMinesRequired, int whiteMinesRequired, int blackMinesRequired) {
+        public NobleDataResponse(UUID uuid, int prestige, int rubyMinesRequired, int emeraldMinesRequired,
+                int sapphireMinesRequired, int diamondMinesRequired, int onyxMinesRequired) {
             this.uuid = uuid;
             this.prestige = prestige;
-            this.redMinesRequired = redMinesRequired;
-            this.greenMinesRequired = greenMinesRequired;
-            this.blueMinesRequired = blueMinesRequired;
-            this.whiteMinesRequired = whiteMinesRequired;
-            this.blackMinesRequired = blackMinesRequired;
+            this.rubyMinesRequired = rubyMinesRequired;
+            this.emeraldMinesRequired = emeraldMinesRequired;
+            this.sapphireMinesRequired = sapphireMinesRequired;
+            this.diamondMinesRequired = diamondMinesRequired;
+            this.onyxMinesRequired = onyxMinesRequired;
         }
     }
 
@@ -361,29 +338,35 @@ public class StartGame extends Reaction {
         public int prestige;
         public Color color;
 
-        public int redTokensRequired;
-        public int greenTokensRequired;
-        public int blueTokensRequired;
-        public int whiteTokensRequired;
-        public int blackTokensRequired;
+        public int rubyTokensRequired;
+        public int emeraldTokensRequired;
+        public int sapphireTokensRequired;
+        public int diamondTokensRequired;
+        public int onyxTokensRequired;
 
-        public MinesCardDataResponse(UUID uuid, int prestige, Color color, int redTokensRequired,
-                int greenTokensRequired, int blueTokensRequired, int whiteTokensRequired, int blackTokensRequired) {
+        public MinesCardDataResponse(UUID uuid, int prestige, Color color, int rubyTokensRequired,
+                int emeraldTokensRequired, int sapphireTokensRequired, int diamondTokensRequired, int onyxTokensRequired) {
             this.uuid = uuid;
             this.prestige = prestige;
             this.color = color;
-            this.redTokensRequired = redTokensRequired;
-            this.greenTokensRequired = greenTokensRequired;
-            this.blueTokensRequired = blueTokensRequired;
-            this.whiteTokensRequired = whiteTokensRequired;
-            this.blackTokensRequired = blackTokensRequired;
+            this.rubyTokensRequired = rubyTokensRequired;
+            this.emeraldTokensRequired = emeraldTokensRequired;
+            this.sapphireTokensRequired = sapphireTokensRequired;
+            this.diamondTokensRequired = diamondTokensRequired;
+            this.onyxTokensRequired = onyxTokensRequired;
         }
         
     }
 
+    public class UserDataResponse {
+        public UUID uuid;
+
+        public UserDataResponse(UUID uuid) {
+            this.uuid = uuid;
+        }      
+    }
+
     public class ResponseData{
-        public UserDataResponse user;
-        public RoomDataResponse room;
         public TokensDataResponse tokens;
         public ArrayList<NobleDataResponse> nobles;
 
@@ -393,13 +376,11 @@ public class StartGame extends Reaction {
 
         public UserDataResponse userToPlay;
 
-        public ResponseData(UserDataResponse user, RoomDataResponse room, TokensDataResponse tokens,
+        public ResponseData(TokensDataResponse tokens,
                 ArrayList<NobleDataResponse> nobles, ArrayList<MinesCardDataResponse> firstLevelMinesCards,
                 ArrayList<MinesCardDataResponse> secondLevelMinesCards,
                 ArrayList<MinesCardDataResponse> thirdLevelMinesCards,
                 UserDataResponse userToPlay) {
-            this.user = user;
-            this.room = room;
             this.tokens = tokens;
             this.nobles = nobles;
             this.firstLevelMinesCards = firstLevelMinesCards;
@@ -427,10 +408,7 @@ public class StartGame extends Reaction {
             room.startGame();
             Game game = room.getGame();
 
-            Log.DEBUG("Game started by "+user.getName()+". Room UUID: "+room.getUuid());         
-
-            UserDataResponse userDataResponse = new UserDataResponse(user.getUuid());
-            RoomDataResponse roomDataResponse=new RoomDataResponse(room.getUuid());
+            Log.DEBUG("Game started by "+user.getName()+". Room UUID: "+room.getUuid());
 
             TokensDataResponse tokensDataResponse=
                 new TokensDataResponse(
@@ -463,15 +441,23 @@ public class StartGame extends Reaction {
             UserDataResponse userToPlayResponse=new UserDataResponse(game.getCurrentPlayer().getUuid());
                   
             ResponseData responseData = new ResponseData(
-                userDataResponse, roomDataResponse, 
                 tokensDataResponse, nobleDataResponses, 
                 firstLevelMinesCardsResponses, secondLevelMinesCardsResponses, 
-                thirdLevelMinesCardsResponses,userToPlayResponse);
-            ServerMessage serverMessage = new ServerMessage(
-                userMessage.getContextId(), ServerMessageType.START_GAME_RESPONSE,
-                 Result.OK, responseData);
-            messenger.addMessageToSend(this.connectionHashCode, serverMessage);
+                thirdLevelMinesCardsResponses,userToPlayResponse
+            );
 
+
+            ArrayList<User> players= room.getAllUsers();
+            ServerMessage serverMessage = new ServerMessage(
+                    userMessage.getContextId(), 
+                    ServerMessageType.START_GAME_RESPONSE,
+                    Result.OK, 
+                    responseData
+            );
+            for(User player : players){          
+                messenger.addMessageToSend(player.getConnectionHashCode(), serverMessage);
+            }
+       
 
         }catch (Exception e) {
             ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.START_GAME_RESPONSE, userMessage.getContextId().toString());
