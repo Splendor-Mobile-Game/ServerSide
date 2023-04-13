@@ -47,7 +47,7 @@ public class DebugGetRandomCard extends Reaction {
         // Add the card to the data response
         // data.add("card", gson.toJson(card));
 
-        ServerMessage serverMessage = new ServerMessage(userMessage.getMessageContextId(), ServerMessageType.DEBUG_GET_RANDOM_CARD_RESPONSE, Result.OK, null);
+        ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.DEBUG_GET_RANDOM_CARD_RESPONSE, Result.OK, null);
         messenger.addMessageToSend(this.connectionHashCode, serverMessage);
     }
 

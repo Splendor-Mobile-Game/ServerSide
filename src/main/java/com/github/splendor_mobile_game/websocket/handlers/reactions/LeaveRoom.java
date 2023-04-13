@@ -51,7 +51,7 @@ public class LeaveRoom extends Reaction{
         }
     }
     
-    public class ResponseData {
+    public static class ResponseData {
         public UserDataResponse user;
 
         public ResponseData(UserDataResponse user) {
@@ -60,7 +60,7 @@ public class LeaveRoom extends Reaction{
         
     }
     
-    public class UserDataResponse {
+    public static class UserDataResponse {
         public UUID id;
         public String name;
         public UserDataResponse(UUID id, String name) {
@@ -97,12 +97,25 @@ public class LeaveRoom extends Reaction{
             Room room = database.getRoom(dataDTO.roomDTO.uuid);
             ArrayList<User> usersTmp = room.getAllUsers();
             room.leaveGame(user);
+            database.getAllUsers().remove(user);
 
             if(room.getPlayerCount()>0)
                 //checking if user who wants to leave room isn't owner, if that's true, setting new owner as another user from list of users
-                if(room.getOwner().equals(user))
+                if(room.getOwner().equals(user)){
                     room.setOwner(room.getAllUsers().get(0));
-            //TODO: inform other users who is new room owner
+                    
+                    UserDataResponse userDataResponse = new UserDataResponse(room.getOwner().getUuid(), room.getOwner().getName());
+                    ResponseData responseData = new ResponseData(userDataResponse);
+                    ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.NEW_ROOM_OWNER, Result.OK, responseData);
+
+                    messenger.addMessageToSend(this.connectionHashCode, serverMessage);
+
+                    //Send information about new room owner to other players
+                    for (User u : usersTmp) {
+                        messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
+                    }
+                    
+                }
 
             //If last user wants to leave room, then remove empty room
             if(room.getPlayerCount()==0)
@@ -110,20 +123,20 @@ public class LeaveRoom extends Reaction{
 
             UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, user.getName());
             ResponseData responseData = new ResponseData(userDataResponse);
-            ServerMessage serverMessage = new ServerMessage(userMessage.getMessageContextId(), ServerMessageType.LEAVE_ROOM_RESPONSE, Result.OK, responseData);
+            ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.LEAVE_ROOM_RESPONSE, Result.OK, responseData);
 
             messenger.addMessageToSend(this.connectionHashCode, serverMessage);
             
 
-            // Send leave information to other players
+            //Send leave information to other players
             for (User u : usersTmp) {
-                messenger.addMessageToSend(u.getConnectionHasCode(), serverMessage);
+                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
             }
 
 
         } catch(Exception e) {
 
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.LEAVE_ROOM_RESPONSE, userMessage.getMessageContextId().toString());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.LEAVE_ROOM_RESPONSE, userMessage.getContextId().toString());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
 
         }

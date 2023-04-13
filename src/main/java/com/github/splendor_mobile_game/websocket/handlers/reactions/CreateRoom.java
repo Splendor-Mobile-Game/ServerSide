@@ -6,6 +6,11 @@ import java.util.regex.Pattern;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
+import com.github.splendor_mobile_game.game.Exceptions.NotEnoughTokensException;
+import com.github.splendor_mobile_game.game.Exceptions.SameTokenTypesException;
+import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.enums.TokenType;
+import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
@@ -83,10 +88,14 @@ public class CreateRoom extends Reaction {
     }
 
     public class RoomDataResponse {
+        public UUID uuid;
         public String name;
+        public String enterCode;
 
-        public RoomDataResponse(String name) {
+        public RoomDataResponse(UUID uuid, String name, String enterCode) {
             this.name = name;
+            this.uuid = uuid;
+            this.enterCode = enterCode;
         }
 
     }
@@ -141,21 +150,23 @@ public class CreateRoom extends Reaction {
             database.addUser(user);
             database.addRoom(room);
 
+            // room.startGame();
+
             UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, dataDTO.userDTO.name);
-            RoomDataResponse roomDataResponse = new RoomDataResponse(dataDTO.roomDTO.name);
+            RoomDataResponse roomDataResponse = new RoomDataResponse(room.getUuid(), dataDTO.roomDTO.name, room.getEnterCode());
             ResponseData responseData = new ResponseData(userDataResponse, roomDataResponse);
-            ServerMessage serverMessage = new ServerMessage(userMessage.getMessageContextId(), ServerMessageType.CREATE_ROOM_RESPONSE, Result.OK, responseData);
+            ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.CREATE_ROOM_RESPONSE, Result.OK, responseData);
 
             messenger.addMessageToSend(this.connectionHashCode, serverMessage);
 
         } catch (Exception e) {
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.CREATE_ROOM_RESPONSE, userMessage.getMessageContextId().toString());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.CREATE_ROOM_RESPONSE, userMessage.getContextId().toString());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
         }
     }
 
 
-    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, InvalidUsernameException, RoomAlreadyExistsException, AlreadyAnOwnerException, InvalidPasswordException {
+    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, InvalidUsernameException, RoomAlreadyExistsException, InvalidPasswordException, UserAlreadyInRoomException {
         Pattern uuidPattern     = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
         Pattern usernamePattern = Pattern.compile("^(?=.*\\p{L})[\\p{L}\\p{N}\\s]+$");
         Pattern passwordPattern = Pattern.compile("^[a-zA-Z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ\\p{Punct}]+$");
@@ -189,11 +200,8 @@ public class CreateRoom extends Reaction {
             throw new RoomAlreadyExistsException("Room with specified name already exists!");
 
 
-        // Check if user is already an owner of any room
-        for(Room room : database.getAllRooms()) {
-            if (room.getOwner().equals(database.getUser(dataDTO.userDTO.uuid)))
-                throw new AlreadyAnOwnerException("You are already an owner of " + room.getName() + " room.");
-        }
+        // Check if user is already a member of any room
+        database.isUserInRoom(dataDTO.userDTO.uuid);
 
     }
 }

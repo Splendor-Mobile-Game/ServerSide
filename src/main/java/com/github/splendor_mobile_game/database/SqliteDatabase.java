@@ -8,6 +8,7 @@ import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Noble;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserAlreadyInRoomException;
 
 
 // Probably we won't implement any of real database any time soon
@@ -82,4 +83,23 @@ public class SqliteDatabase implements Database {
         // TODO Auto-generated method stub
         return null;
     }
+
+    @Override
+    public User getUserByConnectionHashCode(int connectionHashCode) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getUserByConnectionHashCode'");
+    }
+
+    @Override
+    public Room getRoomWithUser(UUID userUuid) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getRoomWithUser'");
+    }
+
+    public void isUserInRoom(UUID uuid) throws UserAlreadyInRoomException {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getRoomWithUser'");
+    }
+
+
 }

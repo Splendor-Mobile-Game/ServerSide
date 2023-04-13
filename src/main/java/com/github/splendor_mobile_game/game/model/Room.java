@@ -15,23 +15,38 @@ public class Room {
     private final String name;
     private final String enterCode;
     private final String password;
-    private User owner;
     private int playerCount;
     private final ArrayList<User> users = new ArrayList<>();
-    private Game game = null;
+    private User owner;
+    private Game game=null;
+    private final Database database;
 
 
     public Room(UUID uuid, String name, String password, User owner, Database database) {
         this.uuid     = uuid;
         this.name     = name;
         this.password = password;
+        this.database = database;
         this.owner    = owner;
 
         this.enterCode = generateRoomCode(database);
         Log.DEBUG(this.enterCode);
 
-        this.users.add(owner);
         playerCount++;
+        this.users.add(owner);
+    }
+
+    public void startGame() {
+        this.game = new Game(database, users);
+    }
+
+    public void displayScoreboard() {
+        // TODO
+        // endGame
+    }
+
+    public void endGame() {
+        this.game = null;
     }
 
 
@@ -45,14 +60,6 @@ public class Room {
 
     public boolean userExists(User user) {
         return users.contains(user);
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
     }
 
     public String getName() {
@@ -71,8 +78,20 @@ public class Room {
         return enterCode;
     }
 
-    public Game getGame(){
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public Game getGame() {
         return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 
     public void ShuffleUsers(){
