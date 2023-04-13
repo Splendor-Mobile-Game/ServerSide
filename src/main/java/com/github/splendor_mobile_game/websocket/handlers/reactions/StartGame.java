@@ -11,6 +11,7 @@ import org.slf4j.helpers.NOPLoggerFactory;
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.Color;
+import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Deck;
 import com.github.splendor_mobile_game.game.model.Game;
@@ -295,92 +296,78 @@ public class StartGame extends Reaction {
 
             User user = database.getUser(dataDTO.userDTO.uuid);
             Room room = database.getRoom(dataDTO.roomDTO.uuid);
+            room.startGame();
             Game game = room.getGame();
 
-            Log.DEBUG("Game started by "+user.getName()+". Room UUID: "+room.getUuid());
-            game.startGame(room);
-
-            
+            Log.DEBUG("Game started by "+user.getName()+". Room UUID: "+room.getUuid());         
 
             UserDataResponse userDataResponse = new UserDataResponse(user.getUuid(), user.getName());
             RoomDataResponse roomDataResponse=new RoomDataResponse(room.getUuid());
 
             TokensDataResponse tokensDataResponse=
                 new TokensDataResponse(
-                    game.getRubyTokens().getAvailableTokensCount(),
-                    game.getEmeraldTokens().getAvailableTokensCount(),
-                    game.getSapphireTokens().getAvailableTokensCount(), 
-                    game.getDiamondTokens().getAvailableTokensCount(), 
-                    game.getOnyxTokens().getAvailableTokensCount(), 
-                    game.getGoldTokens().getAvailableTokensCount()
+                    game.getTokens(TokenType.RUBY),
+                    game.getTokens(TokenType.EMERALD),
+                    game.getTokens(TokenType.SAPPHIRE),
+                    game.getTokens(TokenType.DIAMOND),
+                    game.getTokens(TokenType.ONYX),
+                    game.getTokens(TokenType.GOLD_JOKER)
                 );
             
             ArrayList<Noble> nobles = game.getNobles();
             ArrayList<NobleDataResponse> nobleDataResponses = new ArrayList<>();
             for(Noble noble : nobles){
                 nobleDataResponses.add(new NobleDataResponse(
-                    noble.getUuid(), noble.getPoints(), 
-                    noble.getRubyCost(), noble.getEmeraldCost(), 
-                    noble.getSapphireCost(), noble.getDiamondCost(), 
-                    noble.getOnyxCost())
-                );
+                    noble.getUuid(), 
+                    noble.getPoints(), 
+                    noble.getCost(TokenType.RUBY),
+                    noble.getCost(TokenType.EMERALD),
+                    noble.getCost(TokenType.SAPPHIRE), 
+                    noble.getCost(TokenType.DIAMOND), 
+                    noble.getCost(TokenType.ONYX)
+                ));
             }
 
 
             
-            Deck deck = game.getRevealedCards(CardTier.LEVEL_1);
-            ArrayList<MinesCardDataResponse> firstLevelMinesCardsResponses=new ArrayList<>();
-            for(Card card : deck){
-                firstLevelMinesCardsResponses.add(new MinesCardDataResponse(
-                    card.getUuid(), card.getPoints(), 
-                    card.getAdditionalToken().color, card.getRubyCost(), 
-                    card.getEmeraldCost(), card.getSapphireCost(), 
-                    card.getDiamondCost(), card.getOnyxCost())
-                );
-            }
-
-            deck = game.getRevealedCards(CardTier.LEVEL_2);
-            ArrayList<MinesCardDataResponse> secondLevelMinesCardsResponses=new ArrayList<>();
-            for(Card card : deck){
-                secondLevelMinesCardsResponses.add(new MinesCardDataResponse(
-                    card.getUuid(), card.getPoints(), 
-                    card.getAdditionalToken().color, card.getRubyCost(), 
-                    card.getEmeraldCost(), card.getSapphireCost(), 
-                    card.getDiamondCost(), card.getOnyxCost())
-                );
-            }
-
-            deck = game.getRevealedCards(CardTier.LEVEL_3);
-            ArrayList<MinesCardDataResponse> thirdLevelMinesCardsResponses=new ArrayList<>();
-            for(Card card : deck){
-                thirdLevelMinesCardsResponses.add(new MinesCardDataResponse(
-                    card.getUuid(), card.getPoints(), 
-                    card.getAdditionalToken().color, card.getRubyCost(), 
-                    card.getEmeraldCost(), card.getSapphireCost(), 
-                    card.getDiamondCost(), card.getOnyxCost())
-                );
-            }
-
+            ArrayList<MinesCardDataResponse> firstLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_1));
+            ArrayList<MinesCardDataResponse> secondLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_2));
+            ArrayList<MinesCardDataResponse> thirdLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_3));
             
-
            
             ResponseData responseData = new ResponseData(
                 userDataResponse, roomDataResponse, 
                 tokensDataResponse, nobleDataResponses, 
                 firstLevelMinesCardsResponses, secondLevelMinesCardsResponses, 
-                thirdLevelMinesCardsResponses,);
+                thirdLevelMinesCardsResponses,userDataResponse);
             ServerMessage serverMessage = new ServerMessage(
-                userMessage.getMessageContextId(), ServerMessageType.START_GAME_RESPONSE,
+                userMessage.getContextId(), ServerMessageType.START_GAME_RESPONSE,
                  Result.OK, responseData);
             messenger.addMessageToSend(this.connectionHashCode, serverMessage);
 
 
         }catch (Exception e) {
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.START_GAME_RESPONSE, userMessage.getMessageContextId().toString());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.START_GAME_RESPONSE, userMessage.getContextId().toString());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
         }
+    }
 
-   
+    private ArrayList<MinesCardDataResponse> createMinesCardDataResponses(Deck deck){
+        ArrayList<MinesCardDataResponse> minesCardsResponses=new ArrayList<>();
+        for(Card card : deck){
+            minesCardsResponses.add(new MinesCardDataResponse(
+                card.getUuid(), 
+                card.getPoints(), 
+                card.getAdditionalToken().color, 
+                card.getCost(TokenType.RUBY),
+                card.getCost(TokenType.EMERALD),
+                card.getCost(TokenType.SAPPHIRE),
+                card.getCost(TokenType.DIAMOND),
+                card.getCost(TokenType.ONYX)       
+            ));
+        }
+
+        return minesCardsResponses;
     }
 
     private void validateData(DataDTO dataDTO, Database database) throws  RoomDoesntExistException, UserDoesntExistException, RoomOwnershipException, InvalidUUIDException, RoomInGameException{

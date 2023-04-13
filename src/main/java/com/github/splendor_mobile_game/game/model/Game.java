@@ -52,8 +52,6 @@ public class Game {
         if (playerCount == 2) this.maxNonGoldTokensOnStart = 4;
         if (playerCount == 3) this.maxNonGoldTokensOnStart = 5;
 
-        room.ShuffleUsers();
-
         // Assign all tokenLists
         tokensOnTable.put(TokenType.EMERALD,    maxNonGoldTokensOnStart);
         tokensOnTable.put(TokenType.SAPPHIRE,   maxNonGoldTokensOnStart);
@@ -114,11 +112,17 @@ public class Game {
     }
 
     public Deck getRevealedCards(CardTier tier){
-        return revealedCards.get(tier);
+        Deck _deck = new Deck(tier, revealedCards.get(tier));
+        return _deck;
     }
 
     public ArrayList<Noble> getNobles(){
-        return this.nobles;
+        ArrayList<Noble> _nobles=new ArrayList<>(this.nobles);
+        return _nobles;
+    }
+
+    public int getTokens(TokenType type){
+        return this.tokensOnTable.get(type);
     }
 
 
