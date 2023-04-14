@@ -23,7 +23,7 @@ import com.github.splendor_mobile_game.websocket.response.Result;
 // TODO: This whole class can be unit tested
 
 /**
- * Reaction sent when new player joins to already created room.
+ * Reaction sent when a new player joins to already created room.
  * react() function should send information about new player joining, to all other users. Message type should be equivalent to `JOIN_ROOM_RESPONSE`
  *
  * Example user request
