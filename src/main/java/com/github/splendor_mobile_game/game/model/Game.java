@@ -49,21 +49,42 @@ public class Game {
     }
 
     public Card takeCardFromRevealed(Card card){
-        CardTier cardTier = card.getCardTier();
-        revealedCards.get(cardTier).remove(card);
+        
+        removeCardFromRevealed(card);
 
-        Card cardDrawn = getRandomCard(cardTier);
-        revealedCards.get(cardTier).add(cardDrawn);
+        Card cardDrawn = getRandomCard(card.getCardTier());
+        addCardToRevealed(cardDrawn);
 
         return cardDrawn;
     }
 
+    private void removeCardFromRevealed(Card card){
+        CardTier cardTier = card.getCardTier();
+        revealedCards.get(cardTier).remove(card);
+    }
+
+    private void addCardToRevealed(Card card){
+        revealedCards.get(card.getCardTier()).add(card);
+    }
+
     public boolean revealedCardExists(UUID cardUuid){
 
-        return this.revealedCards.get(CardTier.LEVEL_1).stream()
+        boolean isInLvl1= this.revealedCards.get(CardTier.LEVEL_1).stream()
             .filter(card -> card.getUuid()==cardUuid)
             .findFirst()
             .orElse(null) != null;
+
+        boolean isInLvl2= this.revealedCards.get(CardTier.LEVEL_2).stream()
+        .filter(card -> card.getUuid()==cardUuid)
+        .findFirst()
+        .orElse(null) != null;
+
+        boolean isInLvl3= this.revealedCards.get(CardTier.LEVEL_3).stream()
+            .filter(card -> card.getUuid()==cardUuid)
+            .findFirst()
+            .orElse(null) != null;
+
+        return isInLvl1||isInLvl2||isInLvl3;
     }
 
     private void start(int playerCount) {

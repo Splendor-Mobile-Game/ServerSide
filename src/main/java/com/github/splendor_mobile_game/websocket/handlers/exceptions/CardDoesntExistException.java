@@ -1,5 +1,8 @@
 package com.github.splendor_mobile_game.websocket.handlers.exceptions;
 
+/**
+ * Exception thrown when card is not in database or in any set
+ */
 public class CardDoesntExistException extends Exception{
     public CardDoesntExistException() {
     }

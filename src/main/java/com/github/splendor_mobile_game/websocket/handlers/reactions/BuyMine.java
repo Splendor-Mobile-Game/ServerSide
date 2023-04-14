@@ -5,6 +5,8 @@ import java.util.UUID;
 
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Game;
 import com.github.splendor_mobile_game.game.model.Room;
@@ -48,17 +50,20 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "BUY_MINE_ANNOUNCEMENT",
  *      "result": "OK",
- *      "data": {
- *          "buyerUser":{
- *              "uuid":6850e6c1-6f1d-48c6-a412-52b39225ded7
- *          },
- *          "boughtCard":{
- *              "uuid": "521ba578-f989-4488-b3ee-91b043abbc83"
- *          },
+ *      "data": {         
+ *          "userUuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7",    
+ *          "cardUuid": "521ba578-f989-4488-b3ee-91b043abbc83",
  *          "newCardRevealed":{
- *              "uuid": 501ba578-f919-4488-b3ee-91b043abbc83
- *          }
- *          
+ *              "uuid": "501ba578-f919-4488-b3ee-91b043abbc83",
+ *              "cardTier": 1,
+ *              "additionalToken": "RUBY",
+ *              "points": 2,
+ *              "rubyCost": 0,
+ *              "emeraldCost": 0,
+ *              "sapphireCost": 1,
+ *              "diamondCost": 2,
+ *              "onyxCost": 0
+ *          }        
  *      }
  * }
  *
@@ -116,31 +121,42 @@ public class BuyMine extends Reaction {
         }    
     }
 
-    public class UserDataResponse{
-        public UUID uuid;
-
-        public UserDataResponse(UUID uuid) {
-            this.uuid = uuid;
-        }       
-    }
-
     public class CardDataResponse{
         public UUID uuid;
+        public CardTier cardTier;
+        public TokenType additionalToken;
+        public int points;
         
-        public CardDataResponse(UUID uuid) {
+        public int rubyCost;
+        public int emeraldCost;
+        public int sapphireCost;
+        public int diamondCost;
+        public int onyxCost;
+
+
+        public CardDataResponse(UUID uuid, CardTier cardTier, TokenType additionalToken, int points, int rubyCost, int emeraldCost,
+                int sapphireCost, int diamondCost, int onyxCost) {
             this.uuid = uuid;
-        }       
+            this.cardTier = cardTier;
+            this.additionalToken = additionalToken;
+            this.points = points;
+            this.rubyCost = rubyCost;
+            this.emeraldCost = emeraldCost;
+            this.sapphireCost = sapphireCost;
+            this.diamondCost = diamondCost;
+            this.onyxCost = onyxCost;
+        }              
     }
 
 
     public class ResponseData{
-        public UserDataResponse buyerUser;
-        public CardDataResponse boughtCard;
+        public UUID userUuid;
+        public UUID cardUuid;
         public CardDataResponse newCardRevealed;
 
-        public ResponseData(UserDataResponse buyerUser, CardDataResponse boughtCard,CardDataResponse newCardRevealed) {
-            this.buyerUser = buyerUser;
-            this.boughtCard = boughtCard;
+        public ResponseData(UUID userUuid, UUID cardUuid,CardDataResponse newCardRevealed) {
+            this.userUuid = userUuid;
+            this.cardUuid = cardUuid;
             this.newCardRevealed = newCardRevealed;
         }
     }
@@ -164,9 +180,18 @@ public class BuyMine extends Reaction {
             Log.DEBUG("New card drawn "+cardDrawn.getUuid());
 
             ResponseData responseData = new ResponseData(
-                new UserDataResponse(buyer.getUuid()), 
-                new CardDataResponse(card.getUuid()), 
-                new CardDataResponse(cardDrawn.getUuid())
+                buyer.getUuid(), 
+                card.getUuid(), 
+                new CardDataResponse(
+                    cardDrawn.getUuid(),
+                    cardDrawn.getCardTier(),
+                    cardDrawn.getAdditionalToken(),
+                    cardDrawn.getPoints(),
+                    cardDrawn.getCost(TokenType.RUBY),
+                    cardDrawn.getCost(TokenType.EMERALD),
+                    cardDrawn.getCost(TokenType.SAPPHIRE),
+                    cardDrawn.getCost(TokenType.DIAMOND),
+                    cardDrawn.getCost(TokenType.ONYX))
             );
 
             ArrayList<User> players = room.getAllUsers();
