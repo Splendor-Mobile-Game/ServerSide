@@ -67,7 +67,7 @@ public class JoinRoom extends Reaction {
 
     /* ----> EXAMPLE USER REQUEST <----
     {
-         "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
+         "contextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
          "type": "JOIN_ROOM",
          "data": {
              "roomDTO": {
