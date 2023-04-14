@@ -73,7 +73,6 @@ public class Game {
         // Choose random noble cards from database
         nobles = getRandomNobles(4);//Always we draw four noblemen
 
-
         //Only for testing TO BE DELTED
         //testForDuplicates(CardTier.LEVEL_1);
         //testForDuplicates(CardTier.LEVEL_2);
@@ -82,6 +81,7 @@ public class Game {
 
         // takeNobleTest();
     }
+
 
     //Only for testing private function TO BE DELETED
     private void testForDuplicatesNoble(){
@@ -109,6 +109,20 @@ public class Game {
                 }
             }
         }
+    }
+
+    public Deck getRevealedCards(CardTier tier){
+        Deck deck = new Deck(tier, revealedCards.get(tier));
+        return deck;
+    }
+
+    public ArrayList<Noble> getNobles(){
+        ArrayList<Noble> nobles=new ArrayList<>(this.nobles);
+        return nobles;
+    }
+
+    public int getTokens(TokenType type){
+        return this.tokensOnTable.get(type);
     }
 
 
