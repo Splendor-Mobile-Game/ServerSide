@@ -31,7 +31,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  * 
  * Example of a user request:
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "MAKE_RESERVATION_FROM_DECK",
  *      "data": {
  *          "userUuid": "01901b0e-a78b-4a65-bbd3-0065948dc127",
@@ -42,7 +42,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  * 
  * Example of a server announcement to all users:
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "RESERVATION_FROM_DECK_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
