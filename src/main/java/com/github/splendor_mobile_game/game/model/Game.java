@@ -112,13 +112,13 @@ public class Game {
     }
 
     public Deck getRevealedCards(CardTier tier){
-        Deck _deck = new Deck(tier, revealedCards.get(tier));
-        return _deck;
+        Deck deck = new Deck(tier, revealedCards.get(tier));
+        return deck;
     }
 
     public ArrayList<Noble> getNobles(){
-        ArrayList<Noble> _nobles=new ArrayList<>(this.nobles);
-        return _nobles;
+        ArrayList<Noble> nobles=new ArrayList<>(this.nobles);
+        return nobles;
     }
 
     public int getTokens(TokenType type){

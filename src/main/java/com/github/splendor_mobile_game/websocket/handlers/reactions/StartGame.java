@@ -421,19 +421,7 @@ public class StartGame extends Reaction {
                     game.getTokens(TokenType.GOLD_JOKER)
                 );
             
-            ArrayList<Noble> nobles = game.getNobles();
-            ArrayList<NobleDataResponse> nobleDataResponses = new ArrayList<>();
-            for(Noble noble : nobles){
-                nobleDataResponses.add(new NobleDataResponse(
-                    noble.getUuid(), 
-                    noble.getPoints(), 
-                    noble.getCost(TokenType.RUBY),
-                    noble.getCost(TokenType.EMERALD),
-                    noble.getCost(TokenType.SAPPHIRE), 
-                    noble.getCost(TokenType.DIAMOND), 
-                    noble.getCost(TokenType.ONYX)
-                ));
-            }
+            ArrayList<NobleDataResponse> nobleDataResponses = createNobleDataResponse(game.getNobles());
     
             ArrayList<MinesCardDataResponse> firstLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_1));
             ArrayList<MinesCardDataResponse> secondLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_2));
@@ -499,17 +487,6 @@ public class StartGame extends Reaction {
             throw new RoomDoesntExistException("No such room in the database");
         }      
 
-        //Check if he owns only one room
-        int ownerships =0;
-        for(Room _room : database.getAllRooms()){
-            if(_room.getOwner()==user){
-                ownerships++;
-            }
-        }
-        if(ownerships!=1){
-            throw new RoomOwnershipException("User owns more than one or zero rooms");
-        }
-
         //Check if user is the owner of the room
         if(!room.getOwner().equals(user)){
             throw new RoomOwnershipException("User is not an owner of a given room");
@@ -543,6 +520,23 @@ public class StartGame extends Reaction {
         }
 
         return minesCardsResponses;
+    }
+
+    private ArrayList<NobleDataResponse> createNobleDataResponse(ArrayList<Noble> nobles){
+        ArrayList<NobleDataResponse> nobleDataResponses = new ArrayList<>();
+        for(Noble noble : nobles){
+            nobleDataResponses.add(new NobleDataResponse(
+                noble.getUuid(), 
+                noble.getPoints(), 
+                noble.getCost(TokenType.RUBY),
+                noble.getCost(TokenType.EMERALD),
+                noble.getCost(TokenType.SAPPHIRE), 
+                noble.getCost(TokenType.DIAMOND), 
+                noble.getCost(TokenType.ONYX)
+            ));
+        }
+
+        return nobleDataResponses;
     }
     
 }
