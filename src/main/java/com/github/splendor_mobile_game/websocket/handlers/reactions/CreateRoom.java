@@ -192,7 +192,6 @@ public class CreateRoom extends Reaction {
 
     }
 
-
     @Override
     public void react() {
 
