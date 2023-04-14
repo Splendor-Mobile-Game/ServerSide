@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.CardTier;
@@ -45,6 +46,24 @@ public class Game {
             currentOrder = users.get(index+1);
             return currentOrder;
         }
+    }
+
+    public Card takeCardFromRevealed(Card card){
+        CardTier cardTier = card.getCardTier();
+        revealedCards.get(cardTier).remove(card);
+
+        Card cardDrawn = getRandomCard(cardTier);
+        revealedCards.get(cardTier).add(cardDrawn);
+
+        return cardDrawn;
+    }
+
+    public boolean revealedCardExists(UUID cardUuid){
+
+        return this.revealedCards.get(CardTier.LEVEL_1).stream()
+            .filter(card -> card.getUuid()==cardUuid)
+            .findFirst()
+            .orElse(null) != null;
     }
 
     private void start(int playerCount) {
