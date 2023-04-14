@@ -77,16 +77,6 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      }
  * }
  *
- * Implementation details:
- * - The player who sent the message is identified by their WebSocket's connectionHashCode.
- * - The UUID of the card to be purchased is the same as the one sent at the start of the game.
- * - The state of the game on the server should be updated to reflect the purchase (subtract the appropriate amount of tokens, add prestige points, and add the bonus point).
- * 
- * Invalid requests:
- * - If the player sends a message to buy a mine when it is not their turn, the server should respond with a message of type `BUY_REVEALED_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that they cannot buy a mine when it is not their turn.
- * - If the player sends a message to buy a mine but does not have enough tokens, the server should respond with a message of type `BUY_REVEALED_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that they do not have enough tokens to make the purchase.
- * - If the player sends a message to buy a mine that is not available on the table, the server should respond with a message of type `BUY_REVEALED_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that the requested mine is not available on the table.
- * 
  * Example of invalid request response (it should be sent only to the requester):
  * {
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
@@ -152,7 +142,7 @@ public class BuyRevealedMine extends Reaction {
 
     public class BuyerDataResponse{
         public UUID userUuid;
-        public TokensDataResponse tokens;
+        public TokensDataResponse tokens;// The new set of tokens of that player after they bought a mine
         public UUID cardUuid;
 
         public BuyerDataResponse(UUID userUuid, TokensDataResponse tokens, UUID cardUuid) {
