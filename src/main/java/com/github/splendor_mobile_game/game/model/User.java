@@ -22,6 +22,9 @@ public class User {
 
     private int points;
 
+    //Max 5 for whole game
+    private int throughoutGameReservationCount=0;
+
     //initialized tokens hashmap
     private Map<TokenType, Integer> tokens = new HashMap<TokenType, Integer>();
 
@@ -146,7 +149,16 @@ public class User {
 
     public void reserveCard(Card card) {
         this.reservedCards.add(card);
+        throughoutGameReservationCount++;
         this.tokens.put(TokenType.GOLD_JOKER, this.tokens.get(TokenType.GOLD_JOKER) + 1);
+    }
+
+    public int getThroughoutGameReservationCount(){
+        return throughoutGameReservationCount;
+    }
+
+    public int getReservationCount(){
+        return reservedCards.size();
     }
 
 

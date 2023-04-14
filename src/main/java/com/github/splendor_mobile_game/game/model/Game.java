@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.CardTier;
@@ -45,6 +46,15 @@ public class Game {
             currentOrder = users.get(index+1);
             return currentOrder;
         }
+    }
+
+    public int getTokenCount(TokenType type){
+        return tokensOnTable.get(type);
+    }
+
+    public Card pickCardFromDeck(CardTier tier){
+        Card card = getRandomCard(tier);
+        return card;
     }
 
     private void start(int playerCount) {
@@ -172,7 +182,11 @@ public class Game {
 
 
     private Card getRandomCard(CardTier tier){
-        return getRandomCards(tier,1).get(0);
+        Deck deck = getRandomCards(tier,1);
+        if(deck == null){
+            return null;
+        }
+        return deck.get(0);
     }
 
 
@@ -192,6 +206,9 @@ public class Game {
 
         Random rand = new Random();
         for(;amount > 0;amount--) {
+            if(deck.size()==0){
+                return null;
+            }
             int index = rand.nextInt(deck.size()); // Get random index
             Card drawnCard =deck.remove(index);
             array.add(drawnCard);
@@ -213,6 +230,9 @@ public class Game {
 
         Random rand = new Random();
         while(amount > 0) {
+            if(nobles.size()==0){
+                return null;
+            }
             int index = rand.nextInt(nobles.size()); // Get random index       
             array.add(nobles.remove(index));
             
