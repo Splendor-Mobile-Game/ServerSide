@@ -1,10 +1,29 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.ArrayList;
+import java.util.UUID;
+
+
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.model.Card;
+import com.github.splendor_mobile_game.game.model.Game;
+import com.github.splendor_mobile_game.game.model.Room;
+import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
+import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.CardDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserAlreadyInRoomException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMemberException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserTurnException;
+import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
+import com.github.splendor_mobile_game.websocket.response.Result;
+import com.github.splendor_mobile_game.websocket.utils.Log;
 
 /**
  * Players send this request when it is their turn and they want to buy a mine card that is on the table.
@@ -12,23 +31,34 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  * 
  * Example of user request:
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "BUY_MINE",
  *      "data": {
- *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
- *          "cardUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
+ *          "userDTO":{
+ *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
+ *          },
+ *          "cardDTO":{
+ *              "uuid": "521ba578-f989-4488-b3ee-91b043abbc83"
+ *          }
  *      }
  * }
  * 
  * Example of server announcement:
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "BUY_MINE_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
- *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
- *          "userName": "John",
- *          "cardUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
+ *          "buyerUser":{
+ *              "uuid":6850e6c1-6f1d-48c6-a412-52b39225ded7
+ *          },
+ *          "boughtCard":{
+ *              "uuid": "521ba578-f989-4488-b3ee-91b043abbc83"
+ *          },
+ *          "newCardRevealed":{
+ *              "uuid": 501ba578-f919-4488-b3ee-91b043abbc83
+ *          }
+ *          
  *      }
  * }
  *
@@ -44,7 +74,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  * 
  * Example of invalid request response (it should be sent only to the requester):
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "BUY_MINE_RESPONSE",
  *      "result": "FAILURE",
  *      "data": {
@@ -59,9 +89,148 @@ public class BuyMine extends Reaction {
         super(connectionHashCode, userMessage, messenger, database);
     }
 
+    public static class UserDTO{
+        public UUID uuid;
+
+        public UserDTO(UUID uuid) {
+            this.uuid = uuid;
+        }
+    }
+
+    public static class CardDTO{
+        public UUID uuid;
+
+        public CardDTO(UUID uuid) {
+            this.uuid = uuid;
+        }
+    }
+
+    @DataClass
+    public static class DataDTO{
+        public UserDTO userDTO;
+        public CardDTO cardDTO;
+
+        public DataDTO(UserDTO userDTO, CardDTO cardDTO) {
+            this.userDTO = userDTO;
+            this.cardDTO = cardDTO;
+        }    
+    }
+
+    public class UserDataResponse{
+        public UUID uuid;
+
+        public UserDataResponse(UUID uuid) {
+            this.uuid = uuid;
+        }       
+    }
+
+    public class CardDataResponse{
+        public UUID uuid;
+        
+        public CardDataResponse(UUID uuid) {
+            this.uuid = uuid;
+        }       
+    }
+
+
+    public class ResponseData{
+        public UserDataResponse buyerUser;
+        public CardDataResponse boughtCard;
+        public CardDataResponse newCardRevealed;
+
+        public ResponseData(UserDataResponse buyerUser, CardDataResponse boughtCard,CardDataResponse newCardRevealed) {
+            this.buyerUser = buyerUser;
+            this.boughtCard = boughtCard;
+            this.newCardRevealed = newCardRevealed;
+        }
+    }
+
     @Override
     public void react() {
-        // TODO Auto-generated method stub
+        DataDTO dataDTO = (DataDTO) userMessage.getData();
+
+        try{
+            validateData(dataDTO, database);
+
+            User player = database.getUser(dataDTO.userDTO.uuid);
+            Card card = database.getCard(dataDTO.cardDTO.uuid);
+            Room room = database.getRoomWithUser(player.getUuid());
+            Game game = room.getGame();
+
+            player.buyCard(card);
+            Card cardDrawn = game.takeCardFromRevealed(card);
+            
+            Log.DEBUG("User "+player.getName()+" has bought card ("+card.getUuid()+")");
+            Log.DEBUG("New card drawn "+cardDrawn.getUuid());
+
+            ResponseData responseData = new ResponseData(
+                new UserDataResponse(player.getUuid()), 
+                new CardDataResponse(card.getUuid()), 
+                new CardDataResponse(cardDrawn.getUuid())
+            );
+
+            ArrayList<User> players = room.getAllUsers();
+            ServerMessage serverMessage = new ServerMessage(
+                userMessage.getContextId(), 
+                ServerMessageType.BUY_MINE_RESPONSE, 
+                Result.OK, 
+                responseData
+            );
+            for(User user : players){
+                messenger.addMessageToSend(user.getConnectionHashCode(), serverMessage);
+            }
+
+
+        }catch (Exception e){
+            ErrorResponse errorResponse = new ErrorResponse(
+                Result.FAILURE, 
+                e.getMessage(), 
+                ServerMessageType.BUY_MINE_RESPONSE, 
+                userMessage.getContextId().toString()
+            );
+            messenger.addMessageToSend(connectionHashCode, errorResponse);
+        }
     }
-    
+
+    private void validateData(DataDTO dataDTO,Database database) throws 
+    UserNotAMemberException, UserAlreadyInRoomException, RoomDoesntExistException, UserTurnException, CardDoesntExistException{
+        
+        User player = database.getUser(dataDTO.userDTO.uuid);
+        
+        //Check if user exits    
+        if(player == null){
+            //TO DO 
+        }
+
+        Room room = database.getRoomWithUser(player.getUuid());
+
+        // Check if room exists whose user is a member of
+        if(room == null){
+            throw new RoomDoesntExistException("Room does not exist whose user is a member of");
+        }
+
+        Game game = room.getGame();
+
+        //Check if user is in game
+        if(game==null){
+            throw new UserNotAMemberException("Room is not in a game state");
+        }
+
+        //Check if it is user's turn
+        if(game.getCurrentPlayer()!=player){
+            throw new UserTurnException("It is not a user's turn");
+        }
+
+        Card card = database.getCard(dataDTO.cardDTO.uuid);
+
+        //Check if card exists
+        if(card==null){
+            throw new CardDoesntExistException("There is no such card in the database");
+        }
+
+        //Check if the card is avaiable
+        if(!game.revealedCardExists(card.getUuid())){
+            throw new CardDoesntExistException("The card is not in the revealed deck");
+        }
+    }
 }
