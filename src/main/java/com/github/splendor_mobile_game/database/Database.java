@@ -26,6 +26,8 @@ public interface Database {
 
     public void addRoom(Room room);
 
+    public Card getCard(UUID cardUuid);
+
     public ArrayList<User> getAllUsers();
 
     public ArrayList<Room> getAllRooms();
