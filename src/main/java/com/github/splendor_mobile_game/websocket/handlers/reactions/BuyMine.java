@@ -152,19 +152,19 @@ public class BuyMine extends Reaction {
         try{
             validateData(dataDTO, database);
 
-            User player = database.getUser(dataDTO.userDTO.uuid);
+            User buyer = database.getUser(dataDTO.userDTO.uuid);
             Card card = database.getCard(dataDTO.cardDTO.uuid);
-            Room room = database.getRoomWithUser(player.getUuid());
+            Room room = database.getRoomWithUser(buyer.getUuid());
             Game game = room.getGame();
 
-            player.buyCard(card);
+            buyer.buyCard(card);
             Card cardDrawn = game.takeCardFromRevealed(card);
             
-            Log.DEBUG("User "+player.getName()+" has bought card ("+card.getUuid()+")");
+            Log.DEBUG("User "+buyer.getName()+" has bought card ("+card.getUuid()+")");
             Log.DEBUG("New card drawn "+cardDrawn.getUuid());
 
             ResponseData responseData = new ResponseData(
-                new UserDataResponse(player.getUuid()), 
+                new UserDataResponse(buyer.getUuid()), 
                 new CardDataResponse(card.getUuid()), 
                 new CardDataResponse(cardDrawn.getUuid())
             );
@@ -172,12 +172,13 @@ public class BuyMine extends Reaction {
             ArrayList<User> players = room.getAllUsers();
             ServerMessage serverMessage = new ServerMessage(
                 userMessage.getContextId(), 
-                ServerMessageType.BUY_MINE_RESPONSE, 
+                ServerMessageType.BUY_MINE_ANNOUNCEMENT, 
                 Result.OK, 
                 responseData
             );
-            for(User user : players){
-                messenger.addMessageToSend(user.getConnectionHashCode(), serverMessage);
+
+            for(User player : players){
+                messenger.addMessageToSend(player.getConnectionHashCode(), serverMessage);        
             }
 
 
