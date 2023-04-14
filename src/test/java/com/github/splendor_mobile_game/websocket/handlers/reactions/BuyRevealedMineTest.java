@@ -22,7 +22,7 @@ import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
-public class BuyMineTest {
+public class BuyRevealedMineTest {
     @Test
     public void test(){
         // 1. Setup data for the test
@@ -53,11 +53,11 @@ public class BuyMineTest {
             privateTokens.setAccessible(true);
             Map<TokenType, Integer> tokens = (HashMap<TokenType,Integer>)privateTokens.get(owner);
 
-            tokens.put(TokenType.RUBY,cardToBuy.getCost(TokenType.RUBY));
-            tokens.put(TokenType.EMERALD,cardToBuy.getCost(TokenType.EMERALD));
+            tokens.put(TokenType.RUBY,cardToBuy.getCost(TokenType.RUBY)+2);
+            tokens.put(TokenType.EMERALD,cardToBuy.getCost(TokenType.EMERALD)+1);
             tokens.put(TokenType.SAPPHIRE,cardToBuy.getCost(TokenType.SAPPHIRE));
             tokens.put(TokenType.DIAMOND,cardToBuy.getCost(TokenType.DIAMOND));
-            tokens.put(TokenType.ONYX,cardToBuy.getCost(TokenType.ONYX));
+            tokens.put(TokenType.ONYX,cardToBuy.getCost(TokenType.ONYX)+1);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -87,17 +87,17 @@ public class BuyMineTest {
             .replace("$cardId", cardUuid);
 
         UserMessage receivedMessage = new UserMessage(message);
-        BuyMine buyMine = new BuyMine(clientConnectionHashCode, receivedMessage, messenger, database);
+        BuyRevealedMine buyRevealedMine = new BuyRevealedMine(clientConnectionHashCode, receivedMessage, messenger, database);
 
         Log.DEBUG(message);
 
 
         // Parse the data given in the message
-        receivedMessage.parseDataToClass(BuyMine.DataDTO.class);
+        receivedMessage.parseDataToClass(BuyRevealedMine.DataDTO.class);
         int receivedMessageHashCode = receivedMessage.hashCode();
 
         // 2. Call the function you are testing
-        buyMine.react();
+        buyRevealedMine.react();
  
         // 3. Get response from the server
         String serverReply = messenger.getMessages().get(0).getMessage();

@@ -29,12 +29,12 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 
 /**
  * Players send this request when it is their turn and they want to buy a mine card that is on the table.
- * The server responds with a message of type `BUY_MINE_ANNOUNCEMENT` to all players, announcing that the purchase has been made.
+ * The server responds with a message of type `BUY_REVEALED_MINE_ANNOUNCEMENT` to all players, announcing that the purchase has been made.
  * 
  * Example of user request:
  * {
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "BUY_MINE",
+ *      "type": "BUY_REVEALED_MINE",
  *      "data": {
  *          "userDTO":{
  *              "uuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
@@ -48,11 +48,21 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  * Example of server announcement:
  * {
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "BUY_MINE_ANNOUNCEMENT",
+ *      "type": "BUY_REVEALED_MINE_ANNOUNCEMENT",
  *      "result": "OK",
- *      "data": {         
- *          "userUuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7",    
- *          "cardUuid": "521ba578-f989-4488-b3ee-91b043abbc83",
+ *      "data": {
+ *          "buyer":{
+ *              "userUuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7",
+ *              "tokens":{
+ *                  "ruby": 2,
+ *                  "emerald": 0,
+ *                  "sapphire": 1,
+ *                  "diamond": 3,
+ *                  "onyx": 0,
+ *                  "gold": 1
+ *              },
+ *              "cardUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
+ *          },                     
  *          "newCardRevealed":{
  *              "uuid": "501ba578-f919-4488-b3ee-91b043abbc83",
  *              "cardTier": 1,
@@ -73,24 +83,24 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  * - The state of the game on the server should be updated to reflect the purchase (subtract the appropriate amount of tokens, add prestige points, and add the bonus point).
  * 
  * Invalid requests:
- * - If the player sends a message to buy a mine when it is not their turn, the server should respond with a message of type `BUY_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that they cannot buy a mine when it is not their turn.
- * - If the player sends a message to buy a mine but does not have enough tokens, the server should respond with a message of type `BUY_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that they do not have enough tokens to make the purchase.
- * - If the player sends a message to buy a mine that is not available on the table, the server should respond with a message of type `BUY_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that the requested mine is not available on the table.
+ * - If the player sends a message to buy a mine when it is not their turn, the server should respond with a message of type `BUY_REVEALED_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that they cannot buy a mine when it is not their turn.
+ * - If the player sends a message to buy a mine but does not have enough tokens, the server should respond with a message of type `BUY_REVEALED_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that they do not have enough tokens to make the purchase.
+ * - If the player sends a message to buy a mine that is not available on the table, the server should respond with a message of type `BUY_REVEALED_MINE_RESPONSE` with a result of "FAILURE" and an error message indicating that the requested mine is not available on the table.
  * 
  * Example of invalid request response (it should be sent only to the requester):
  * {
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "BUY_MINE_RESPONSE",
+ *      "type": "BUY_REVEALED_MINE_RESPONSE",
  *      "result": "FAILURE",
  *      "data": {
  *          "error": "You cannot buy a mine when it is not your turn!"
  *      }
  * }
  */
-@ReactionName("BUY_MINE")
-public class BuyMine extends Reaction {
+@ReactionName("BUY_REVEALED_MINE")
+public class BuyRevealedMine extends Reaction {
 
-    public BuyMine(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
+    public BuyRevealedMine(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
         super(connectionHashCode, userMessage, messenger, database);
     }
 
@@ -119,6 +129,37 @@ public class BuyMine extends Reaction {
             this.userDTO = userDTO;
             this.cardDTO = cardDTO;
         }    
+    }
+
+    public class TokensDataResponse{
+        public int ruby;
+        public int emerald;
+        public int sapphire;
+        public int diamond;
+        public int onyx;
+        public int gold;
+
+
+        public TokensDataResponse(int ruby, int emerald, int sapphire, int diamond, int onyx, int gold) {
+            this.ruby = ruby;
+            this.emerald = emerald;
+            this.sapphire = sapphire;
+            this.diamond = diamond;
+            this.onyx = onyx;
+            this.gold = gold;
+        }      
+    }
+
+    public class BuyerDataResponse{
+        public UUID userUuid;
+        public TokensDataResponse tokens;
+        public UUID cardUuid;
+
+        public BuyerDataResponse(UUID userUuid, TokensDataResponse tokens, UUID cardUuid) {
+            this.userUuid = userUuid;
+            this.tokens = tokens;
+            this.cardUuid = cardUuid;
+        }
     }
 
     public class CardDataResponse{
@@ -150,13 +191,11 @@ public class BuyMine extends Reaction {
 
 
     public class ResponseData{
-        public UUID userUuid;
-        public UUID cardUuid;
+        public BuyerDataResponse buyer;
         public CardDataResponse newCardRevealed;
 
-        public ResponseData(UUID userUuid, UUID cardUuid,CardDataResponse newCardRevealed) {
-            this.userUuid = userUuid;
-            this.cardUuid = cardUuid;
+        public ResponseData(BuyerDataResponse buyer,CardDataResponse newCardRevealed) {
+            this.buyer = buyer;
             this.newCardRevealed = newCardRevealed;
         }
     }
@@ -169,19 +208,29 @@ public class BuyMine extends Reaction {
             validateData(dataDTO, database);
 
             User buyer = database.getUser(dataDTO.userDTO.uuid);
-            Card card = database.getCard(dataDTO.cardDTO.uuid);
+            Card boughtCard = database.getCard(dataDTO.cardDTO.uuid);
             Room room = database.getRoomWithUser(buyer.getUuid());
             Game game = room.getGame();
 
-            buyer.buyCard(card);
-            Card cardDrawn = game.takeCardFromRevealed(card);
+            buyer.buyCard(boughtCard);
+            Card cardDrawn = game.takeCardFromRevealed(boughtCard);
             
-            Log.DEBUG("User "+buyer.getName()+" has bought card ("+card.getUuid()+")");
+            Log.DEBUG("User "+buyer.getName()+" has bought card ("+boughtCard.getUuid()+")");
             Log.DEBUG("New card drawn "+cardDrawn.getUuid());
 
             ResponseData responseData = new ResponseData(
-                buyer.getUuid(), 
-                card.getUuid(), 
+                new BuyerDataResponse(
+                    buyer.getUuid(), 
+                    new TokensDataResponse(
+                        buyer.getTokenCount(TokenType.RUBY), 
+                        buyer.getTokenCount(TokenType.EMERALD), 
+                        buyer.getTokenCount(TokenType.SAPPHIRE), 
+                        buyer.getTokenCount(TokenType.DIAMOND), 
+                        buyer.getTokenCount(TokenType.ONYX), 
+                        buyer.getTokenCount(TokenType.GOLD_JOKER)
+                    ), 
+                    boughtCard.getUuid()
+                ), 
                 new CardDataResponse(
                     cardDrawn.getUuid(),
                     cardDrawn.getCardTier(),
@@ -197,7 +246,7 @@ public class BuyMine extends Reaction {
             ArrayList<User> players = room.getAllUsers();
             ServerMessage serverMessage = new ServerMessage(
                 userMessage.getContextId(), 
-                ServerMessageType.BUY_MINE_ANNOUNCEMENT, 
+                ServerMessageType.BUY_REVEALED_MINE_ANNOUNCEMENT, 
                 Result.OK, 
                 responseData
             );
@@ -211,7 +260,7 @@ public class BuyMine extends Reaction {
             ErrorResponse errorResponse = new ErrorResponse(
                 Result.FAILURE, 
                 e.getMessage(), 
-                ServerMessageType.BUY_MINE_RESPONSE, 
+                ServerMessageType.BUY_REVEALED_MINE_RESPONSE, 
                 userMessage.getContextId().toString()
             );
             messenger.addMessageToSend(connectionHashCode, errorResponse);
@@ -239,7 +288,7 @@ public class BuyMine extends Reaction {
 
         //Check if user is in game
         if(game==null){
-            throw new UserNotAMemberException("Room is not in a game state");
+            //TO DO
         }
 
         //Check if it is user's turn
