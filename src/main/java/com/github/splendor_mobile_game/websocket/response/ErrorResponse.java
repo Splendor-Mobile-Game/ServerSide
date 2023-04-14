@@ -60,7 +60,7 @@ public class ErrorResponse {
      * @param error the error message
      */
     public ErrorResponse(Result result, String error) {
-        this(result, error, ServerMessageType.UNKNOWN);
+        this(result, error, ServerMessageType.ERROR);
     }
 
     /**
