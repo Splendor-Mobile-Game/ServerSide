@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TooManyListenersException;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.Color;
@@ -18,12 +20,16 @@ import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.GameNotStartedException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.NotThisUserTurnException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.TooManyReturnedTokensException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.TooManyTokensException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMemberException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotFoundException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.WrongTokenChoiceException;
+import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
@@ -144,10 +150,10 @@ public class GetTokens extends Reaction {
         public int getAddedTokenCount() {
             int result = 0;
             if(ruby > 0) result += ruby;
-            if(sapphire > 0) result += ruby;
-            if(emerald > 0) result += ruby;
-            if(diamond > 0) result += ruby;
-            if(onyx > 0) result += ruby;
+            if(sapphire > 0) result += sapphire;
+            if(emerald > 0) result += emerald;
+            if(diamond > 0) result += diamond;
+            if(onyx > 0) result += onyx;
 
             return result;
         }
@@ -155,10 +161,10 @@ public class GetTokens extends Reaction {
         public int getReturnedTokenCount() {
             int result = 0;
             if(ruby < 0) result += ruby;
-            if(sapphire < 0) result += ruby;
-            if(emerald < 0) result += ruby;
-            if(diamond < 0) result += ruby;
-            if(onyx < 0) result += ruby;
+            if(sapphire < 0) result += sapphire;
+            if(emerald < 0) result += emerald;
+            if(diamond < 0) result += diamond;
+            if(onyx < 0) result += onyx;
 
             return result * (-1);
         }
@@ -175,39 +181,141 @@ public class GetTokens extends Reaction {
         }
     }
 
+    public class ResponseData {
+        DataDTO data;
+
+        public ResponseData(DataDTO data) {
+            this.data = data;
+        }
+    }
+
     @Override
     public void react() {
         DataDTO dataDTO = (DataDTO) userMessage.getData();
        
         try {
-            validateData(dataDTO, database);
-            // Room room = database.getRoomWithUser(dataDTO.userUuid);
-            // User user = database.getUser(dataDTO.userUuid);
-            // System.out.println(user.getName());
+            Map<TokenType, Integer> tokenMap = new HashMap<TokenType, Integer>();
+            tokenMap.put(TokenType.RUBY, dataDTO.tokensChangeDTO.ruby);
+            tokenMap.put(TokenType.SAPPHIRE, dataDTO.tokensChangeDTO.sapphire);
+            tokenMap.put(TokenType.EMERALD, dataDTO.tokensChangeDTO.emerald);
+            tokenMap.put(TokenType.DIAMOND, dataDTO.tokensChangeDTO.diamond);
+            tokenMap.put(TokenType.ONYX, dataDTO.tokensChangeDTO.onyx);
+
+            validateData(dataDTO, database, tokenMap);
+            
+            Room room = database.getRoomWithUser(dataDTO.userUuid);
+            User user = database.getUser(dataDTO.userUuid);
+
+            // System.out.println("ruby on table");
+            // System.out.println(room.getGame().getTokenCount(TokenType.RUBY));
+
+            // System.out.println("sapphire on table");
+            // System.out.println(room.getGame().getTokenCount(TokenType.SAPPHIRE));
+
+            // System.out.println("emerald on table");
+            // System.out.println(room.getGame().getTokenCount(TokenType.EMERALD));
+
+            // System.out.println("diamond on table");
+            // System.out.println(room.getGame().getTokenCount(TokenType.DIAMOND));
+
+            // System.out.println("onyx on table");
+            // System.out.println(room.getGame().getTokenCount(TokenType.ONYX));
+
+            // System.out.println("---------------------------------------------------");
+
+            // System.out.println("ruby on user");
+            // System.out.println(user.getTokenCount(TokenType.RUBY));
+
+            // System.out.println("sapphire on user");
+            // System.out.println(user.getTokenCount(TokenType.SAPPHIRE));
+
+            // System.out.println("emerald on user");
+            // System.out.println(user.getTokenCount(TokenType.EMERALD));
+
+            // System.out.println("diamond on user");
+            // System.out.println(user.getTokenCount(TokenType.DIAMOND));
+
+            // System.out.println("onyx on user");
+            // System.out.println(user.getTokenCount(TokenType.ONYX));
+
+
+            // System.out.println();
+            // System.out.println();
+            // System.out.println();
+
+            changeTokens(user, room, tokenMap);
+
+            // System.out.println("ruby on table");
+            // System.out.println(room.getGame().getTokenCount(TokenType.RUBY));
+
+            // System.out.println("sapphire on table");
+            // System.out.println(room.getGame().getTokenCount(TokenType.SAPPHIRE));
+
+            // System.out.println("emerald on table");
+            // System.out.println(room.getGame().getTokenCount(TokenType.EMERALD));
+
+            // System.out.println("diamond on table");
+            // System.out.println(room.getGame().getTokenCount(TokenType.DIAMOND));
+
+            // System.out.println("onyx on table");
+            // System.out.println(room.getGame().getTokenCount(TokenType.ONYX));
+
+            // System.out.println("---------------------------------------------------");
+
+            // System.out.println("ruby on user");
+            // System.out.println(user.getTokenCount(TokenType.RUBY));
+
+            // System.out.println("sapphire on user");
+            // System.out.println(user.getTokenCount(TokenType.SAPPHIRE));
+
+            // System.out.println("emerald on user");
+            // System.out.println(user.getTokenCount(TokenType.EMERALD));
+
+            // System.out.println("diamond on user");
+            // System.out.println(user.getTokenCount(TokenType.DIAMOND));
+
+            // System.out.println("onyx on user");
+            // System.out.println(user.getTokenCount(TokenType.ONYX));
+
+            ResponseData responseData = new ResponseData(dataDTO);
+
+            ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.GET_TOKENS_RESPONSE, Result.OK, responseData);
+            messenger.addMessageToSend(this.connectionHashCode, serverMessage);
         } catch (Exception e) {
             Log.ERROR(e.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.GET_TOKENS_RESPONSE, userMessage.getContextId().toString());
+            messenger.addMessageToSend(this.connectionHashCode, errorResponse);
         }
     }
 
-    private void validateData(DataDTO dataDTO, Database database) throws RoomDoesntExistException, TooManyTokensException, TooManyReturnedTokensException, WrongTokenChoiceException {
+    private void validateData(DataDTO dataDTO, Database database, Map<TokenType, Integer> tokenMap) throws RoomDoesntExistException, TooManyTokensException, TooManyReturnedTokensException, WrongTokenChoiceException, InvalidUUIDException, NotThisUserTurnException, GameNotStartedException {
+        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+
+        // Check if user UUID matches the pattern
+        Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userUuid.toString());
+        if (!uuidMatcher.find())
+            throw new InvalidUUIDException("Invalid UUID format."); // Check if user UUID matches the pattern
+
         if(database.getRoomWithUser(dataDTO.userUuid) == null) throw new RoomDoesntExistException("Room with this user not found");
 
         Room room = database.getRoomWithUser(dataDTO.userUuid);
         User user = database.getUser(dataDTO.userUuid);
 
-        //only for testing, will be removed when game start reaction will be done
-        room.startGame();
+        if(user.hasPerformedAction()) throw new NotThisUserTurnException("It's not your turn");
 
-        Map<TokenType, Integer> tokenMap = new HashMap<TokenType, Integer>();
+        //only for testing, will be removed
+        if(room.getGame() == null) {
+            room.startGame(); 
+        }
+        //end only for testing
 
-        tokenMap.put(TokenType.RUBY, dataDTO.tokensChangeDTO.ruby);
-        tokenMap.put(TokenType.SAPPHIRE, dataDTO.tokensChangeDTO.sapphire);
-        tokenMap.put(TokenType.EMERALD, dataDTO.tokensChangeDTO.emerald);
-        tokenMap.put(TokenType.DIAMOND, dataDTO.tokensChangeDTO.diamond);
-        tokenMap.put(TokenType.ONYX, dataDTO.tokensChangeDTO.onyx);
+        if(room.getGame() == null) throw new GameNotStartedException("Game hasn't started yet");
 
-        System.out.println(dataDTO.tokensChangeDTO.ruby);
-        System.out.println(dataDTO.tokensChangeDTO.sapphire);
+        // System.out.println("USER TOKENS: ");
+        // System.out.println(user.getTokenCount());
+
+        // System.out.println("GET ADDED TOKEN COUNT: ");
+        // System.out.println(dataDTO.tokensChangeDTO.getAddedTokenCount());
 
         int tokensWithAdded = user.getTokenCount() + dataDTO.tokensChangeDTO.getAddedTokenCount();
         int tokensWithAddedAndReturned = tokensWithAdded - dataDTO.tokensChangeDTO.getReturnedTokenCount();
@@ -250,10 +358,16 @@ public class GetTokens extends Reaction {
             if(set.getValue() > 2) return false;
 
             //checking what types user tries to take 2 tokens of
-            if(set.getValue() == 2) twoTokensTypes.add(set.getKey());
+            if(set.getValue() == 2) {
+                if(room.getGame().getTokenCount(set.getKey()) <= 0) return false;
+                twoTokensTypes.add(set.getKey());
+            }
 
             //checking same thing considering user might try to already return one of taken tokens
-            if(set.getValue() == 1) oneTokenTypes.add(set.getKey());
+            if(set.getValue() == 1) {
+                if(room.getGame().getTokenCount(set.getKey()) <= 0) return false;
+                oneTokenTypes.add(set.getKey());
+            }
 
             //checking how many types user is trying to return
             if(set.getValue() < 0) negativeTokenAmount++;
@@ -285,7 +399,10 @@ public class GetTokens extends Reaction {
             if(set.getValue() > 1) return false;
 
             //checking which types user is trying to take
-            if(set.getValue() == 1) oneTokenAmount++;
+            if(set.getValue() == 1) {
+                if(room.getGame().getTokenCount(set.getKey()) <= 0) return false;
+                oneTokenAmount++;
+            }
 
             //checking if user tries to return some tokens
             if(set.getValue() < 0) negativeTokenAmount++;
@@ -307,7 +424,8 @@ public class GetTokens extends Reaction {
         return false;
     }
     
-    private void addTokens(User user, Map<TokenType, Integer> tokenMap) {
-
+    private void changeTokens(User user, Room room, Map<TokenType, Integer> tokenMap) {
+        user.changeTokens(tokenMap);
+        room.getGame().changeTokens(tokenMap);
     }
 }

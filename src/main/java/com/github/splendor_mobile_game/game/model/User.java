@@ -91,10 +91,11 @@ public class User {
     //     return true;
     // }
 
-    public void manageTokens(Map<TokenType, Integer> tokensChange) {
-        this.tokens.forEach((k,v) -> {
-            this.tokens.put(k, v + tokensChange.get(k));
-        });
+    public void changeTokens(Map<TokenType, Integer> tokensChange) {
+        for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
+            if(set.getKey() == TokenType.GOLD_JOKER) continue;
+            this.tokens.put(set.getKey(), set.getValue() + tokensChange.get(set.getKey()));
+        }
     }
 
     //method for buying cards

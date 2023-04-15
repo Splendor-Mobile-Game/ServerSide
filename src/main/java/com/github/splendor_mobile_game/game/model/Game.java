@@ -12,7 +12,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
 
-    private final HashMap<TokenType, Integer> tokensOnTable = new HashMap<>();
+    private final Map<TokenType, Integer> tokensOnTable = new HashMap<TokenType, Integer>();
     private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
     private final Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>(); // Cards of each tier visible on the table
     private ArrayList<Noble> nobles;
@@ -65,6 +65,13 @@ public class Game {
 
     public int getTokenCount(TokenType type) {
         return tokensOnTable.get(type);
+    }
+
+    public void changeTokens(Map<TokenType, Integer> tokenMap) {
+        for(Map.Entry<TokenType, Integer> set : this.tokensOnTable.entrySet()) {
+            if(set.getKey() == TokenType.GOLD_JOKER) continue;
+            this.tokensOnTable.put(set.getKey(), set.getValue() - tokenMap.get(set.getKey()));
+        }
     }
 
     //Only for testing private function TO BE DELETED
