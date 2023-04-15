@@ -20,7 +20,9 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.CardDoesntExistException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomInGameException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserAlreadyInRoomException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMemberException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserTurnException;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
@@ -30,6 +32,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 /**
  * Players send this request when it is their turn and they want to buy a mine card that is on the table.
  * The server responds with a message of type `BUY_REVEALED_MINE_ANNOUNCEMENT` to all players, announcing that the purchase has been made.
+ * 
  * 
  * Example of user request:
  * {
@@ -45,6 +48,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      }
  * }
  * 
+ * In server announcement "tokens" means the new set of tokens of that player after they bought a mine.
  * Example of server announcement:
  * {
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
@@ -258,13 +262,13 @@ public class BuyRevealedMine extends Reaction {
     }
 
     private void validateData(DataDTO dataDTO,Database database) throws 
-    UserNotAMemberException, UserAlreadyInRoomException, RoomDoesntExistException, UserTurnException, CardDoesntExistException{
+    UserNotAMemberException, UserAlreadyInRoomException, RoomDoesntExistException, UserTurnException, CardDoesntExistException, RoomInGameException, UserDoesntExistException{
         
         User player = database.getUser(dataDTO.userDTO.uuid);
         
-        //Check if user exits    
+        //Check if user exists    
         if(player == null){
-            //TO DO 
+            throw new UserDoesntExistException("There is no such user in the database");
         }
 
         Room room = database.getRoomWithUser(player.getUuid());
@@ -278,7 +282,7 @@ public class BuyRevealedMine extends Reaction {
 
         //Check if user is in game
         if(game==null){
-            //TO DO
+            throw new RoomInGameException("The room is not in game state");
         }
 
         //Check if it is user's turn
