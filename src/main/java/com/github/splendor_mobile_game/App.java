@@ -18,6 +18,7 @@ import com.github.splendor_mobile_game.websocket.handlers.reactions.DebugGetRand
 import com.github.splendor_mobile_game.websocket.handlers.reactions.GetTokens;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.JoinRoom;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.LeaveRoom;
+import com.github.splendor_mobile_game.websocket.handlers.reactions.StartGame;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
 /** This class represents the main application class for the Splendor game WebSocket server. */
@@ -25,7 +26,7 @@ public class App {
 
 	/** A list of classes that contain reactions to messages from clients. */
 	private static List<Class<?>> classesWithReactions = new ArrayList<>(Arrays.asList(
-		CreateRoom.class, JoinRoom.class, DebugGetRandomCard.class, LeaveRoom.class, GetTokens.class
+		CreateRoom.class, JoinRoom.class, DebugGetRandomCard.class, LeaveRoom.class, GetTokens.class, StartGame.class
 	));
 
 

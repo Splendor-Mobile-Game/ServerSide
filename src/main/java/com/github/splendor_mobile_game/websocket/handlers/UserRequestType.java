@@ -5,6 +5,7 @@ public enum UserRequestType {
     
     CREATE_ROOM,
     JOIN_ROOM,
+    START_GAME,
     DEBUG_GET_RANDOM_CARD,
     LEAVE_ROOM,
     GET_TOKENS

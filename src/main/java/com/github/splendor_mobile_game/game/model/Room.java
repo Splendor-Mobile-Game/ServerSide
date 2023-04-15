@@ -18,7 +18,7 @@ public class Room {
     private int playerCount;
     private final ArrayList<User> users = new ArrayList<>();
     private User owner;
-    private Game game;
+    private Game game=null;
     private final Database database;
 
 
@@ -37,7 +37,7 @@ public class Room {
     }
 
     public void startGame() {
-        this.game = new Game(database, getPlayerCount());
+        this.game = new Game(database, users);
     }
 
     public void displayScoreboard() {
@@ -100,6 +100,7 @@ public class Room {
     public void setGame(Game game) {
         this.game = game;
     }
+
 
     /**
      *

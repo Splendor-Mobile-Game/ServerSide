@@ -25,9 +25,9 @@ public class UserMessage {
      * Heavly used on the server side.
      *
      * @param json the JSON message to parse
-     * @throws InvalidReceivedMessage if the provided message is invalid
+     * @throws JsonParserException if the provided message is invalid
      */
-    public UserMessage(String json) throws InvalidReceivedMessage {
+    public UserMessage(String json) throws JsonParserException {
         UserMessage msg = UserMessage.fromJson(json);
 
         this.contextId = msg.contextId;
@@ -68,14 +68,10 @@ public class UserMessage {
      *
      * @param json the JSON string to parse
      * @return the UserMessage object
-     * @throws InvalidReceivedMessage if the provided message is invalid
+     * @throws JsonParserException if the provided message is invalid
      */
-    private static UserMessage fromJson(String json) throws InvalidReceivedMessage {
-        try {
-            return JsonParser.parseJson(json, UserMessage.class);
-        } catch (JsonParserException e) {
-            throw new InvalidReceivedMessage("Received message is invalid!", e);
-        }
+    private static UserMessage fromJson(String json) throws JsonParserException  {
+        return JsonParser.parseJson(json, UserMessage.class);
     }
 
     public UUID getContextId() {

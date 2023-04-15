@@ -13,19 +13,41 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 public class Game {
 
     private final Map<TokenType, Integer> tokensOnTable = new HashMap<TokenType, Integer>();
+
+    private User currentOrder;
+    private final ArrayList<User> users = new ArrayList<>();
+
     private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
     private final Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>(); // Cards of each tier visible on the table
+
     private ArrayList<Noble> nobles;
     /** Maximum number of non-gold tokens generated for game. Depends on player count */
     private int maxNonGoldTokensOnStart = 7;
     private final Database database;
 
-    public Game(Database database, int playerCount) {
+    public Game(Database database, ArrayList<User> users) {
         this.database = database;
 
-        start(playerCount);
+        currentOrder = users.get(0);
+        start(users.size());
     }
 
+    public User getCurrentPlayer() {
+        return currentOrder;
+    }
+
+    public User changeTurn(){
+        int index = users.indexOf(currentOrder);
+        
+        if(index == users.size()-1){
+            currentOrder = users.get(0);
+            return currentOrder;
+        } 
+        else{
+            currentOrder = users.get(index+1);
+            return currentOrder;
+        }
+    }
 
     private void start(int playerCount) {
         // Calculate number of tokens of each type
@@ -53,7 +75,6 @@ public class Game {
         // Choose random noble cards from database
         nobles = getRandomNobles(4);//Always we draw four noblemen
 
-
         //Only for testing TO BE DELTED
         //testForDuplicates(CardTier.LEVEL_1);
         //testForDuplicates(CardTier.LEVEL_2);
@@ -62,6 +83,7 @@ public class Game {
 
         // takeNobleTest();
     }
+
 
     public int getTokenCount(TokenType type) {
         return tokensOnTable.get(type);
@@ -77,6 +99,7 @@ public class Game {
             this.tokensOnTable.put(set.getKey(), set.getValue() - tokenMap.get(set.getKey()));
         }
     }
+
 
     //Only for testing private function TO BE DELETED
     private void testForDuplicatesNoble(){
@@ -104,6 +127,20 @@ public class Game {
                 }
             }
         }
+    }
+
+    public Deck getRevealedCards(CardTier tier){
+        Deck deck = new Deck(tier, revealedCards.get(tier));
+        return deck;
+    }
+
+    public ArrayList<Noble> getNobles(){
+        ArrayList<Noble> nobles=new ArrayList<>(this.nobles);
+        return nobles;
+    }
+
+    public int getTokens(TokenType type){
+        return this.tokensOnTable.get(type);
     }
 
 
