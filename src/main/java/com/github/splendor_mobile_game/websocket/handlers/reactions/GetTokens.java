@@ -306,12 +306,6 @@ public class GetTokens extends Reaction {
 
         if(user.hasPerformedAction()) throw new NotThisUserTurnException("It's not your turn");
 
-        //only for testing, will be removed when start game reaction will be done
-        if(room.getGame() == null) {
-            room.startGame(); 
-        }
-        //end only for testing
-
         if(room.getGame() == null) throw new GameNotStartedException("Game hasn't started yet");
 
         // System.out.println("USER TOKENS: ");
