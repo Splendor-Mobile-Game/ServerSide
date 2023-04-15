@@ -151,6 +151,8 @@ public class JoinRoom extends Reaction {
 
     }
 
+
+
     /**
      * Data sent by the server
      */
