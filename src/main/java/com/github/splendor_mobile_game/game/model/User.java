@@ -64,36 +64,15 @@ public class User {
         return this.tokens.get(type);
     }
 
-    //method for adding two tokens (still needs to be validated if there are at least 4 tokens of this type on the table)
-    // public boolean takeTwoTokens(TokenType type) {
-    //     this.tokens.put(type, this.tokens.get(type) + 2);
-
-    //     if(this.getTokenCount() > 10) return false;
-    //     return true;
-    // }
-
-
-    // //method for taking tokens from user
-    // public void putDownTokens(TokenType type, int amount) throws Exception {
-    //     if(this.tokens.get(type) - amount < 0) throw new Exception("You can't have less than 0 tokens");
-    //     this.tokens.put(type, this.tokens.get(type) - amount);
-    // }
-
-
-    // //method for adding three different tokens
-    // public boolean takeThreeTokens(TokenType type1, TokenType type2, TokenType type3) throws SameTokenTypesException {
-    //     if(type1 == type2 || type1 == type3 || type2 == type3) throw new SameTokenTypesException("No three different token types selected");
-    //     this.tokens.put(type1, this.tokens.get(type1) + 1);
-    //     this.tokens.put(type2, this.tokens.get(type2) + 1);
-    //     this.tokens.put(type3, this.tokens.get(type3) + 1);
-
-    //     if(this.getTokenCount() > 10) return false;
-    //     return true;
-    // }
-
+    /** 
+     * function which updates user's token amount by adding or subtracting their current amount by numbers listed in tokensChange map
+     * It skips gold token type because users can't take gold tokens by themselves
+     */
     public void changeTokens(Map<TokenType, Integer> tokensChange) {
         for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
+            // User can't take Gold tokens from table so we skip them in our this.tokens map
             if(set.getKey() == TokenType.GOLD_JOKER) continue;
+            // Every token type value is added/subtracted by its corresponding value in tokensChange map
             this.tokens.put(set.getKey(), set.getValue() + tokensChange.get(set.getKey()));
         }
     }

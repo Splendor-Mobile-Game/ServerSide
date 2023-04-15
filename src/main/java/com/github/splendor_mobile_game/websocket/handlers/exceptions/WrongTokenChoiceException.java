@@ -1,5 +1,6 @@
 package com.github.splendor_mobile_game.websocket.handlers.exceptions;
 
+/** Wrong token choice exception, used when user's token choice is against the rules of Splendor*/
 public class WrongTokenChoiceException extends Exception {
 
     public WrongTokenChoiceException() {

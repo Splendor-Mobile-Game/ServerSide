@@ -1,5 +1,6 @@
 package com.github.splendor_mobile_game.websocket.handlers.exceptions;
 
+/** Too many tokens exception, used when user has more than 10 tokens after taking them */
 public class TooManyTokensException extends Exception {
 
     public TooManyTokensException() {

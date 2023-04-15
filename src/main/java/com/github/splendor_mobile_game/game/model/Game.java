@@ -67,6 +67,10 @@ public class Game {
         return tokensOnTable.get(type);
     }
 
+    /** 
+     * function which updates token amount on the table by adding or subtracting their current amount by numbers listed in tokensChange map 
+     * It is used in GetTokens reaction so it skips Gold token type because users can't take gold tokens by themselves
+    */
     public void changeTokens(Map<TokenType, Integer> tokenMap) {
         for(Map.Entry<TokenType, Integer> set : this.tokensOnTable.entrySet()) {
             if(set.getKey() == TokenType.GOLD_JOKER) continue;
