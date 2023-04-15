@@ -280,7 +280,10 @@ public class GetTokens extends Reaction {
             ResponseData responseData = new ResponseData(dataDTO);
 
             ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.GET_TOKENS_RESPONSE, Result.OK, responseData);
-            messenger.addMessageToSend(this.connectionHashCode, serverMessage);
+            
+            for (User u : room.getAllUsers()) {
+                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
+            }
         } catch (Exception e) {
             Log.ERROR(e.getMessage());
             ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.GET_TOKENS_RESPONSE, userMessage.getContextId().toString());
@@ -303,7 +306,7 @@ public class GetTokens extends Reaction {
 
         if(user.hasPerformedAction()) throw new NotThisUserTurnException("It's not your turn");
 
-        //only for testing, will be removed
+        //only for testing, will be removed when start game reaction will be done
         if(room.getGame() == null) {
             room.startGame(); 
         }
