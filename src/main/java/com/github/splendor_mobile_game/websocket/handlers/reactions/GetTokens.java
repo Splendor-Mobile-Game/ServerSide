@@ -42,12 +42,13 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "GET_TOKENS",
  *      "data": {
+ *          "userUuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
  *          "tokensChangeDTO": {
- *              "RUBY": 1,
- *              "SAPPHIRE": 1,
- *              "EMERALD": 1,
- *              "DIAMOND": 0,
- *              "ONYX": 0
+ *              "ruby": 1,
+ *              "sapphire": 1,
+ *              "emerald": 1,
+ *              "diamond": 0,
+ *              "onyx": 0
  *          }
  *      }
  * }
@@ -56,32 +57,33 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "GET_TOKENS",
  *      "data": {
+ *          "userUuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
  *          "tokensChangeDTO": {
- *              "RUBY": 0,
- *              "SAPPHIRE": 2,
- *              "EMERALD": 0,
- *              "DIAMOND": 0,
- *              "ONYX": 0
+ *              "ruby": 0,
+ *              "sapphire": 2,
+ *              "emerald": 0,
+ *              "diamond": 0,
+ *              "onyx": 0
  *          }
  *      }
  * }
  * if the situation arises that player would get more than 10 tokens in total,
  * then player have to give back some other tokens, so the following might be possible.
  * Consider a player has 9 tokens. They get 3 more and give back some 2, so the balance is 10 at max.
-  {
-       "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
-       "type": "GET_TOKENS",
-       "data": {
-           "userUuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
-           "tokensChangeDTO": {
-                "ruby": 2,
-                "sapphire": 0,
-                "emerald": 0,
-                "diamond": 0,
-                "onyx": 0
-           }
-       }
-  }
+ * {
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "type": "GET_TOKENS",
+ *      "data": {
+ *          "userUuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
+ *          "tokensChangeDTO": {
+ *               "ruby": 2,
+ *               "sapphire": 0,
+ *               "emerald": 0,
+ *               "diamond": 0,
+ *               "onyx": 0
+ *          }
+ *      }
+ * }
  * 
  * Example of server announcement
  * {
@@ -91,11 +93,11 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      "data": {
  *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
  *          "tokensChangeDTO": {
- *             "RUBY": 1,
-*              "SAPPHIRE": 1,
-*              "EMERALD": 1,
-*              "DIAMOND": -2,
-*              "ONYX": 0
+ *              "ruby": 1,
+ *              "sapphire": 1,
+ *              "emerald": 1,
+ *              "diamond": -2,
+ *              "onyx": 0
  *          }
  *      }
  * }
@@ -244,6 +246,7 @@ public class GetTokens extends Reaction {
             // System.out.println();
 
             changeTokens(user, room, tokenMap);
+            user.setPerformedAction(true);
 
             // System.out.println("ruby on table");
             // System.out.println(room.getGame().getTokenCount(TokenType.RUBY));
