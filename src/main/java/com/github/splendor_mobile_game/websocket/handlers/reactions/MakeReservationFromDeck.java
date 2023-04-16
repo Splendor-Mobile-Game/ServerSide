@@ -19,8 +19,11 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.DeckIsEmptyException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomInGameException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.TokenCountException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserReservationException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserTurnException;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
@@ -89,11 +92,11 @@ public class MakeReservationFromDeck extends Reaction {
     @DataClass
     public static class DataDTO{
         public UUID userUuid;
-        public int tier;
+        public int cardTier;
 
         public DataDTO(UUID userUuid, int tier){
             this.userUuid=userUuid;
-            this.tier=tier;
+            this.cardTier=tier;
         }
     }
 
@@ -151,7 +154,8 @@ public class MakeReservationFromDeck extends Reaction {
             User reservee = database.getUser(dataDTO.userUuid);
             Room room = database.getRoomWithUser(reservee.getUuid());
             Game game = room.getGame();
-            Card card = game.pickCardFromDeck(CardTier.fromInt(dataDTO.tier));
+            
+            Card card = game.pickCardFromDeck(CardTier.fromInt(dataDTO.cardTier));
 
             if(card==null){
                 throw new DeckIsEmptyException("There are no cards available");
@@ -198,8 +202,7 @@ public class MakeReservationFromDeck extends Reaction {
 
         //Check if user exists
         if(user==null){
-            //TO DO
-            throw new Exception("KATASTROFA");
+            throw new UserDoesntExistException("There is no such user in the database");
         }
 
         Room room = database.getRoomWithUser(user.getUuid());
@@ -213,14 +216,12 @@ public class MakeReservationFromDeck extends Reaction {
         
         //check if the room is in the game
         if(game==null){
-             //TO DO
-             throw new Exception("KATASTROFA");
+             throw new RoomInGameException("Room is not in a game state");
         }
 
         //Check if it is user's turn
         if(game.getCurrentPlayer()!=user){
-             //TO DO
-             throw new Exception("KATASTROFA");
+             throw new UserTurnException("It is not user's turn");
         }
         
         //Check reservation count

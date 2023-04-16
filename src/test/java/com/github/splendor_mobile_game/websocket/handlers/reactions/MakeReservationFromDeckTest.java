@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.database.InMemoryDatabase;
+import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.model.Game;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
@@ -38,6 +39,7 @@ public class MakeReservationFromDeckTest {
         String contextId = "80bdc250-5365-4caf-8dd9-a33e709a0116";
         String messageType = "MAKE_RESERVATION_FROM_DECK";
         String userUuid = owner.getUuid().toString();
+        String tier = "1";
 
         String message = """
         {
@@ -45,11 +47,12 @@ public class MakeReservationFromDeckTest {
             "type": "$type",
             "data": {
                 "userUuid": "$userId",
-                "cardTier": 1
+                "cardTier": $tier
             }
         }""".replace("$contextId", contextId)
             .replace("$type", messageType)
-            .replace("$userId", userUuid);
+            .replace("$userId", userUuid)
+            .replace("$tier", tier);
 
         UserMessage receivedMessage = new UserMessage(message);
         MakeReservationFromDeck makeReservationFromDeck = new MakeReservationFromDeck(clientConnectionHashCode, receivedMessage, messenger, database);
