@@ -13,6 +13,7 @@ import com.github.splendor_mobile_game.websocket.config.EnvConfig;
 import com.github.splendor_mobile_game.websocket.config.exceptions.InvalidConfigException;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionManager;
 import com.github.splendor_mobile_game.websocket.handlers.connection.SimpleConnectionChecker;
+import com.github.splendor_mobile_game.websocket.handlers.reactions.BuyReservedMine;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.BuyRevealedMine;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateRoom;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.DebugGetRandomCard;
@@ -21,23 +22,37 @@ import com.github.splendor_mobile_game.websocket.handlers.reactions.LeaveRoom;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.StartGame;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
-/** This class represents the main application class for the Splendor game WebSocket server. */
+/**
+ * This class represents the main application class for the Splendor game
+ * WebSocket server.
+ */
 public class App {
 
 	/** A list of classes that contain reactions to messages from clients. */
 	private static List<Class<?>> classesWithReactions = new ArrayList<>(Arrays.asList(
-		CreateRoom.class, JoinRoom.class, DebugGetRandomCard.class, LeaveRoom.class, StartGame.class, BuyRevealedMine.class 
-	));
-
+			CreateRoom.class, JoinRoom.class, DebugGetRandomCard.class, LeaveRoom.class, StartGame.class,
+			BuyRevealedMine.class, BuyReservedMine.class));
 
 	/**
-     * The main entry point of the server application.
-     *
-     * @param args An array of command-line arguments passed to the application.
-     * @throws InvalidConfigException                     			Thrown when the configuration file (.env) is invalid (ie. field is missing).
-     * @throws ConnectionCheckerWithoutDefaultConstructorException 	Thrown when the specified connection handler class does not have a default constructor.
-     */
-	public static void main(String[] args) throws InvalidConfigException, ConnectionCheckerWithoutDefaultConstructorException {
+	 * The main entry point of the server application.
+	 *
+	 * @param args An array of command-line arguments passed to the application.
+	 * @throws InvalidConfigException                              Thrown when the
+	 *                                                             configuration
+	 *                                                             file (.env) is
+	 *                                                             invalid (ie.
+	 *                                                             field is
+	 *                                                             missing).
+	 * @throws ConnectionCheckerWithoutDefaultConstructorException Thrown when the
+	 *                                                             specified
+	 *                                                             connection
+	 *                                                             handler class
+	 *                                                             does not have a
+	 *                                                             default
+	 *                                                             constructor.
+	 */
+	public static void main(String[] args)
+			throws InvalidConfigException, ConnectionCheckerWithoutDefaultConstructorException {
 
 		// Read the environment configuration
 		Config config = new EnvConfig("./.env");
@@ -45,20 +60,20 @@ public class App {
 		// Initialize the logger
 		Log.setSavingLogsToFile(config.getLogsDir());
 
-		// Define where are reactions to the messages from client and load these reactions
+		// Define where are reactions to the messages from client and load these
+		// reactions
 		ReactionManager reactionManager = new ReactionManager();
 		reactionManager.loadReactions(App.classesWithReactions);
 
 		// Setup the server
 		int port = config.getPort();
 		WebSocketSplendorServer server = new WebSocketSplendorServer(
-			new InetSocketAddress(port),
-			reactionManager.reactions,
-			SimpleConnectionChecker.class,
-			config.getPingIntervalMs(),
-			config.getConnectionCheckIntervalMs(),
-			new InMemoryDatabase()
-		);
+				new InetSocketAddress(port),
+				reactionManager.reactions,
+				SimpleConnectionChecker.class,
+				config.getPingIntervalMs(),
+				config.getConnectionCheckIntervalMs(),
+				new InMemoryDatabase());
 
 		server.setConnectionLostTimeout(config.getConnectionLostTimeoutSec());
 

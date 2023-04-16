@@ -1,11 +1,14 @@
 package com.github.splendor_mobile_game.websocket.handlers;
 
-/** Enum representing the different types of messages that can be send by the server. */
+/**
+ * Enum representing the different types of messages that can be send by the
+ * server.
+ */
 public enum ServerMessageType {
 
     /** Indicates that an error occurred while processing a request. */
     ERROR,
-    
+
     UNKNOWN,
     CREATE_ROOM_RESPONSE,
     JOIN_ROOM_RESPONSE,
@@ -13,6 +16,8 @@ public enum ServerMessageType {
     DEBUG_GET_RANDOM_CARD_RESPONSE,
     BUY_REVEALED_MINE_RESPONSE,
     BUY_REVEALED_MINE_ANNOUNCEMENT,
+    BUY_RESERVED_MINE_RESPONSE,
+    BUY_RESERVED_MINE_ANNOUNCEMENT,
     LEAVE_ROOM_RESPONSE,
     NEW_ROOM_OWNER
 
