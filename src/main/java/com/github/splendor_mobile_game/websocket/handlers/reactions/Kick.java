@@ -18,6 +18,37 @@ import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 
+/**
+ *
+ *
+ * Players sends this request if they are the host of the game and they want to
+ * kick other player from the lobby.
+ * In reaction server sends to all players message of type `KICK_ANNONUCEMENT`
+ * announcing that this has happend.
+ * 
+ * Example of user request
+ * {
+ * "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ * "type": "KICK",
+ * "data": {
+ * "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
+ * "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
+ * }
+ * }
+ * 
+ * Example of server announcement
+ * {
+ * "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ * "type": "KICK_ANNONUCEMENT",
+ * "result": "OK",
+ * "data": {
+ * "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
+ * }
+ * }
+ * 
+ * 
+ */
+
 @ReactionName("KICK")
 public class Kick extends Reaction {
 
@@ -37,19 +68,16 @@ public class Kick extends Reaction {
 
     }
 
-    /*
-     * ----> EXAMPLE USER REQUEST <----
-     * 
-     * {
-     * "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
-     * "type": "KICK",
-     * "data": {
-     * "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
-     * "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
-     * }
-     * }
-     * 
-     */
+    // ----> EXAMPLE USER REQUEST <----
+
+    // {
+    // "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+    // "type": "KICK",
+    // "data": {
+    // "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
+    // "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
+    // }
+    // }
 
     public class ResponseData {
         public UUID kickedUserUuid;
@@ -60,19 +88,16 @@ public class Kick extends Reaction {
 
     }
 
-    /*
-     * ----> EXAMPLE SERVER RESPONSE <----
-     * 
-     * {
-     * "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
-     * "type": "KICK_ANNONUCEMENT",
-     * "result": "OK",
-     * "data": {
-     * "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
-     * }
-     * }
-     * 
-     */
+    // ----> EXAMPLE SERVER RESPONSE <----
+
+    // {
+    // "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+    // "type": "KICK_ANNONUCEMENT",
+    // "result": "OK",
+    // "data": {
+    // "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
+    // }
+    // }
 
     @Override
     public void react() {
