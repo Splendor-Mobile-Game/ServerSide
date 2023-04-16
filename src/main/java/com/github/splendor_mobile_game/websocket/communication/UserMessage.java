@@ -59,7 +59,7 @@ public class UserMessage {
             // TODO: Perfomance loss because of redundant json parsing
             this.data = JsonParser.parseJson((new Gson()).toJson(this.data), clazz);
         } catch (JsonParserException e) {
-            throw new InvalidReceivedMessage("Received message is invalid!", e);
+            throw new InvalidReceivedMessage("Received message is invalid <= " + e.getMessage(), e);
         }
     }
 
