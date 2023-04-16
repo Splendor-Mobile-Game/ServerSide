@@ -125,7 +125,7 @@ public class Kick extends Reaction {
 
         } catch (Exception e) {
             ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(),
-                    ServerMessageType.KICK_ANNONUCEMENT, userMessage.getContextId().toString());
+                    ServerMessageType.KICK_RESPONSE, userMessage.getContextId().toString());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
         }
 

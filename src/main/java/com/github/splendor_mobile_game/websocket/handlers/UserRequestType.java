@@ -7,5 +7,4 @@ public enum UserRequestType {
     JOIN_ROOM,
     DEBUG_GET_RANDOM_CARD,
     LEAVE_ROOM,
-    KICK
 }
