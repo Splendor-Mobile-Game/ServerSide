@@ -56,6 +56,45 @@ public class Game {
         Card card = getRandomCard(tier);
         return card;
     }
+    
+    public Card takeCardFromRevealed(Card card){
+        
+        removeCardFromRevealed(card);
+
+        Card cardDrawn = getRandomCard(card.getCardTier());
+        addCardToRevealed(cardDrawn);
+
+        return cardDrawn;
+    }
+
+    private void removeCardFromRevealed(Card card){
+        CardTier cardTier = card.getCardTier();
+        revealedCards.get(cardTier).remove(card);
+    }
+
+    private void addCardToRevealed(Card card){
+        revealedCards.get(card.getCardTier()).add(card);
+    }
+
+    public boolean revealedCardExists(UUID cardUuid){
+
+        boolean isInLvl1= this.revealedCards.get(CardTier.LEVEL_1).stream()
+            .filter(card -> card.getUuid()==cardUuid)
+            .findFirst()
+            .orElse(null) != null;
+
+        boolean isInLvl2= this.revealedCards.get(CardTier.LEVEL_2).stream()
+        .filter(card -> card.getUuid()==cardUuid)
+        .findFirst()
+        .orElse(null) != null;
+
+        boolean isInLvl3= this.revealedCards.get(CardTier.LEVEL_3).stream()
+            .filter(card -> card.getUuid()==cardUuid)
+            .findFirst()
+            .orElse(null) != null;
+
+        return isInLvl1||isInLvl2||isInLvl3;
+    }
 
     private void start(int playerCount) {
         // Calculate number of tokens of each type
@@ -83,7 +122,6 @@ public class Game {
         // Choose random noble cards from database
         nobles = getRandomNobles(4);//Always we draw four noblemen
 
-
         //Only for testing TO BE DELTED
         //testForDuplicates(CardTier.LEVEL_1);
         //testForDuplicates(CardTier.LEVEL_2);
@@ -92,6 +130,7 @@ public class Game {
 
         // takeNobleTest();
     }
+
 
     //Only for testing private function TO BE DELETED
     private void testForDuplicatesNoble(){
@@ -119,6 +158,20 @@ public class Game {
                 }
             }
         }
+    }
+
+    public Deck getRevealedCards(CardTier tier){
+        Deck deck = new Deck(tier, revealedCards.get(tier));
+        return deck;
+    }
+
+    public ArrayList<Noble> getNobles(){
+        ArrayList<Noble> nobles=new ArrayList<>(this.nobles);
+        return nobles;
+    }
+
+    public int getTokens(TokenType type){
+        return this.tokensOnTable.get(type);
     }
 
 

@@ -56,7 +56,6 @@ public class SqliteDatabase implements Database {
         return null;
     }
 
-    
     @Override
     public Card getCard(UUID uuid) {
         // TODO Auto-generated method stub

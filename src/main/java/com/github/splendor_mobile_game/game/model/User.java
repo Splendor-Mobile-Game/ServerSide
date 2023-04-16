@@ -195,11 +195,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return name.equals(user.name) && uuid.equals(user.uuid) && connectionHasCode == user.getConnectionHashCode();
+        return uuid.equals(user.uuid) && connectionHasCode == user.getConnectionHashCode();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, uuid, connectionHasCode);
+        return Objects.hash(uuid, connectionHasCode);
     }
 }
