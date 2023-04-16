@@ -65,6 +65,14 @@ public class InMemoryDatabase implements Database {
     }
 
     @Override
+    public Card getCard(UUID cardUuid){
+        for(Card card : allCards) {
+            if (card.getUuid().equals(cardUuid)) return card;
+        }
+        return null;
+    }
+
+    @Override
     public ArrayList<User> getAllUsers() {
         return allUsers;
     }
