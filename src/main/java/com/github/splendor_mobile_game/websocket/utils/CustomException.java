@@ -10,7 +10,7 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  */
 public class CustomException extends RuntimeException {
 
-    private Result result = Result.ERROR;
+    private Result result = Result.FAILURE;
 
     public CustomException() {
     }
@@ -44,7 +44,7 @@ public class CustomException extends RuntimeException {
 
     @Override
     public String toString() {
-        return this.getMessage() + "\n" + ExceptionUtils.getStackTrace(this);
+        return this.getMessage();
     }
 
     /**

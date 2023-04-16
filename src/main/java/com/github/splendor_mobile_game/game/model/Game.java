@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.CardTier;
@@ -47,6 +48,45 @@ public class Game {
             currentOrder = users.get(index+1);
             return currentOrder;
         }
+    }
+
+    public Card takeCardFromRevealed(Card card){
+        
+        removeCardFromRevealed(card);
+
+        Card cardDrawn = getRandomCard(card.getCardTier());
+        addCardToRevealed(cardDrawn);
+
+        return cardDrawn;
+    }
+
+    private void removeCardFromRevealed(Card card){
+        CardTier cardTier = card.getCardTier();
+        revealedCards.get(cardTier).remove(card);
+    }
+
+    private void addCardToRevealed(Card card){
+        revealedCards.get(card.getCardTier()).add(card);
+    }
+
+    public boolean revealedCardExists(UUID cardUuid){
+
+        boolean isInLvl1= this.revealedCards.get(CardTier.LEVEL_1).stream()
+            .filter(card -> card.getUuid()==cardUuid)
+            .findFirst()
+            .orElse(null) != null;
+
+        boolean isInLvl2= this.revealedCards.get(CardTier.LEVEL_2).stream()
+        .filter(card -> card.getUuid()==cardUuid)
+        .findFirst()
+        .orElse(null) != null;
+
+        boolean isInLvl3= this.revealedCards.get(CardTier.LEVEL_3).stream()
+            .filter(card -> card.getUuid()==cardUuid)
+            .findFirst()
+            .orElse(null) != null;
+
+        return isInLvl1||isInLvl2||isInLvl3;
     }
 
     private void start(int playerCount) {
