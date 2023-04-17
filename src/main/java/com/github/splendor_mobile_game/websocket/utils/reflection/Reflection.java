@@ -172,6 +172,9 @@ public class Reflection {
      * @return a string representation of the parameter types of the given arguments
      */
     private static String getParameterTypesNames(Object... args) {
+        if (args.length == 0)
+            return "";
+        
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < args.length - 1; i++) {
             stringBuilder.append(args[i].getClass().getName());
