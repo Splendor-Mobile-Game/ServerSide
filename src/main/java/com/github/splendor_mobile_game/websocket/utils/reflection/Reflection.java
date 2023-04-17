@@ -10,7 +10,6 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 /** A utility class for reflection operations. */
 public class Reflection {
 
-    // TODO: This function can be unit tested
     /**
      * Checks if a class has a default constructor.
      * 
@@ -26,7 +25,6 @@ public class Reflection {
         }
     }
 
-    // TODO: This function can be unit tested
     /**
      * Checks if a class has a constructor with one parameter of a specific type.
      * 
@@ -46,7 +44,6 @@ public class Reflection {
         }
     }
 
-    // TODO: This function can be unit tested
     /**
      * Gets a constructor of a class that matches a set of parameter types.
      * 
@@ -88,7 +85,6 @@ public class Reflection {
         throw new NoSuchMethodException();
     }
 
-    // TODO: This function can be unit tested
     /**
      * Finds all nested classes within a class that are annotated with a specific annotation.
      *
@@ -108,7 +104,6 @@ public class Reflection {
         return annotatedClasses;
     }
 
-    // TODO: This function can be unit tested
     /**
      * Finds the first (alphabetically) nested class within a class that is annotated with a specific annotation.
      *
@@ -124,7 +119,6 @@ public class Reflection {
         return null;
     }
 
-    // TODO: This function can be unit tested
     /**
      * Creates an instance of a class using a constructor that matches a set of parameter types.
      * 
@@ -143,7 +137,7 @@ public class Reflection {
             return constructor.newInstance(constructorArgs);
 
         } catch (Exception e) {
-            String message = clazz.getName() + " has no specified constructor with types: "
+            String message = clazz.getName() + " has no specified public constructor with types: "
                     + Reflection.getParameterTypesNames(constructorArgs);
 
             Log.ERROR(message);
@@ -151,7 +145,6 @@ public class Reflection {
         }
     }
 
-    // TODO: This function can be unit tested
     /**
      * Returns an array of Class objects representing the parameter types of the given arguments.
      * @param args the arguments whose parameter types are to be determined
@@ -165,13 +158,15 @@ public class Reflection {
         return parameterTypes;
     }
 
-    // TODO: This function can be unit tested
     /**
      * Returns a string representation of the parameter types of the given arguments.
      * @param args the arguments whose parameter types are to be represented as a string
      * @return a string representation of the parameter types of the given arguments
      */
     private static String getParameterTypesNames(Object... args) {
+        if (args.length == 0)
+            return "";
+        
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < args.length - 1; i++) {
             stringBuilder.append(args[i].getClass().getName());
@@ -181,7 +176,6 @@ public class Reflection {
         return stringBuilder.toString();
     }
 
-    // TODO: This function can be unit tested
     /**
      * Returns the primitive type corresponding to the given class, if it exists.
      * @param clazz the class to be converted to a primitive type
