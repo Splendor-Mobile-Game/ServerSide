@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.ReservationResult;
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Card;
@@ -17,7 +18,6 @@ import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.DeckIsEmptyException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomInGameException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.TokenCountException;
@@ -42,7 +42,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      }
  * }
  * 
- * 
+ * Here `goldenToken` means if user has drawn a golden token (there might be no golden token on table)
  * Example of a server announcement to all users:
  * {
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
@@ -61,6 +61,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                  "diamond": 3,
  *                  "onyx": 0
  *              }
+ *              "goldenToken": true
  *          }
  *      }
  * }
@@ -135,11 +136,13 @@ public class MakeReservationFromDeck extends Reaction {
     public class ResponseData{
         public UUID userUuid;
         public CardDataResponse card;
+        public boolean goldenToken;
 
 
-        public ResponseData(UUID userUuid, CardDataResponse card) {
+        public ResponseData(UUID userUuid, CardDataResponse card, boolean goldenToken) {
             this.userUuid = userUuid;
             this.card = card;
+            this.goldenToken = goldenToken;
         }
     }
 
@@ -155,13 +158,11 @@ public class MakeReservationFromDeck extends Reaction {
             Room room = database.getRoomWithUser(reservee.getUuid());
             Game game = room.getGame();
             
-            Card card = game.pickCardFromDeck(CardTier.fromInt(dataDTO.cardTier));
+            ReservationResult reservationResult = game.reserveCardFromDeck(CardTier.fromInt(dataDTO.cardTier),reservee);
+            Card card = reservationResult.getCard();
+            boolean goldenToken = reservationResult.getGoldenToken();
 
-            if(card==null){
-                throw new DeckIsEmptyException("There are no cards available");
-            }
-            reservee.reserveCard(card);
-            Log.DEBUG("User "+reservee.getName()+" reserved card from deck "+card.getCardTier());
+            Log.DEBUG("User "+reservee.getName()+" reserved card from deck "+card.getCardTier()+" and golden token: "+goldenToken);
             
             ResponseData responseData = new ResponseData(
                 reservee.getUuid(), 
@@ -176,7 +177,8 @@ public class MakeReservationFromDeck extends Reaction {
                         card.getCost(TokenType.DIAMOND), 
                         card.getCost(TokenType.ONYX)
                     )
-                )
+                ),
+                goldenToken
             );
 
             ArrayList<User> players = room.getAllUsers();
@@ -238,29 +240,5 @@ public class MakeReservationFromDeck extends Reaction {
         if(user.getTokenCount()>=10){
             throw new TokenCountException("Reached max token count on hand");
         }
-
-        //Check if if gold tokens are available
-        if(game.getTokenCount(TokenType.GOLD_JOKER)<=0){
-            throw new TokenCountException("There is not enough golden joker on table");
-        }
-
     }
-    
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

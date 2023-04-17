@@ -147,10 +147,14 @@ public class User {
         return this.points;
     }
 
-    public void reserveCard(Card card) {
+    public void reserveCard(Card card,boolean goldToken) {
         this.reservedCards.add(card);
+        
+        if(goldToken){
+            this.tokens.put(TokenType.GOLD_JOKER, this.tokens.get(TokenType.GOLD_JOKER) + 1);
+        }
+
         throughoutGameReservationCount++;
-        this.tokens.put(TokenType.GOLD_JOKER, this.tokens.get(TokenType.GOLD_JOKER) + 1);
     }
 
     public int getThroughoutGameReservationCount(){

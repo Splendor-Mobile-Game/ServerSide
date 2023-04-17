@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.database.InMemoryDatabase;
-import com.github.splendor_mobile_game.game.enums.CardTier;
-import com.github.splendor_mobile_game.game.model.Game;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
@@ -33,8 +31,6 @@ public class MakeReservationFromDeckTest {
         database.addUser(player);
         room.joinGame(player);
         room.startGame();
-
-        Game game = room.getGame();
 
         String contextId = "80bdc250-5365-4caf-8dd9-a33e709a0116";
         String messageType = "MAKE_RESERVATION_FROM_DECK";
