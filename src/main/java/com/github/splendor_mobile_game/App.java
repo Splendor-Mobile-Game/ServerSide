@@ -16,6 +16,7 @@ import com.github.splendor_mobile_game.websocket.handlers.connection.SimpleConne
 import com.github.splendor_mobile_game.websocket.handlers.reactions.BuyRevealedMine;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateRoom;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.DebugGetRandomCard;
+import com.github.splendor_mobile_game.websocket.handlers.reactions.GetTokens;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.JoinRoom;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.LeaveRoom;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.StartGame;
@@ -26,7 +27,7 @@ public class App {
 
 	/** A list of classes that contain reactions to messages from clients. */
 	private static List<Class<?>> classesWithReactions = new ArrayList<>(Arrays.asList(
-		CreateRoom.class, JoinRoom.class, DebugGetRandomCard.class, LeaveRoom.class, StartGame.class, BuyRevealedMine.class 
+		CreateRoom.class, JoinRoom.class, DebugGetRandomCard.class, LeaveRoom.class, GetTokens.class, StartGame.class, BuyRevealedMine.class
 	));
 
 
