@@ -72,7 +72,7 @@ public class LeaveRoom extends Reaction{
 
     /* ----> EXAMPLE USER REQUEST <----
     {
-         "messageContextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
+         "contextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
          "type": "LEAVE_ROOM",
          "data": {
              "roomDTO": {
@@ -101,9 +101,21 @@ public class LeaveRoom extends Reaction{
 
             if(room.getPlayerCount()>0)
                 //checking if user who wants to leave room isn't owner, if that's true, setting new owner as another user from list of users
-                if(room.getOwner().equals(user))
+                if(room.getOwner().equals(user)){
                     room.setOwner(room.getAllUsers().get(0));
-            //TODO: inform other users who is new room owner
+                    
+                    UserDataResponse userDataResponse = new UserDataResponse(room.getOwner().getUuid(), room.getOwner().getName());
+                    ResponseData responseData = new ResponseData(userDataResponse);
+                    ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.NEW_ROOM_OWNER, Result.OK, responseData);
+
+                    messenger.addMessageToSend(this.connectionHashCode, serverMessage);
+
+                    //Send information about new room owner to other players
+                    for (User u : usersTmp) {
+                        messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
+                    }
+                    
+                }
 
             //If last user wants to leave room, then remove empty room
             if(room.getPlayerCount()==0)
@@ -116,7 +128,7 @@ public class LeaveRoom extends Reaction{
             messenger.addMessageToSend(this.connectionHashCode, serverMessage);
             
 
-            // Send leave information to other players
+            //Send leave information to other players
             for (User u : usersTmp) {
                 messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
             }

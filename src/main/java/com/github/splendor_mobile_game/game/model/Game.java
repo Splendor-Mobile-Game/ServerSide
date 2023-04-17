@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.CardTier;
@@ -12,20 +13,79 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
 
+    private User currentOrder;
+    private final ArrayList<User> users = new ArrayList<>();
     private final HashMap<TokenType, Integer> tokensOnTable = new HashMap<>();
     private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
     private final Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>(); // Cards of each tier visible on the table
+
     private ArrayList<Noble> nobles;
     /** Maximum number of non-gold tokens generated for game. Depends on player count */
     private int maxNonGoldTokensOnStart = 7;
     private final Database database;
 
-    public Game(Database database, int playerCount) {
+    public Game(Database database, ArrayList<User> users) {
         this.database = database;
 
-        start(playerCount);
+        currentOrder = users.get(0);
+        start(users.size());
     }
 
+    public User getCurrentPlayer() {
+        return currentOrder;
+    }
+
+    public User changeTurn(){
+        int index = users.indexOf(currentOrder);
+        
+        if(index == users.size()-1){
+            currentOrder = users.get(0);
+            return currentOrder;
+        } 
+        else{
+            currentOrder = users.get(index+1);
+            return currentOrder;
+        }
+    }
+
+    public Card takeCardFromRevealed(Card card){
+        
+        removeCardFromRevealed(card);
+
+        Card cardDrawn = getRandomCard(card.getCardTier());
+        addCardToRevealed(cardDrawn);
+
+        return cardDrawn;
+    }
+
+    private void removeCardFromRevealed(Card card){
+        CardTier cardTier = card.getCardTier();
+        revealedCards.get(cardTier).remove(card);
+    }
+
+    private void addCardToRevealed(Card card){
+        revealedCards.get(card.getCardTier()).add(card);
+    }
+
+    public boolean revealedCardExists(UUID cardUuid){
+
+        boolean isInLvl1= this.revealedCards.get(CardTier.LEVEL_1).stream()
+            .filter(card -> card.getUuid()==cardUuid)
+            .findFirst()
+            .orElse(null) != null;
+
+        boolean isInLvl2= this.revealedCards.get(CardTier.LEVEL_2).stream()
+        .filter(card -> card.getUuid()==cardUuid)
+        .findFirst()
+        .orElse(null) != null;
+
+        boolean isInLvl3= this.revealedCards.get(CardTier.LEVEL_3).stream()
+            .filter(card -> card.getUuid()==cardUuid)
+            .findFirst()
+            .orElse(null) != null;
+
+        return isInLvl1||isInLvl2||isInLvl3;
+    }
 
     private void start(int playerCount) {
         // Calculate number of tokens of each type
@@ -53,7 +113,6 @@ public class Game {
         // Choose random noble cards from database
         nobles = getRandomNobles(4);//Always we draw four noblemen
 
-
         //Only for testing TO BE DELTED
         //testForDuplicates(CardTier.LEVEL_1);
         //testForDuplicates(CardTier.LEVEL_2);
@@ -62,6 +121,7 @@ public class Game {
 
         // takeNobleTest();
     }
+
 
     //Only for testing private function TO BE DELETED
     private void testForDuplicatesNoble(){
@@ -89,6 +149,20 @@ public class Game {
                 }
             }
         }
+    }
+
+    public Deck getRevealedCards(CardTier tier){
+        Deck deck = new Deck(tier, revealedCards.get(tier));
+        return deck;
+    }
+
+    public ArrayList<Noble> getNobles(){
+        ArrayList<Noble> nobles=new ArrayList<>(this.nobles);
+        return nobles;
+    }
+
+    public int getTokens(TokenType type){
+        return this.tokensOnTable.get(type);
     }
 
 

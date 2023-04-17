@@ -143,7 +143,7 @@ public class Reflection {
             return constructor.newInstance(constructorArgs);
 
         } catch (Exception e) {
-            String message = clazz.getName() + " has no specified constructor with types: "
+            String message = clazz.getName() + " has no specified public constructor with types: "
                     + Reflection.getParameterTypesNames(constructorArgs);
 
             Log.ERROR(message);
@@ -172,6 +172,9 @@ public class Reflection {
      * @return a string representation of the parameter types of the given arguments
      */
     private static String getParameterTypesNames(Object... args) {
+        if (args.length == 0)
+            return "";
+        
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < args.length - 1; i++) {
             stringBuilder.append(args[i].getClass().getName());
