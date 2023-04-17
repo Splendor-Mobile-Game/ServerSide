@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/** This class provides different static classes for ReflectionTest. */
 public class testClass {
 
     @Retention(RetentionPolicy.RUNTIME)
