@@ -51,7 +51,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      "data": {
  *          "userUuid":"01901b0e-a78b-4a65-bbd3-0065948dc127",
  *          "card": {
- *              "id": "0ba9cba8-3bc0-42fe-b24f-25d7b52fcd2c",
+ *              "uuid": "0ba9cba8-3bc0-42fe-b24f-25d7b52fcd2c",
  *              "prestige": 2,
  *              "bonusColor": "EMERALD",
  *              "tokensRequired":{
