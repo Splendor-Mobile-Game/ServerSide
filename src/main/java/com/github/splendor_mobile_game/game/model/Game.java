@@ -7,8 +7,10 @@ import java.util.Random;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.ReservationResult;
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.TokenType;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.DeckIsEmptyException;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
@@ -50,6 +52,27 @@ public class Game {
         }
     }
 
+    public ReservationResult reserveCardFromDeck(CardTier tier,User player) throws DeckIsEmptyException{
+        Card card = getRandomCard(tier);
+        if(card==null){
+            throw new DeckIsEmptyException("Deck "+tier+" is empty");
+        }
+
+        boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
+        player.reserveCard(card,goldenToken);
+        return new ReservationResult(card, goldenToken);
+    }
+
+    private boolean removeToken(TokenType type){
+        if(tokensOnTable.get(type)==0){
+            return false;
+        }
+
+        tokensOnTable.put(type, tokensOnTable.get(type)-1);
+        return true;
+    }
+    
+    //The return Card is a card that was drawn from deck and put on table
     public Card takeCardFromRevealed(Card card){
         
         removeCardFromRevealed(card);
@@ -244,7 +267,11 @@ public class Game {
 
 
     private Card getRandomCard(CardTier tier){
-        return getRandomCards(tier,1).get(0);
+        Deck deck = getRandomCards(tier,1);
+        if(deck == null){
+            return null;
+        }
+        return deck.get(0);
     }
 
 
@@ -264,6 +291,9 @@ public class Game {
 
         Random rand = new Random();
         for(;amount > 0;amount--) {
+            if(deck.size()==0){
+                return null;
+            }
             int index = rand.nextInt(deck.size()); // Get random index
             Card drawnCard =deck.remove(index);
             array.add(drawnCard);
@@ -285,6 +315,9 @@ public class Game {
 
         Random rand = new Random();
         while(amount > 0) {
+            if(nobles.size()==0){
+                return null;
+            }
             int index = rand.nextInt(nobles.size()); // Get random index       
             array.add(nobles.remove(index));
             
