@@ -169,7 +169,7 @@ public class WebSocketSplendorServer extends WebSocketServer {
             connection.send(customException.toJsonResponse());
 
         } catch (Exception exception) {
-            Log.ERROR("Server error: " + exception.getMessage() + "\n" + ExceptionUtils.getStackTrace(exception));
+            Log.ERROR(exception.getMessage());
             ErrorResponse response = new ErrorResponse(Result.ERROR, exception.getMessage() + "\n" + ExceptionUtils.getStackTrace(exception));
             connection.send(response.ToJson());
         }
