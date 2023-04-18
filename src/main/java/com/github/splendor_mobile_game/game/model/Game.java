@@ -52,10 +52,6 @@ public class Game {
         }
     }
 
-    public int getTokenCount(TokenType type){
-        return tokensOnTable.get(type);
-    }
-
     public ReservationResult reserveCardFromDeck(CardTier tier,User player) throws DeckIsEmptyException{
         Card card = getRandomCard(tier);
         if(card==null){
