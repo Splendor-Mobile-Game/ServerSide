@@ -149,6 +149,16 @@ public class User {
         this.tokens.put(TokenType.GOLD_JOKER, this.tokens.get(TokenType.GOLD_JOKER) + 1);
     }
 
+    public boolean isCardReserved(Card card) {
+        boolean test = false;
+        for (var element : this.reservedCards) {
+            if (element == card) {
+                test = true;
+                break;
+            }
+        }
+        return test;
+    }
 
     public int getConnectionHashCode() {
         return connectionHasCode;
