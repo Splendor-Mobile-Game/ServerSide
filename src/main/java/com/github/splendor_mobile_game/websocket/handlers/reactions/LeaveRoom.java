@@ -22,6 +22,71 @@ import com.github.splendor_mobile_game.websocket.response.Result;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Reaction sent when player wants to leave a room.
+ * react() function should send information about player leaving, to all other users. Message type should be equivalent to `LEAVE_ROOM_RESPONSE`
+ *
+ * Example user request
+    {
+        "contextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
+        "type": "LEAVE_ROOM",
+        "data": {
+            "roomDTO": {
+                "uuid": "a88f224f-f656-4925-9341-dda4b9099e90"
+            },
+            "userDTO": {
+                "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3456"
+            }
+        }
+    }
+ *
+ *
+ * If everything is alright, then the server should generate a response containing user and room information and send it to all users in this room.
+ *
+ *
+ * Example server response
+ {
+   "contextId":"80bdc250-5365-4caf-8dd9-a33e709a0116",
+   "type":"LEAVE_ROOM_RESPONSE",
+   "result":"OK",
+   "data":{
+      "user":{
+         "id":"f7c3de3d-1fea-4d7c-a8b0-29f63c4c3456",
+         "name":"Jacuch"
+      }
+   }
+}
+ *
+ *
+ *
+ * Otherwise, server should generate an ERROR response sent only to the author of the request.
+ * Example response while error occurs:
+ {
+    "contextId":"80bdc250-5365-4caf-8dd9-a33e709a0116",
+    "type":"LEAVE_ROOM_RESPONSE",
+    "result":"FAILURE",
+    "data":{
+        "error":"User is not a member of this room"
+    }
+ }
+
+ *
+ *
+ * Validation:
+ * -> regex user uuid
+ * -> regex room uuid
+ * -> check if room exists
+ * -> check if user is the member of the room
+ *
+ *
+ * Model specification:
+ * -> remove user from the Room.java instance (find room by room uuid)
+ * -> remove user from the database
+ * -> if removed user was an owner of the room, set owner as another user from the room
+ * -> if it was the last user in this room, remove room from database
+ *
+ */
+
 @ReactionName("LEAVE_ROOM")
 public class LeaveRoom extends Reaction{
 
