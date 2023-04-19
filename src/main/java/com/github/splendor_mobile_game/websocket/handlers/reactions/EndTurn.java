@@ -1,11 +1,16 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
-
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
+import com.github.splendor_mobile_game.websocket.response.Result;
+import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.game.model.Room;
 /**
  * This reaction handles the request sent by a player to end their turn. The server sends a message of type `NEW_TURN_ANNOUNCEMENT` to all players, announcing the end of the current turn and selecting the player for the next turn. If a player sends an invalid request, the server sends a response only to the requester.
  * 
@@ -56,8 +61,44 @@ public class EndTurn extends Reaction {
 
     @Override
     public void react() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'react'");
+
+        User user= database.getUserByConnectionHashCode(connectionHashCode);
+        User user2=database.getRoomWithUser(user.getUuid()).getGame().getCurrentPlayer();
+        Room room=database.getRoomWithUser(user.getUuid());
+        if(user==user2){
+            if(user.hasPerformedAction()){
+                if(user.getTokenCount()<=10){
+
+                    User nextUser=room.getGame().changeTurn();
+
+                    ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.NEW_TURN_ANNOUNCEMENT, Result.OK, nextUser);
+                    for(User u : room.getAllUsers()){
+                        messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage); 
+
+                    }
+
+
+                    
+                }
+                else{
+                    ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,"You cannot end turn if you have more than 10 tokens!", ServerMessageType.END_TURN_RESPONSE, userMessage.getContextId().toString());
+                    messenger.addMessageToSend(connectionHashCode, errorResponse);
+                }
+            }
+            else{
+                ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,"You cannot end turn if you haven't performed any action!", ServerMessageType.END_TURN_RESPONSE, userMessage.getContextId().toString());
+                messenger.addMessageToSend(connectionHashCode, errorResponse);
+            }
+
+        }    
+        else{
+
+           
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,"You cannot end turn if it's not your turn!", ServerMessageType.END_TURN_RESPONSE, userMessage.getContextId().toString());
+            messenger.addMessageToSend(connectionHashCode, errorResponse);
+        }
+             
+        
     }
     
 }
