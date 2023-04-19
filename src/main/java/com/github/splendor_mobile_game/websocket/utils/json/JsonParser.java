@@ -1,14 +1,14 @@
 package com.github.splendor_mobile_game.websocket.utils.json;
 
-import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonIsNotValidJsonObject;
-import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonIsNullException;
-import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonMissingFieldException;
-import com.github.splendor_mobile_game.websocket.utils.json.exceptions.JsonParserException;
+import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+import com.github.splendor_mobile_game.websocket.utils.json.exceptions.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-
-import java.lang.reflect.Field;
 
 /**
  * A utility class for parsing JSON strings into Java objects.
@@ -38,7 +38,7 @@ public class JsonParser {
         try {
             jsonObject = gson.fromJson(jsonString, JsonObject.class);
         } catch (JsonSyntaxException e) {
-            throw new JsonIsNotValidJsonObject("Received string is not valid json object!", e);
+            throw new JsonIsNotValidJsonObject("Received string is not valid json object <= " + e.getMessage(), e);
         }
     
         // Check if the JsonObject is null or empty
@@ -56,8 +56,12 @@ public class JsonParser {
             if (field.isAnnotationPresent(Optional.class))
                 continue;
 
-            if (!jsonObject.has(field.getName()))
+            if (!jsonObject.has(field.getName())) {
                 stringBuilder.append("Missing required field: " + field.getName() + "\n");
+            } 
+            else if (!JsonParser.isSimpleType(field.getType()) && !field.getType().isEnum()) {
+                JsonParser.parseJson(jsonObject.get(field.getName()).toString(), field.getType());
+            }
         }
 
         if (stringBuilder.length() != 0)
@@ -67,5 +71,14 @@ public class JsonParser {
         T object = gson.fromJson(jsonString, clazz);
         return object;
     }
+
+    private static boolean isSimpleType(Class<?> clazz) {
+        return clazz.isPrimitive() || JsonParser.simpleTypes.contains(clazz);
+    }
+
+    private static Set<Class<?>> simpleTypes = new HashSet<>() {{
+        add(String.class);
+        add(UUID.class);
+    }};
 
 }
