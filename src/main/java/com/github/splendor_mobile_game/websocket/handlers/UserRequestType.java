@@ -9,5 +9,6 @@ public enum UserRequestType {
     START_GAME,
     DEBUG_GET_RANDOM_CARD,
     LEAVE_ROOM,
-    GET_TOKENS
+    GET_TOKENS,
+    BUY_REVEALED_MINE
 }
