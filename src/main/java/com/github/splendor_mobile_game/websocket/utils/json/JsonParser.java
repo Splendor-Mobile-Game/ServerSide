@@ -1,9 +1,6 @@
 package com.github.splendor_mobile_game.websocket.utils.json;
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 import com.github.splendor_mobile_game.websocket.utils.json.exceptions.*;
 import com.google.gson.Gson;
@@ -18,7 +15,6 @@ import com.google.gson.JsonSyntaxException;
  */
 public class JsonParser {
 
-    // TODO: This function can be unit tested
     /**
      * Parses a JSON string into a Java object of the specified class.
      *
@@ -35,7 +31,7 @@ public class JsonParser {
      */
     public static <T> T parseJson(String jsonString, Class<T> clazz) throws JsonParserException {
         Gson gson = new Gson();
-    
+
         // Parse the JSON string into a JsonObject
         JsonObject jsonObject;
         try {
@@ -45,9 +41,7 @@ public class JsonParser {
         }
 
         checkJsonObject(jsonObject, clazz);
-    
-        
-    
+
         // Parse the JsonObject into an object of the specified class
         T object = gson.fromJson(jsonString, clazz);
         return object;
@@ -85,11 +79,8 @@ public class JsonParser {
                 checkJsonPrimitive(jsonObject.get(field.getName()).getAsJsonPrimitive(), clazz);
             }
 
-            // TODO Semi-Primitive types
+            // TODO Semi-Primitive types (ie. UUID)
             // TODO Enums
-            // else if (!JsonParser.isSimpleType(field.getType()) && !field.getType().isEnum()) {
-            //     JsonParser.parseJson(jsonObject.get(field.getName()).toString(), field.getType());
-            // }
         }
 
         if (stringBuilder.length() != 0)
@@ -117,14 +108,5 @@ public class JsonParser {
             throw new JsonParserException("Cannot convert value `" + jsonPrimitive.getAsString() + "` to " + clazz.getSimpleName() + ". Cause: " + e.getMessage());
         }
     }
-
-    private static boolean isSimpleType(Class<?> clazz) {
-        return clazz.isPrimitive() || JsonParser.simpleTypes.contains(clazz);
-    }
-
-    private static Set<Class<?>> simpleTypes = new HashSet<>() {{
-        add(String.class);
-        add(UUID.class);
-    }};
 
 }
