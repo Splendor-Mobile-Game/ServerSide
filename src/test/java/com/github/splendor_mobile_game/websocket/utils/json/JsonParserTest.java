@@ -1,5 +1,7 @@
 package com.github.splendor_mobile_game.websocket.utils.json;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -57,5 +59,44 @@ public class JsonParserTest {
         public void setEmail(String email) {
             this.email = email;
         }
+    }
+
+
+    private static class Room {
+        
+        List<Person> users;
+
+        public Room(List<Person> users) {
+            this.users = users;
+        }
+
+        public List<Person> getUsers() {
+            return users;
+        }
+        
+    }
+
+    @Test
+    public void array() throws JsonParserException {
+        String json = """
+        {
+            "users": [
+                {
+                    "name": "John",
+                    "age": 30,
+                    "email": "john@example.com"
+                },
+                {
+                    "name": "Alice",
+                    "age": 23,
+                    "email": "alice@example.com"
+                }
+            ]
+        }""";
+
+        Room room = JsonParser.parseJson(json, Room.class);
+        // Assertions.assertEquals("John", person.getName());
+        // Assertions.assertEquals(30, person.getAge());
+        // Assertions.assertEquals("john@example.com", person.getEmail());
     }
 }
