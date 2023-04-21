@@ -166,6 +166,7 @@ public class BuyReservedMine extends Reaction {
             Room room = database.getRoomWithUser(buyer.getUuid());
 
             buyer.buyCard(boughtCard);
+            buyer.removeCardFromResrved(boughtCard);
 
             Log.DEBUG("User " + buyer.getName() + " has bought card (" + boughtCard.getUuid() + ")");
 
@@ -230,6 +231,10 @@ public class BuyReservedMine extends Reaction {
         // Check if it is user's turn
         if (game.getCurrentPlayer() != player) {
             throw new UserTurnException("It is not a user's turn");
+        }
+
+        if (player.hasPerformedAction()) {
+            throw new UserTurnException("You have already performed an action");
         }
 
         Card card = database.getCard(dataDTO.cardDTO.uuid);

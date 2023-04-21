@@ -160,6 +160,10 @@ public class User {
         return test;
     }
 
+    public void removeCardFromResrved(Card card) {
+        this.reservedCards.remove(card);
+    }
+
     public int getConnectionHashCode() {
         return connectionHasCode;
     }
