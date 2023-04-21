@@ -116,7 +116,7 @@ public class Kick extends Reaction {
 
             ResponseData responseData = new ResponseData(kickedUserUuid);
             ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(),
-                    ServerMessageType.KICK_ANNONUCEMENT,
+                    ServerMessageType.KICK_ANNOUNCEMENT,
                     Result.OK, responseData);
 
             for (User u : room.getAllUsers()) {
