@@ -164,7 +164,7 @@ public class User {
         return test;
     }
 
-    public void removeCardFromResrved(Card card) {
+    public void removeCardFromReserved(Card card) {
         this.reservedCards.remove(card);
     }
 
