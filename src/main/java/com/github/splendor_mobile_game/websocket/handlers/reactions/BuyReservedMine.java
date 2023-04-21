@@ -166,7 +166,7 @@ public class BuyReservedMine extends Reaction {
             Room room = database.getRoomWithUser(buyer.getUuid());
 
             buyer.buyCard(boughtCard);
-            buyer.removeCardFromResrved(boughtCard);
+            buyer.removeCardFromReserved(boughtCard);
 
             Log.DEBUG("User " + buyer.getName() + " has bought card (" + boughtCard.getUuid() + ")");
 
