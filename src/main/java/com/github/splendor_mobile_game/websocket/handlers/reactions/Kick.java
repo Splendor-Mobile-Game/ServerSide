@@ -23,7 +23,7 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  *
  * Players sends this request if they are the host of the game and they want to
  * kick other player from the lobby.
- * In reaction server sends to all players message of type `KICK_ANNONUCEMENT`
+ * In reaction server sends to all players message of type `KICK_ANNOUNCEMENT`
  * announcing that this has happend.
  * 
  * Example of user request
