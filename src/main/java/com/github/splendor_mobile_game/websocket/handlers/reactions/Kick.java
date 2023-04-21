@@ -39,7 +39,7 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  * Example of server announcement
  * {
  * "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- * "type": "KICK_ANNONUCEMENT",
+ * "type": "KICK_ANNOUNCEMENT",
  * "result": "OK",
  * "data": {
  * "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
@@ -92,7 +92,7 @@ public class Kick extends Reaction {
 
     // {
     // "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
-    // "type": "KICK_ANNONUCEMENT",
+    // "type": "KICK_ANNOUNCEMENT",
     // "result": "OK",
     // "data": {
     // "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
