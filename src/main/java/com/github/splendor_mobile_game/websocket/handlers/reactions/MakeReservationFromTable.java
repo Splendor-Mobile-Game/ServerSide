@@ -17,6 +17,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUsernameException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserReservationException;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
@@ -218,10 +219,15 @@ public class MakeReservationFromTable extends Reaction {
             throw new InvalidUsernameException("It's not this user turn");
         //TODO make exception
 
-        //Check if there are gold tokens on table
-        if(database.getRoomWithUser(dataDTO.userDTO.uuid).getGame().getTokens(TokenType.GOLD_JOKER) == 0)
-            throw new NotEnoughTokensException("There is no gold tokens on table");
+        //Check if limit of reserved card is reached for player
+        if(database.getUser(dataDTO.userDTO.uuid).getReservationCount()>=3)
+            throw new UserReservationException("User has to many reserved cards in hand");
 
+        //Check if limit of reserved card is reached for game
+        if(database.getUser(dataDTO.userDTO.uuid).getThroughoutGameReservationCount()>=5)
+            throw new UserReservationException("User reached the limit of reserved cards per game");
+
+        //Check if card is on table
         if(database.getRoom(dataDTO.userDTO.uuid).getGame().isCardRevealed(dataDTO.cardDTO.uuid) == false)
             throw new Exception("There is no this card on table");
         //TODO make exception
