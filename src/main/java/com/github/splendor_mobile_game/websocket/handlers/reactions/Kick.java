@@ -23,7 +23,7 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  *
  * Players sends this request if they are the host of the game and they want to
  * kick other player from the lobby.
- * In reaction server sends to all players message of type `KICK_ANNONUCEMENT`
+ * In reaction server sends to all players message of type `KICK_ANNOUNCEMENT`
  * announcing that this has happend.
  * 
  * Example of user request
@@ -39,7 +39,7 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  * Example of server announcement
  * {
  * "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- * "type": "KICK_ANNONUCEMENT",
+ * "type": "KICK_ANNOUNCEMENT",
  * "result": "OK",
  * "data": {
  * "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
@@ -92,7 +92,7 @@ public class Kick extends Reaction {
 
     // {
     // "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
-    // "type": "KICK_ANNONUCEMENT",
+    // "type": "KICK_ANNOUNCEMENT",
     // "result": "OK",
     // "data": {
     // "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
@@ -116,7 +116,7 @@ public class Kick extends Reaction {
 
             ResponseData responseData = new ResponseData(kickedUserUuid);
             ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(),
-                    ServerMessageType.KICK_ANNONUCEMENT,
+                    ServerMessageType.KICK_ANNOUNCEMENT,
                     Result.OK, responseData);
 
             for (User u : room.getAllUsers()) {
