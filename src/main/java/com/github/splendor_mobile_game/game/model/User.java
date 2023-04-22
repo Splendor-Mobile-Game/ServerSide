@@ -153,6 +153,20 @@ public class User {
         return reservedCards.size();
     }
 
+    public boolean isCardReserved(Card card) {
+        boolean test = false;
+        for (var element : this.reservedCards) {
+            if (element == card) {
+                test = true;
+                break;
+            }
+        }
+        return test;
+    }
+
+    public void removeCardFromReserved(Card card) {
+        this.reservedCards.remove(card);
+    }
 
     public int getConnectionHashCode() {
         return connectionHasCode;
