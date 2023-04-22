@@ -298,7 +298,7 @@ public class BuyRevealedMine extends Reaction {
         }
 
         //Check if the card is avaiable
-        if(!game.revealedCardExists(card.getUuid())){
+        if(!game.isCardRevealed(card.getUuid())){
             throw new CardDoesntExistException("The card is not in the revealed deck");
         }
     }
