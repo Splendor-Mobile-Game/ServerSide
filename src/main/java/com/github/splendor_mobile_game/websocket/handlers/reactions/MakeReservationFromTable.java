@@ -98,6 +98,7 @@ public class MakeReservationFromTable extends Reaction {
         }
     }
 
+    //data about card for response
     public class CardDataResponse{
         public UUID uuid;
         public int prestige;
@@ -113,6 +114,7 @@ public class MakeReservationFromTable extends Reaction {
         }
     }
 
+    //data how much cost card for response
     public class TokensDataResponse{
         public int ruby;
         public int emerald;
@@ -129,16 +131,18 @@ public class MakeReservationFromTable extends Reaction {
             this.onyx = onyx;
         }
     }
+
+    //class that stores data to make a response
     public class ResponseData{
         public UUID userUuid;
-        public CardDataResponse card;
-        public boolean goldenToken;
+        public CardDataResponse cardDataResponse;
+        public boolean gotGoldenToken;
 
 
-        public ResponseData(UUID userUuid, CardDataResponse card, boolean goldenToken) {
+        public ResponseData(UUID userUuid, CardDataResponse cardDataResponse, boolean gotGoldenToken) {
             this.userUuid = userUuid;
-            this.card = card;
-            this.goldenToken = goldenToken;
+            this.cardDataResponse = cardDataResponse;
+            this.gotGoldenToken = gotGoldenToken;
         }
     }
 
@@ -146,7 +150,7 @@ public class MakeReservationFromTable extends Reaction {
 
     @Override
     public void react() {
-        // TODO Auto-generated method stub
+
         DataDTO dataDTO = (DataDTO) userMessage.getData();
 
 
@@ -160,11 +164,12 @@ public class MakeReservationFromTable extends Reaction {
 
             //newcard
             Card card = reservationResult.getCard();
-            boolean goldenToken = reservationResult.getGoldenToken();
+            boolean gotGoldenToken = reservationResult.getGoldenToken();
 
            //card.getCardTier() returns a card tier from new card, which is also card tier of old one
-            Log.DEBUG("User "+reservee.getName()+" reserved card from table "+card.getCardTier()+" and golden token: "+goldenToken);
+            Log.DEBUG("User "+reservee.getName()+" reserved card from table "+card.getCardTier()+" and golden token: "+gotGoldenToken);
 
+            //creating a responseData which contains user uuid and all informations about new card which will replace the reserved one
             ResponseData responseData = new ResponseData(
                     reservee.getUuid(),
                     new CardDataResponse(
@@ -179,7 +184,7 @@ public class MakeReservationFromTable extends Reaction {
                                     card.getCost(TokenType.ONYX)
                             )
                     ),
-                    goldenToken
+                    gotGoldenToken
             );
             ArrayList<User> players = room.getAllUsers();
             ServerMessage serverMessage = new ServerMessage(
