@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.enums.Regex;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
@@ -108,8 +109,8 @@ public class LeaveRoom extends Reaction{
     }
     @DataClass
     public static class DataDTO{
-        private UserDTO userDTO;
-        private RoomDTO roomDTO;
+        private final UserDTO userDTO;
+        private final RoomDTO roomDTO;
         public DataDTO(RoomDTO roomDTO, UserDTO userDTO) {
             this.roomDTO = roomDTO;
             this.userDTO = userDTO;
@@ -135,20 +136,6 @@ public class LeaveRoom extends Reaction{
         
     }
 
-    /* ----> EXAMPLE USER REQUEST <----
-    {
-         "contextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
-         "type": "LEAVE_ROOM",
-         "data": {
-             "roomDTO": {
-                "uuid": "a88f224f-f656-4925-9341-dda4b9099e90"
-             },
-             "userDTO": {
-                 "uuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3456"
-             }
-         }
-     }
-     */
 
     @Override
     public void react() {
@@ -164,9 +151,9 @@ public class LeaveRoom extends Reaction{
             room.leaveGame(user);
             database.getAllUsers().remove(user);
 
-            if(room.getPlayerCount()>0)
+            if (room.getPlayerCount()>0)
                 //checking if user who wants to leave room isn't owner, if that's true, setting new owner as another user from list of users
-                if(room.getOwner().equals(user)){
+                if (room.getOwner().equals(user)){
                     room.setOwner(room.getAllUsers().get(0));
                     
                     UserDataResponse userDataResponse = new UserDataResponse(room.getOwner().getUuid(), room.getOwner().getName());
@@ -183,7 +170,7 @@ public class LeaveRoom extends Reaction{
                 }
 
             //If last user wants to leave room, then remove empty room
-            if(room.getPlayerCount()==0)
+            if (room.getPlayerCount()==0)
                 database.getAllRooms().remove(room);
 
             UserDataResponse userDataResponse = new UserDataResponse(dataDTO.userDTO.uuid, user.getName());
@@ -207,19 +194,17 @@ public class LeaveRoom extends Reaction{
         }
         
     }
+
+
+
     private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, UserNotAMemberException, RoomDoesntExistException {
-        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userDTO.uuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
 
-        // Check if user UUID matches the pattern
-        Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.uuid.toString());
-        if (!uuidMatcher.find())
-            throw new InvalidUUIDException("Invalid UUID format."); // Check if user UUID matches the pattern
-
-
-        // Check if room UUID matches the pattern
-        uuidMatcher = uuidPattern.matcher(dataDTO.roomDTO.uuid.toString());
-        if (!uuidMatcher.find())
-            throw new InvalidUUIDException("Invalid UUID format."); // Check if room UUID matches the pattern
+        // Check if room's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.roomDTO.uuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
 
 
         // Check if room exists
@@ -230,11 +215,9 @@ public class LeaveRoom extends Reaction{
 
         // Check if user is a member of the room
         User user = database.getUser(dataDTO.userDTO.uuid);
-        if (user != null) {
-            if(!room.userExists(user)){
+        if (user != null)
+            if (!room.userExists(user))
                 throw new UserNotAMemberException("User is not a member of this room");
-            }
-        }
 
     }
 
