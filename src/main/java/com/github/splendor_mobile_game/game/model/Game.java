@@ -62,6 +62,17 @@ public class Game {
         player.reserveCard(card,goldenToken);
         return new ReservationResult(card, goldenToken);
     }
+    public ReservationResult reserveCardFromTable(Card card,User player) throws DeckIsEmptyException{
+
+        if(card==null){
+            throw new DeckIsEmptyException("Deck is empty");
+        }
+        boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
+        player.reserveCard(card,goldenToken);
+        Card newcard = takeCardFromRevealed(card);
+        return new ReservationResult(newcard, goldenToken);
+    }
+
 
     private boolean removeToken(TokenType type){
         if(tokensOnTable.get(type)==0){
@@ -83,6 +94,8 @@ public class Game {
         return cardDrawn;
     }
 
+
+
     private void removeCardFromRevealed(Card card){
         CardTier cardTier = card.getCardTier();
         revealedCards.get(cardTier).remove(card);
@@ -92,24 +105,16 @@ public class Game {
         revealedCards.get(card.getCardTier()).add(card);
     }
 
-    public boolean revealedCardExists(UUID cardUuid){
-
-        boolean isInLvl1= this.revealedCards.get(CardTier.LEVEL_1).stream()
-            .filter(card -> card.getUuid()==cardUuid)
-            .findFirst()
-            .orElse(null) != null;
-
-        boolean isInLvl2= this.revealedCards.get(CardTier.LEVEL_2).stream()
-        .filter(card -> card.getUuid()==cardUuid)
-        .findFirst()
-        .orElse(null) != null;
-
-        boolean isInLvl3= this.revealedCards.get(CardTier.LEVEL_3).stream()
-            .filter(card -> card.getUuid()==cardUuid)
-            .findFirst()
-            .orElse(null) != null;
-
-        return isInLvl1||isInLvl2||isInLvl3;
+    public boolean isCardRevealed(UUID uuid)
+    {
+        for (Deck deck : revealedCards.values())
+        {
+            for(Card card : deck)
+            {
+                if(card.getUuid() == uuid) return true;
+            }
+        }
+        return false;
     }
 
     private void start(int playerCount) {
@@ -327,5 +332,6 @@ public class Game {
 
         return array;
     }
+
 
 }

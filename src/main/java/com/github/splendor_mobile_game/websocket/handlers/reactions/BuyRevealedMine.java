@@ -294,9 +294,11 @@ public class BuyRevealedMine extends Reaction {
             throw new CardDoesntExistException("Couldn't find a card with given UUID.");
 
 
-        //Check if the card is available
-        if (!game.revealedCardExists(card.getUuid())){
-            throw new CardDoesntExistException("This card is not in the revealed deck.");
+
+        //Check if the card is avaiable
+        if(!game.isCardRevealed(card.getUuid())){
+            throw new CardDoesntExistException("The card is not in the revealed deck");
+
         }
     }
 }
