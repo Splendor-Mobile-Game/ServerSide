@@ -51,12 +51,13 @@ public class Game {
     }
 
     public Card takeCardFromRevealed(Card card){
-        
         removeCardFromRevealed(card);
 
         Card cardDrawn = getRandomCard(card.getCardTier());
-        addCardToRevealed(cardDrawn);
-
+        if(cardDrawn!=null){
+            addCardToRevealed(cardDrawn);
+        }
+        
         return cardDrawn;
     }
 
@@ -244,7 +245,13 @@ public class Game {
 
 
     private Card getRandomCard(CardTier tier){
-        return getRandomCards(tier,1).get(0);
+        Deck deck = getRandomCards(tier,1);
+
+        if(deck.size()==0){
+            return null;
+        }else{
+            return deck.get(0);
+        }      
     }
 
 
