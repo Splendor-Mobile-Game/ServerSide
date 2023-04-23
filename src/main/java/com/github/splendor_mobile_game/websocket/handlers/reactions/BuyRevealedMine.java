@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.enums.Regex;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Game;
@@ -18,13 +19,7 @@ import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.CardDoesntExistException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomInGameException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserAlreadyInRoomException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMemberException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserTurnException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
@@ -119,7 +114,7 @@ public class BuyRevealedMine extends Reaction {
         super(connectionHashCode, userMessage, messenger, database);
     }
 
-    public static class UserDTO{
+    public static class UserDTO {
         public UUID uuid;
 
         public UserDTO(UUID uuid) {
@@ -127,7 +122,7 @@ public class BuyRevealedMine extends Reaction {
         }
     }
 
-    public static class CardDTO{
+    public static class CardDTO {
         public UUID uuid;
 
         public CardDTO(UUID uuid) {
@@ -136,7 +131,7 @@ public class BuyRevealedMine extends Reaction {
     }
 
     @DataClass
-    public static class DataDTO{
+    public static class DataDTO {
         public UserDTO userDTO;
         public CardDTO cardDTO;
 
@@ -146,7 +141,7 @@ public class BuyRevealedMine extends Reaction {
         }    
     }
 
-    public class TokensDataResponse{
+    public class TokensDataResponse {
         public int ruby;
         public int emerald;
         public int sapphire;
@@ -165,7 +160,7 @@ public class BuyRevealedMine extends Reaction {
         }      
     }
 
-    public class BuyerDataResponse{
+    public class BuyerDataResponse {
         public UUID userUuid;
         public TokensDataResponse tokens;// The new set of tokens of that player after they bought a mine
         public UUID cardUuid;
@@ -190,8 +185,7 @@ public class BuyRevealedMine extends Reaction {
         public int onyxCost;
 
 
-        public CardDataResponse(UUID uuid, CardTier cardTier, TokenType additionalToken, int points, int rubyCost, int emeraldCost,
-                int sapphireCost, int diamondCost, int onyxCost) {
+        public CardDataResponse(UUID uuid, CardTier cardTier, TokenType additionalToken, int points, int rubyCost, int emeraldCost, int sapphireCost, int diamondCost, int onyxCost) {
             this.uuid = uuid;
             this.cardTier = cardTier;
             this.additionalToken = additionalToken;
@@ -205,7 +199,7 @@ public class BuyRevealedMine extends Reaction {
     }
 
 
-    public class ResponseData{
+    public class ResponseData {
         public BuyerDataResponse buyer;
         public CardDataResponse newCardRevealed;
 
@@ -293,45 +287,48 @@ public class BuyRevealedMine extends Reaction {
         }
     }
 
-    private void validateData(DataDTO dataDTO,Database database) throws 
-    UserNotAMemberException, UserAlreadyInRoomException, RoomDoesntExistException, UserTurnException, CardDoesntExistException, RoomInGameException, UserDoesntExistException{
-        
+    private void validateData(DataDTO dataDTO,Database database) throws UserTurnException, CardDoesntExistException, RoomInGameException, UserDoesntExistException, InvalidUUIDException, UserNotAMemberException {
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userDTO.uuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
+
+        // Check if card's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.cardDTO.uuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
+
+
+        //Check if user exists
         User player = database.getUser(dataDTO.userDTO.uuid);
-        
-        //Check if user exists    
-        if(player == null){
-            throw new UserDoesntExistException("There is no such user in the database");
-        }
+        if (player == null)
+            throw new UserDoesntExistException("Couldn't find a user with given UUID.");
 
+
+        // Check if there is a room associated with given user
         Room room = database.getRoomWithUser(player.getUuid());
+        if (room == null)
+            throw new UserNotAMemberException("You are not a member of any room!");
 
-        // Check if room exists whose user is a member of
-        if(room == null){
-            throw new RoomDoesntExistException("Room does not exist whose user is a member of");
-        }
 
+        //Check if game has started
         Game game = room.getGame();
+        if (game == null)
+            throw new RoomInGameException("The game hasn't started yet!");
 
-        //Check if user is in game
-        if(game==null){
-            throw new RoomInGameException("The room is not in game state");
-        }
 
         //Check if it is user's turn
-        if(game.getCurrentPlayer()!=player){
-            throw new UserTurnException("It is not a user's turn");
-        }
+        if (game.getCurrentPlayer() != player)
+            throw new UserTurnException("It is not your turn!");
 
-        Card card = database.getCard(dataDTO.cardDTO.uuid);
 
         //Check if card exists
-        if(card==null){
-            throw new CardDoesntExistException("There is no such card in the database");
-        }
+        Card card = database.getCard(dataDTO.cardDTO.uuid);
+        if (card == null)
+            throw new CardDoesntExistException("Couldn't find a card with given UUID.");
 
-        //Check if the card is avaiable
-        if(!game.revealedCardExists(card.getUuid())){
-            throw new CardDoesntExistException("The card is not in the revealed deck");
+
+        //Check if the card is available
+        if (!game.revealedCardExists(card.getUuid())){
+            throw new CardDoesntExistException("This card is not in the revealed deck.");
         }
     }
 }
