@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.ReservationResult;
 import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.enums.Regex;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Game;
@@ -18,12 +19,7 @@ import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomInGameException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.TokenCountException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserReservationException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserTurnException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
@@ -91,7 +87,7 @@ public class MakeReservationFromDeck extends Reaction {
     }
 
     @DataClass
-    public static class DataDTO{
+    public static class DataDTO {
         public UUID userUuid;
         public int cardTier;
 
@@ -193,52 +189,53 @@ public class MakeReservationFromDeck extends Reaction {
                 messenger.addMessageToSend(player.getConnectionHashCode(), serverMessage);        
             }
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.MAKE_RESERVATION_FROM_DECK_RESPONSE, userMessage.getContextId().toString());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
         }
     }
 
-    private void validateData(DataDTO dataDTO, Database database) throws Exception{
+    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, UserDoesntExistException, UserNotAMemberException, RoomInGameException, UserTurnException, UserReservationException, TokenCountException {
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userUuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
+
+
+        // Check if user exists
         User user = database.getUser(dataDTO.userUuid);
+        if (user == null)
+            throw new UserDoesntExistException("Couldn't find a user with given UUID.");
 
-        //Check if user exists
-        if(user==null){
-            throw new UserDoesntExistException("There is no such user in the database");
-        }
-
-        Room room = database.getRoomWithUser(user.getUuid());
 
         //Check if user is in any room
-        if(room==null){
-            throw new RoomDoesntExistException("User does not belong to any room");
-        }
+        Room room = database.getRoomWithUser(user.getUuid());
+        if (room == null)
+            throw new UserNotAMemberException("You are not a member of any room!");
 
+        
+        // Check if the game is started
         Game game = room.getGame();
+        if (game == null)
+             throw new RoomInGameException("The game hasn't started yet!");
+
+
+        // Check if it is user's turn
+        if (game.getCurrentPlayer() != user)
+             throw new UserTurnException("It is not your turn!");
+
         
-        //check if the room is in the game
-        if(game==null){
-             throw new RoomInGameException("Room is not in a game state");
-        }
+        // Check reservation count
+        if (user.getReservationCount() >= 3)
+            throw new UserReservationException("You have reached the current reserved cards limit.");
 
-        //Check if it is user's turn
-        if(game.getCurrentPlayer()!=user){
-             throw new UserTurnException("It is not user's turn");
-        }
-        
-        //Check reservation count
-        if(user.getReservationCount()>=3){
-            throw new UserReservationException("User has to many reserved cards in hand");
-        }
 
-        //Check throughout game reservation count
-        if(user.getThroughoutGameReservationCount()>=5){
-            throw new UserReservationException("User reached the limit of reserved cards per game");
-        }
+        // Check throughout game reservation count
+        if (user.getThroughoutGameReservationCount() >= 5)
+            throw new UserReservationException("You have reached the limit of reserved cards per game.");
 
-        //Check if user has not maxed tokens
-        if(user.getTokenCount()>=10){
-            throw new TokenCountException("Reached max token count on hand");
-        }
+
+        // Check if user has not maxed tokens
+        if (user.getTokenCount() >= 10)
+            throw new TokenCountException("You have reached the maximum token count on hand.");
     }
 }

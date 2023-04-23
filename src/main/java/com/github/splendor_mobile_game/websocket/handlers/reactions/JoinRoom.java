@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.enums.Regex;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
@@ -254,19 +255,17 @@ public class JoinRoom extends Reaction {
      * @throws InvalidPasswordException thrown when provided password is incorrect
      */
     private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, RoomDoesntExistException, UserAlreadyInRoomException, RoomFullException, InvalidEnterCodeException, InvalidPasswordException {
-        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
-        Pattern codePattern = Pattern.compile("^([0-9a-zA-Z]+){6}$");
-
-        // Check if user UUID matches the pattern
-        Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.uuid.toString());
-        if (!uuidMatcher.find())
-            throw new InvalidUUIDException("Invalid UUID format."); // Check if user UUID matches the pattern
-
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userDTO.uuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
 
         // Check if room enterCode matches the pattern
-        Matcher codeMatcher = codePattern.matcher(dataDTO.roomDTO.enterCode);
-        if (!codeMatcher.find())
+        if (!Regex.ENTER_CODE_PATTERN.matches(dataDTO.roomDTO.enterCode))
             throw new InvalidEnterCodeException("Invalid enter code format.");
+
+        // Check if room enterCode matches the pattern
+        if (!Regex.PASSWORD_PATTERN.matches(dataDTO.roomDTO.password))
+            throw new InvalidEnterCodeException("Invalid password format.");
 
 
         // Check if room exists
