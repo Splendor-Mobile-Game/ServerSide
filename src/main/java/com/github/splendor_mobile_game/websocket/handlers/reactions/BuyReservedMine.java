@@ -167,6 +167,7 @@ public class BuyReservedMine extends Reaction {
 
             buyer.buyCard(boughtCard);
             buyer.removeCardFromReserved(boughtCard);
+            room.getGame().DecreaseGameReservationCount();
 
             Log.DEBUG("User " + buyer.getName() + " has bought card (" + boughtCard.getUuid() + ")");
 
