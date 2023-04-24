@@ -19,7 +19,7 @@ public class Room {
     private int playerCount;
     private final ArrayList<User> users = new ArrayList<>();
     private User owner;
-    private Game game;
+    private Game game=null;
     private final Database database;
 
 
@@ -86,6 +86,13 @@ public class Room {
         return playerCount;
     }
 
+    public User getUserByUuid(UUID uuid) {
+        for(User u : users) {
+            if(u.getUuid() == uuid) return u;
+        }
+        return null;
+    }
+
     public ArrayList<User> getAllUsers() {
         return users;
     }
@@ -125,6 +132,7 @@ public class Room {
     public void setGame(Game game) {
         this.game = game;
     }
+
 
     /**
      *

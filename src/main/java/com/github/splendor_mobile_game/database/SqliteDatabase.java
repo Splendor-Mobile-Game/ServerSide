@@ -57,6 +57,12 @@ public class SqliteDatabase implements Database {
     }
 
     @Override
+    public Card getCard(UUID uuid) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
     public void loadNobles() {
         // TODO Auto-generated method stub
     }

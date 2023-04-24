@@ -4,16 +4,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.ReservationResult;
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.TokenType;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.DeckIsEmptyException;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
 
+
+    private final Map<TokenType, Integer> tokensOnTable = new HashMap<TokenType, Integer>();
+
+    private User currentOrder;
     private final ArrayList<User> users = new ArrayList<>();
-    private final HashMap<TokenType, Integer> tokensOnTable = new HashMap<>();
+
     private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
     private final Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>(); // Cards of each tier visible on the table
 
@@ -27,6 +34,85 @@ public class Game {
 ;
         start(users.size());
     }
+
+
+    public User getCurrentPlayer() {
+        return currentOrder;
+    }
+
+    public User changeTurn(){
+        int index = users.indexOf(currentOrder);
+        
+        if(index == users.size()-1){
+            currentOrder = users.get(0);
+            return currentOrder;
+        } 
+        else{
+            currentOrder = users.get(index+1);
+            return currentOrder;
+        }
+    }
+
+    public ReservationResult reserveCardFromDeck(CardTier tier,User player) throws DeckIsEmptyException{
+        Card card = getRandomCard(tier);
+        if(card==null){
+            throw new DeckIsEmptyException("Deck "+tier+" is empty");
+        }
+
+        boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
+        player.reserveCard(card,goldenToken);
+        return new ReservationResult(card, goldenToken);
+    }
+
+    private boolean removeToken(TokenType type){
+        if(tokensOnTable.get(type)==0){
+            return false;
+        }
+
+        tokensOnTable.put(type, tokensOnTable.get(type)-1);
+        return true;
+    }
+    
+    //The return Card is a card that was drawn from deck and put on table
+    public Card takeCardFromRevealed(Card card){
+        
+        removeCardFromRevealed(card);
+
+        Card cardDrawn = getRandomCard(card.getCardTier());
+        addCardToRevealed(cardDrawn);
+
+        return cardDrawn;
+    }
+
+    private void removeCardFromRevealed(Card card){
+        CardTier cardTier = card.getCardTier();
+        revealedCards.get(cardTier).remove(card);
+    }
+
+    private void addCardToRevealed(Card card){
+        revealedCards.get(card.getCardTier()).add(card);
+    }
+
+    public boolean revealedCardExists(UUID cardUuid){
+
+        boolean isInLvl1= this.revealedCards.get(CardTier.LEVEL_1).stream()
+            .filter(card -> card.getUuid()==cardUuid)
+            .findFirst()
+            .orElse(null) != null;
+
+        boolean isInLvl2= this.revealedCards.get(CardTier.LEVEL_2).stream()
+        .filter(card -> card.getUuid()==cardUuid)
+        .findFirst()
+        .orElse(null) != null;
+
+        boolean isInLvl3= this.revealedCards.get(CardTier.LEVEL_3).stream()
+            .filter(card -> card.getUuid()==cardUuid)
+            .findFirst()
+            .orElse(null) != null;
+
+        return isInLvl1||isInLvl2||isInLvl3;
+    }
+
 
     private void start(int playerCount) {
         // Calculate number of tokens of each type
@@ -54,7 +140,6 @@ public class Game {
         // Choose random noble cards from database
         nobles = getRandomNobles(4);//Always we draw four noblemen
 
-
         //Only for testing TO BE DELTED
         //testForDuplicates(CardTier.LEVEL_1);
         //testForDuplicates(CardTier.LEVEL_2);
@@ -63,6 +148,23 @@ public class Game {
 
         // takeNobleTest();
     }
+
+
+    public int getTokenCount(TokenType type) {
+        return tokensOnTable.get(type);
+    }
+
+    /** 
+     * function which updates token amount on the table by adding or subtracting their current amount by numbers listed in tokensChange map 
+     * It is used in GetTokens reaction so it skips Gold token type because users can't take gold tokens by themselves
+    */
+    public void changeTokens(Map<TokenType, Integer> tokenMap) {
+        for(Map.Entry<TokenType, Integer> set : this.tokensOnTable.entrySet()) {
+            if(set.getKey() == TokenType.GOLD_JOKER) continue;
+            this.tokensOnTable.put(set.getKey(), set.getValue() - tokenMap.get(set.getKey()));
+        }
+    }
+
 
     //Only for testing private function TO BE DELETED
     private void testForDuplicatesNoble(){
@@ -90,6 +192,20 @@ public class Game {
                 }
             }
         }
+    }
+
+    public Deck getRevealedCards(CardTier tier){
+        Deck deck = new Deck(tier, revealedCards.get(tier));
+        return deck;
+    }
+
+    public ArrayList<Noble> getNobles(){
+        ArrayList<Noble> nobles=new ArrayList<>(this.nobles);
+        return nobles;
+    }
+
+    public int getTokens(TokenType type){
+        return this.tokensOnTable.get(type);
     }
 
 
@@ -153,7 +269,11 @@ public class Game {
 
 
     private Card getRandomCard(CardTier tier){
-        return getRandomCards(tier,1).get(0);
+        Deck deck = getRandomCards(tier,1);
+        if(deck == null){
+            return null;
+        }
+        return deck.get(0);
     }
 
 
@@ -173,6 +293,9 @@ public class Game {
 
         Random rand = new Random();
         for(;amount > 0;amount--) {
+            if(deck.size()==0){
+                return null;
+            }
             int index = rand.nextInt(deck.size()); // Get random index
             Card drawnCard =deck.remove(index);
             array.add(drawnCard);
@@ -194,6 +317,9 @@ public class Game {
 
         Random rand = new Random();
         while(amount > 0) {
+            if(nobles.size()==0){
+                return null;
+            }
             int index = rand.nextInt(nobles.size()); // Get random index       
             array.add(nobles.remove(index));
             
