@@ -1,16 +1,24 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.UUID;
+
+import org.apache.commons.lang3.Validate;
+
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
+import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateRoom.DataDTO;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.game.model.Game;
 import com.github.splendor_mobile_game.game.model.Room;
+
 /**
  * This reaction handles the request sent by a player to end their turn. The server sends a message of type `NEW_TURN_ANNOUNCEMENT` to all players, announcing the end of the current turn and selecting the player for the next turn. If a player sends an invalid request, the server sends a response only to the requester.
  * 
@@ -59,46 +67,76 @@ public class EndTurn extends Reaction {
         super(connectionHashCode, userMessage, messenger, database);
     }
 
+    @DataClass
+    public static class DataDTO {
+        public UUID userUuid;
+
+        public DataDTO(UUID userUuid) {
+            this.userUuid = userUuid;
+        }
+    }
+
+    public class ResponseData {
+        public UUID nextUserUuid;
+
+        public ResponseData(UUID nextUserUuid) {
+            this.nextUserUuid = nextUserUuid;
+        }
+    }
+
     @Override
     public void react() {
+        DataDTO dataDTO = (DataDTO) userMessage.getData();
 
-        User user= database.getUserByConnectionHashCode(connectionHashCode);
-        User user2=database.getRoomWithUser(user.getUuid()).getGame().getCurrentPlayer();
-        Room room=database.getRoomWithUser(user.getUuid());
-        if(user==user2){
-            if(user.hasPerformedAction()){
-                if(user.getTokenCount()<=10){
+        try {
+            validateData(dataDTO, database);
 
-                    User nextUser=room.getGame().changeTurn();
+            User user = database.getUserByConnectionHashCode(connectionHashCode);
+            Room room = database.getRoomWithUser(user.getUuid());
 
-                    ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.NEW_TURN_ANNOUNCEMENT, Result.OK, nextUser);
-                    for(User u : room.getAllUsers()){
-                        messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage); 
-
-                    }
-
-
-                    
-                }
-                else{
-                    ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,"You cannot end turn if you have more than 10 tokens!", ServerMessageType.END_TURN_RESPONSE, userMessage.getContextId().toString());
-                    messenger.addMessageToSend(connectionHashCode, errorResponse);
-                }
+            if (room.getLastPlayerToPlay() == user){
+                room.endGame();
             }
-            else{
-                ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,"You cannot end turn if you haven't performed any action!", ServerMessageType.END_TURN_RESPONSE, userMessage.getContextId().toString());
+            else if (user.getPoints() >= 15) {
+                room.lastPlayerToPlay(user);
+            }
+            else {
+                room.changeTurn();
+            }
+
+            UUID nextUserUUID = room.getCurrentPlayer().getUuid();
+            ResponseData responseData = new ResponseData(nextUserUUID);
+            ServerMessage serverMessage = new ServerMessage(
+                userMessage.getContextId(), 
+                ServerMessageType.NEW_TURN_ANNOUNCEMENT, 
+                Result.OK, 
+                responseData);
+
+                for(User u : room.getAllUsers()){
+                    messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage); 
+                }
+
+        } catch (Exception e) {
+            ErrorResponse errorResponse = new ErrorResponse(
+                Result.FAILURE,
+                e.getMessage(),
+                ServerMessageType.END_TURN_RESPONSE,
+                userMessage.getContextId().toString());
                 messenger.addMessageToSend(connectionHashCode, errorResponse);
-            }
-
-        }    
-        else{
-
-           
-            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,"You cannot end turn if it's not your turn!", ServerMessageType.END_TURN_RESPONSE, userMessage.getContextId().toString());
-            messenger.addMessageToSend(connectionHashCode, errorResponse);
-        }
-             
-        
+        }         
     }
     
+    private void validateData(DataDTO dataDTO, Database database) {
+
+        // User player = database.getUser(dataDTO.userDTO.uuid);
+
+        // // Check if user exists
+        // if (player == null) {
+        //     throw new UserDoesntExistException("There is no such user in the database");
+        // }
+
+        // Room room = database.getRoomWithUser(player.getUuid());
+
+        
+    }
 }

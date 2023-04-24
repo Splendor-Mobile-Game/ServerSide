@@ -10,7 +10,8 @@ import java.util.UUID;
 
 public class Room {
 
-
+    private User lastUserToPlay;
+    private User currentOrder;
     private final UUID uuid;
     private final String name;
     private final String enterCode;
@@ -31,9 +32,40 @@ public class Room {
 
         this.enterCode = generateRoomCode(database);
         Log.DEBUG(this.enterCode);
-
+        
         playerCount++;
         this.users.add(owner);
+
+        this.lastUserToPlay = null;
+        currentOrder = users.get(0);
+    }
+
+    public User getCurrentPlayer() {
+        return currentOrder;
+    }
+
+    public User changeTurn(){
+        int index = users.indexOf(currentOrder);
+        
+        if(index == users.size()-1){
+            currentOrder = users.get(0);
+            return currentOrder;
+        } 
+        else{
+            currentOrder = users.get(index+1);
+            return currentOrder;
+        }
+    }
+
+    public void lastPlayerToPlay(User currentPlayer) {
+        // get index of a player in line right before currentPlayer
+        int index = users.indexOf(currentPlayer) == 0 ? users.size() - 1 : users.indexOf(currentPlayer) - 1;
+        
+        this.lastUserToPlay = users.get(index);
+    }
+
+    public User getLastPlayerToPlay() {
+        return this.lastUserToPlay;
     }
 
     public void startGame() {
