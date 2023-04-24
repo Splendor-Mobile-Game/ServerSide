@@ -229,7 +229,7 @@ public class MakeReservationFromTable extends Reaction {
             throw new UserReservationException("User has to many reserved cards in hand");
 
         //Check if limit of reserved card is reached for game
-        if(database.getUser(dataDTO.userDTO.uuid).getThroughoutGameReservationCount()>=5)
+        if(database.getRoomWithUser(dataDTO.userDTO.uuid).getGame().getGameReservationCount()>=5)
             throw new UserReservationException("User reached the limit of reserved cards per game");
 
         //Check if card is on table

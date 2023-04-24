@@ -89,11 +89,11 @@ public class MakeReservationFromDeck extends Reaction {
     @DataClass
     public static class DataDTO {
         public UUID userUuid;
-        public int cardTier;
+        public String cardTier;
 
-        public DataDTO(UUID userUuid, int tier){
+        public DataDTO(UUID userUuid, String cardTier){
             this.userUuid=userUuid;
-            this.cardTier=tier;
+            this.cardTier=cardTier;
         }
     }
 
@@ -154,7 +154,7 @@ public class MakeReservationFromDeck extends Reaction {
             Room room = database.getRoomWithUser(reservee.getUuid());
             Game game = room.getGame();
             
-            ReservationResult reservationResult = game.reserveCardFromDeck(CardTier.fromInt(dataDTO.cardTier),reservee);
+            ReservationResult reservationResult = game.reserveCardFromDeck(CardTier.valueOf(dataDTO.cardTier),reservee);
             Card card = reservationResult.getCard();
             boolean goldenToken = reservationResult.getGoldenToken();
 
@@ -229,8 +229,8 @@ public class MakeReservationFromDeck extends Reaction {
             throw new UserReservationException("You have reached the current reserved cards limit.");
 
 
-        // Check throughout game reservation count
-        if (user.getThroughoutGameReservationCount() >= 5)
+        // Check game reservation count
+        if (game.getGameReservationCount() >= 5)
             throw new UserReservationException("You have reached the limit of reserved cards per game.");
 
 

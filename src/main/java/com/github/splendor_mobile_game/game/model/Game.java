@@ -17,6 +17,8 @@ public class Game {
 
     private final Map<TokenType, Integer> tokensOnTable = new HashMap<TokenType, Integer>();
 
+    private int gameReservationCount=0;
+
     private User currentOrder;
     private final ArrayList<User> users = new ArrayList<>();
 
@@ -60,6 +62,9 @@ public class Game {
 
         boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
         player.reserveCard(card,goldenToken);
+
+        gameReservationCount++;
+
         return new ReservationResult(card, goldenToken);
     }
     public ReservationResult reserveCardFromTable(Card card,User player) throws DeckIsEmptyException{
@@ -70,7 +75,18 @@ public class Game {
         boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
         player.reserveCard(card,goldenToken);
         Card newcard = takeCardFromRevealed(card);
+
+        gameReservationCount++;
+
         return new ReservationResult(newcard, goldenToken);
+    }
+
+    public void DecreaseGameReservationCount(){
+        gameReservationCount--;
+    }
+
+    public int getGameReservationCount(){
+        return gameReservationCount;
     }
 
 
@@ -93,8 +109,6 @@ public class Game {
 
         return cardDrawn;
     }
-
-
 
     private void removeCardFromRevealed(Card card){
         CardTier cardTier = card.getCardTier();
