@@ -18,6 +18,8 @@ public class Game {
 
     private final Map<TokenType, Integer> tokensOnTable = new HashMap<TokenType, Integer>();
 
+    private int gameReservationCount=0;
+
     private final ArrayList<User> users = new ArrayList<>();
 
     private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
@@ -42,8 +44,33 @@ public class Game {
 
         boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
         player.reserveCard(card,goldenToken);
+
+        gameReservationCount++;
+
         return new ReservationResult(card, goldenToken);
     }
+    public ReservationResult reserveCardFromTable(Card card,User player) throws DeckIsEmptyException{
+
+        if(card==null){
+            throw new DeckIsEmptyException("Deck is empty");
+        }
+        boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
+        player.reserveCard(card,goldenToken);
+        Card newcard = takeCardFromRevealed(card);
+
+        gameReservationCount++;
+
+        return new ReservationResult(newcard, goldenToken);
+    }
+
+    public void DecreaseGameReservationCount(){
+        gameReservationCount--;
+    }
+
+    public int getGameReservationCount(){
+        return gameReservationCount;
+    }
+
 
     private boolean removeToken(TokenType type){
         if(tokensOnTable.get(type)==0){
@@ -74,24 +101,16 @@ public class Game {
         revealedCards.get(card.getCardTier()).add(card);
     }
 
-    public boolean revealedCardExists(UUID cardUuid){
-
-        boolean isInLvl1= this.revealedCards.get(CardTier.LEVEL_1).stream()
-            .filter(card -> card.getUuid()==cardUuid)
-            .findFirst()
-            .orElse(null) != null;
-
-        boolean isInLvl2= this.revealedCards.get(CardTier.LEVEL_2).stream()
-        .filter(card -> card.getUuid()==cardUuid)
-        .findFirst()
-        .orElse(null) != null;
-
-        boolean isInLvl3= this.revealedCards.get(CardTier.LEVEL_3).stream()
-            .filter(card -> card.getUuid()==cardUuid)
-            .findFirst()
-            .orElse(null) != null;
-
-        return isInLvl1||isInLvl2||isInLvl3;
+    public boolean isCardRevealed(UUID uuid)
+    {
+        for (Deck deck : revealedCards.values())
+        {
+            for(Card card : deck)
+            {
+                if(card.getUuid() == uuid) return true;
+            }
+        }
+        return false;
     }
 
 
@@ -310,5 +329,6 @@ public class Game {
 
         return array;
     }
+
 
 }

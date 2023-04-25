@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.Color;
+import com.github.splendor_mobile_game.game.enums.Regex;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Deck;
@@ -271,7 +272,7 @@ public class StartGame extends Reaction {
 
     }
 
-    public static class RoomDTO{
+    public static class RoomDTO {
         public UUID uuid;
 
         public RoomDTO(UUID uuid) {
@@ -281,20 +282,20 @@ public class StartGame extends Reaction {
 
 
     @DataClass
-    public static class DataDTO{
+    public static class DataDTO {
         public UserDTO userDTO;
         public RoomDTO roomDTO;
 
         public DataDTO(UserDTO userDTO,RoomDTO roomDTO) {
             this.userDTO = userDTO;
-            this.roomDTO=roomDTO;
+            this.roomDTO = roomDTO;
         }   
     }
 
 
 
 
-    public class TokensDataResponse{
+    public class TokensDataResponse {
         public int ruby;
         public int emerald;
         public int sapphire;
@@ -312,7 +313,7 @@ public class StartGame extends Reaction {
         }
     }
 
-    public class NobleDataResponse{
+    public class NobleDataResponse {
         public UUID uuid;
         public int prestige;
 
@@ -334,7 +335,7 @@ public class StartGame extends Reaction {
         }
     }
 
-    public class MinesCardDataResponse{
+    public class MinesCardDataResponse {
         public UUID uuid;
         public int prestige;
         public Color color;
@@ -367,7 +368,7 @@ public class StartGame extends Reaction {
         }      
     }
 
-    public class ResponseData{
+    public class ResponseData {
         public TokensDataResponse tokens;
         public ArrayList<NobleDataResponse> nobles;
 
@@ -461,46 +462,41 @@ public class StartGame extends Reaction {
 
 
 
-    private void validateData(DataDTO dataDTO, Database database) throws  RoomDoesntExistException, UserDoesntExistException, RoomOwnershipException, InvalidUUIDException, RoomInGameException, RoomPlayerCountException{
-        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"); 
+    private void validateData(DataDTO dataDTO, Database database) throws  RoomDoesntExistException, UserDoesntExistException, RoomOwnershipException, InvalidUUIDException, RoomInGameException, RoomPlayerCountException {
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userDTO.uuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
 
-         // Check if user UUID matches the pattern
-         Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.uuid.toString());
-         if (!uuidMatcher.find())
-             throw new InvalidUUIDException("Invalid UUID format."); 
- 
-         // Check if room UUID matches the pattern
-         uuidMatcher = uuidPattern.matcher(dataDTO.roomDTO.uuid.toString());
-         if (!uuidMatcher.find())
-             throw new InvalidUUIDException("Invalid UUID format."); 
+        // Check if room's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.roomDTO.uuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
 
+
+        // Check if user exits
         User user = database.getUser(dataDTO.userDTO.uuid);
-        Room room =database.getRoom(dataDTO.roomDTO.uuid);
+        if (user == null)
+            throw new UserDoesntExistException("Couldn't find a user with given UUID.");
 
-        //Check if user exits
-        if (user==null){
-            throw new UserDoesntExistException("No such user in the database");
-        }
 
-        //Check if room exits
-        if(room==null){
-            throw new RoomDoesntExistException("No such room in the database");
-        }      
+        // Check if room exits
+        Room room = database.getRoom(dataDTO.roomDTO.uuid);
+        if (room == null)
+            throw new RoomDoesntExistException("Couldn't find a room with given UUID.");
 
-        //Check if user is the owner of the room
-        if(!room.getOwner().equals(user)){
-            throw new RoomOwnershipException("User is not an owner of a given room");
-        }
 
-        //Check if room is not in game
-        if(room.getGame()!=null){
-            throw new RoomInGameException("Room is during the match");
-        }
+        // Check if user is the owner of the room
+        if (!room.getOwner().equals(user))
+            throw new RoomOwnershipException("You are not an owner of the room.");
 
-        //Check number of players
-        if(!(room.getPlayerCount()>=2 && room.getPlayerCount()<=4)){
-            throw new RoomPlayerCountException("Cannot start game due to insufficient or overload number of players");
-        }
+
+        // Check if the game is started
+        if (room.getGame() != null)
+            throw new RoomInGameException("The game has already started!");
+
+
+        // Check the number of players
+        if (!(room.getPlayerCount() >= 2 && room.getPlayerCount() <= 4))
+            throw new RoomPlayerCountException("Cannot start the game due to insufficient or overload number of players.");
 
     }
 

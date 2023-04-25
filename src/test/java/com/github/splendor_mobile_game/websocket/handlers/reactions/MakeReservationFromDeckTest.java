@@ -35,7 +35,7 @@ public class MakeReservationFromDeckTest {
         String contextId = "80bdc250-5365-4caf-8dd9-a33e709a0116";
         String messageType = "MAKE_RESERVATION_FROM_DECK";
         String userUuid = owner.getUuid().toString();
-        String tier = "1";
+        String cardTier = "LEVEL_1";
 
         String message = """
         {
@@ -43,12 +43,12 @@ public class MakeReservationFromDeckTest {
             "type": "$type",
             "data": {
                 "userUuid": "$userId",
-                "cardTier": $tier
+                "cardTier": "$cardTier"
             }
         }""".replace("$contextId", contextId)
             .replace("$type", messageType)
             .replace("$userId", userUuid)
-            .replace("$tier", tier);
+            .replace("$cardTier", cardTier);
 
         UserMessage receivedMessage = new UserMessage(message);
         MakeReservationFromDeck makeReservationFromDeck = new MakeReservationFromDeck(clientConnectionHashCode, receivedMessage, messenger, database);
