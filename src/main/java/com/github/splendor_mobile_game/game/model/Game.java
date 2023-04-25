@@ -18,7 +18,6 @@ public class Game {
 
     private final Map<TokenType, Integer> tokensOnTable = new HashMap<TokenType, Integer>();
 
-    private User currentOrder;
     private final ArrayList<User> users = new ArrayList<>();
 
     private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
@@ -33,24 +32,6 @@ public class Game {
         this.database = database;
 ;
         start(users.size());
-    }
-
-
-    public User getCurrentPlayer() {
-        return currentOrder;
-    }
-
-    public User changeTurn(){
-        int index = users.indexOf(currentOrder);
-        
-        if(index == users.size()-1){
-            currentOrder = users.get(0);
-            return currentOrder;
-        } 
-        else{
-            currentOrder = users.get(index+1);
-            return currentOrder;
-        }
     }
 
     public ReservationResult reserveCardFromDeck(CardTier tier,User player) throws DeckIsEmptyException{

@@ -1,6 +1,8 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.Validate;
 
@@ -12,6 +14,11 @@ import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomInGameException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserTurnException;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateRoom.DataDTO;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
@@ -25,8 +32,8 @@ import com.github.splendor_mobile_game.game.model.Room;
  * Example of a valid user request:
  * 
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "END_TURN"
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "type": "END_TURN",
  *      "data": {
  *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
  *      }
@@ -34,7 +41,7 @@ import com.github.splendor_mobile_game.game.model.Room;
  * 
  * Example of a successful server announcement:
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "NEW_TURN_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
@@ -51,7 +58,7 @@ import com.github.splendor_mobile_game.game.model.Room;
  * If a player sends an invalid request, such as when it is not their turn or they are not in any game, the server sends a response only to the requester. For example:
  *
  * {
- *     "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *     "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *     "type": "END_TURN_RESPONSE",
  *     "result": "FAILURE",
  *     "data": {
@@ -97,24 +104,25 @@ public class EndTurn extends Reaction {
             if (room.getLastPlayerToPlay() == user){
                 room.endGame();
             }
-            else if (user.getPoints() >= 15) {
-                room.lastPlayerToPlay(user);
-            }
             else {
+                if (user.getPoints() >= 15) {
+                    room.lastPlayerToPlay(user);
+                }
                 room.changeTurn();
+
+                UUID nextUserUUID = room.getCurrentPlayer().getUuid();
+                ResponseData responseData = new ResponseData(nextUserUUID);
+                ServerMessage serverMessage = new ServerMessage(
+                    userMessage.getContextId(), 
+                    ServerMessageType.NEW_TURN_ANNOUNCEMENT, 
+                    Result.OK, 
+                    responseData);
+    
+                    for(User u : room.getAllUsers()){
+                        messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage); 
+                    }
             }
 
-            UUID nextUserUUID = room.getCurrentPlayer().getUuid();
-            ResponseData responseData = new ResponseData(nextUserUUID);
-            ServerMessage serverMessage = new ServerMessage(
-                userMessage.getContextId(), 
-                ServerMessageType.NEW_TURN_ANNOUNCEMENT, 
-                Result.OK, 
-                responseData);
-
-                for(User u : room.getAllUsers()){
-                    messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage); 
-                }
 
         } catch (Exception e) {
             ErrorResponse errorResponse = new ErrorResponse(
@@ -126,17 +134,46 @@ public class EndTurn extends Reaction {
         }         
     }
     
-    private void validateData(DataDTO dataDTO, Database database) {
+    private void validateData(DataDTO dataDTO, Database database) 
+    throws UserDoesntExistException, RoomDoesntExistException, RoomInGameException,
+    UserTurnException, InvalidUUIDException {
+        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"); 
 
-        // User player = database.getUser(dataDTO.userDTO.uuid);
-
-        // // Check if user exists
-        // if (player == null) {
-        //     throw new UserDoesntExistException("There is no such user in the database");
-        // }
-
-        // Room room = database.getRoomWithUser(player.getUuid());
-
+        // Check if user UUID matches the pattern
+        Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userUuid.toString());
+        if (!uuidMatcher.find())
+            throw new InvalidUUIDException("Invalid UUID format."); 
         
+        User player = database.getUser(dataDTO.userUuid);
+
+        // Check if user exists
+        if (player == null) {
+            throw new UserDoesntExistException("There is no such user in the database");
+        }
+
+        Room room = database.getRoomWithUser(player.getUuid());
+
+        // check if room exists
+        if (room == null) {
+            throw new RoomDoesntExistException("Room does not exist whose user is a member of");
+        }
+
+        // checks if player has performed an action
+        if (!player.hasPerformedAction()) {
+            throw new UserDoesntExistException("User has to perform an action before ending a turn");
+        }
+
+        Game game = room.getGame();
+
+        // Check if user is in game
+        if (game == null) {
+            throw new RoomInGameException("The room is not in game state");
+        }
+
+        // Check if it is user's turn
+        if (room.getCurrentPlayer() != player) {
+            throw new UserTurnException("It is not a user's turn");
+        }
+
     }
 }
