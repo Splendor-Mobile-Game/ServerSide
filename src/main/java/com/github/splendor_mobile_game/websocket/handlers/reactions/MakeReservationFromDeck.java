@@ -220,7 +220,7 @@ public class MakeReservationFromDeck extends Reaction {
 
 
         // Check if it is user's turn
-        if (game.getCurrentPlayer() != user)
+        if (room.getCurrentPlayer() != user)
              throw new UserTurnException("It is not your turn!");
 
         

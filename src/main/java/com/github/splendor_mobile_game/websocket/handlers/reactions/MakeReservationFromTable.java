@@ -220,7 +220,7 @@ public class MakeReservationFromTable extends Reaction {
         if (!uuidMatcherCard.find()) throw new InvalidUUIDException("Invalid UUID format.");
 
         //Check if it's this user turn
-        if(database.getRoomWithUser(dataDTO.userDTO.uuid).getGame().getCurrentPlayer().getUuid() != dataDTO.userDTO.uuid)
+        if(database.getRoomWithUser(dataDTO.userDTO.uuid).getCurrentPlayer().getUuid() != dataDTO.userDTO.uuid)
             throw new InvalidUsernameException("It's not this user turn");
         //TODO make exception
 

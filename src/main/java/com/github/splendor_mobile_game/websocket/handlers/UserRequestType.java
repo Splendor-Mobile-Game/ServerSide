@@ -11,5 +11,6 @@ public enum UserRequestType {
     LEAVE_ROOM,
     GET_TOKENS,
     BUY_REVEALED_MINE,
-    BUY_RESERVED_MINE
+    BUY_RESERVED_MINE,
+    END_TURN
 }

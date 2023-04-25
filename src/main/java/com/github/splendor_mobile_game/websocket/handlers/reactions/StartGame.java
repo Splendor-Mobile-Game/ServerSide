@@ -428,7 +428,7 @@ public class StartGame extends Reaction {
             ArrayList<MinesCardDataResponse> secondLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_2));
             ArrayList<MinesCardDataResponse> thirdLevelMinesCardsResponses=createMinesCardDataResponses(game.getRevealedCards(CardTier.LEVEL_3));
 
-            UserDataResponse userToPlayResponse=new UserDataResponse(game.getCurrentPlayer().getUuid());
+            UserDataResponse userToPlayResponse=new UserDataResponse(room.getCurrentPlayer().getUuid());
                   
             ResponseData responseData = new ResponseData(
                 tokensDataResponse, nobleDataResponses, 
