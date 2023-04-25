@@ -4,11 +4,13 @@ import java.lang.reflect.Field;
 
 import com.github.splendor_mobile_game.websocket.utils.json.exceptions.*;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.ToNumberPolicy;
 
 /**
  * A utility class for parsing JSON strings into Java objects.
@@ -30,7 +32,7 @@ public class JsonParser {
      * @throws JsonMissingFieldException if a required field is missing from the JSON object
      */
     public static <T> T parseJson(String jsonString, Class<T> clazz) throws JsonParserException {
-        Gson gson = new Gson();
+        Gson gson = (new GsonBuilder()).setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE).create();
 
         // Parse the JSON string into a JsonObject
         JsonObject jsonObject;
@@ -43,7 +45,8 @@ public class JsonParser {
         checkJsonObject(jsonObject, clazz);
 
         // Parse the JsonObject into an object of the specified class
-        T object = gson.fromJson(jsonString, clazz);
+        T object = gson.fromJson(jsonObject, clazz);
+        //  gson.fromJson(jsonObject, clazz);
         return object;
     }
 
@@ -70,13 +73,13 @@ public class JsonParser {
             if (field.getType().isArray()) {
                 if (!jsonObject.get(field.getName()).isJsonArray())
                     throw new JsonParserException("Field `" + field.getName() + "` should be the array");
-                checkJsonArray(jsonObject.get(field.getName()).getAsJsonArray(), clazz);
+                checkJsonArray(jsonObject.get(field.getName()).getAsJsonArray(), field.getType().arrayType());
             }
 
             if (field.getType().isPrimitive()) {
                 if (!jsonObject.get(field.getName()).isJsonPrimitive())
                     throw new JsonParserException("Field `" + field.getName() + "` should be the primitive type of `" + field.getType().getSimpleName() + "`");
-                checkJsonPrimitive(jsonObject.get(field.getName()).getAsJsonPrimitive(), clazz);
+                checkJsonPrimitive(jsonObject.get(field.getName()).getAsJsonPrimitive(), field.getType());
             }
 
             // TODO Semi-Primitive types (ie. UUID)
