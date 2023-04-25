@@ -12,5 +12,5 @@ public enum UserRequestType {
     GET_TOKENS,
     END_TURN,
     BUY_REVEALED_MINE,
-    BUY_RESERVED_MINE
+    BUY_RESERVED_MINE,
 }

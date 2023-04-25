@@ -32,7 +32,6 @@ public class Game {
 
     public Game(Database database, ArrayList<User> users) {
         this.database = database;
-;
         start(users.size());
     }
 

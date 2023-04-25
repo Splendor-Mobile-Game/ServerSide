@@ -219,10 +219,9 @@ public class MakeReservationFromDeck extends Reaction {
              throw new RoomInGameException("The game hasn't started yet!");
 
 
-        //Check if it is user's turn
-        if(room.getCurrentPlayer()!=user){
+        // Check if it is user's turn
+        if (room.getCurrentPlayer() != user)
              throw new UserTurnException("It is not user's turn");
-        }
 
         
         // Check reservation count

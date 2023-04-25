@@ -284,10 +284,8 @@ public class BuyRevealedMine extends Reaction {
 
 
         //Check if it is user's turn
-        if(room.getCurrentPlayer()!=player){
+        if (room.getCurrentPlayer() != player)
             throw new UserTurnException("It is not a user's turn");
-        }
-
 
 
         //Check if card exists
