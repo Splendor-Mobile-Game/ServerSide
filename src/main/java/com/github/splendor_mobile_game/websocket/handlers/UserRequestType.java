@@ -10,5 +10,6 @@ public enum UserRequestType {
     DEBUG_GET_RANDOM_CARD,
     LEAVE_ROOM,
     GET_TOKENS,
-    BUY_REVEALED_MINE
+    BUY_REVEALED_MINE,
+    BUY_RESERVED_MINE
 }

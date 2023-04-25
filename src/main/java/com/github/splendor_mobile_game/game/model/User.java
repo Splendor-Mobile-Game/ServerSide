@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import com.github.splendor_mobile_game.game.Exceptions.NotEnoughBonusPointsException;
 import com.github.splendor_mobile_game.game.Exceptions.NotEnoughTokensException;
-import com.github.splendor_mobile_game.game.Exceptions.SameTokenTypesException;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
@@ -21,9 +20,6 @@ public class User {
     private int connectionHasCode;
 
     private int points;
-
-    //Max 5 for whole game
-    private int throughoutGameReservationCount=0;
 
     //initialized tokens hashmap
     private Map<TokenType, Integer> tokens = new HashMap<TokenType, Integer>();
@@ -141,12 +137,6 @@ public class User {
         if(goldToken){
             this.tokens.put(TokenType.GOLD_JOKER, this.tokens.get(TokenType.GOLD_JOKER) + 1);
         }
-
-        throughoutGameReservationCount++;
-    }
-
-    public int getThroughoutGameReservationCount(){
-        return throughoutGameReservationCount;
     }
 
     public int getReservationCount(){
