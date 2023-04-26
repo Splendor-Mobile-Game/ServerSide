@@ -18,6 +18,8 @@ public class EnvConfig implements Config {
     private int pingIntervalMs;
     private int connectionCheckIntervalMs;
     private String logsDir;
+    private String consoleLogLevels;
+    private String fileLogLevels;
 
     /**
      * Creates a new EnvConfig instance with the default path for the environment file.
@@ -62,6 +64,8 @@ public class EnvConfig implements Config {
         this.pingIntervalMs = (Integer) this.loadValue(dotenv, "PING_INTERVAL_MS", Integer.class, true);
         this.connectionCheckIntervalMs = (Integer) this.loadValue(dotenv, "CONNECTION_CHECK_INTERVAL_MS", Integer.class, true);
         this.logsDir = (String) this.loadValue(dotenv, "LOGS_DIR", String.class, true);
+        this.consoleLogLevels = (String) this.loadValue(dotenv, "CONSOLE_LOG_LEVELS", String.class, true);
+        this.fileLogLevels = (String) this.loadValue(dotenv, "FILE_LOG_LEVELS", String.class, true);
     }
 
     // TODO: This function can be unit tested
@@ -140,6 +144,16 @@ public class EnvConfig implements Config {
     @Override
     public String getLogsDir() {
         return this.logsDir;
+    }
+
+    @Override
+    public String getConsoleLogLevels() {
+        return this.consoleLogLevels;
+    }
+
+    @Override
+    public String getFileLogLevels() {
+        return this.fileLogLevels;
     }
 
 }

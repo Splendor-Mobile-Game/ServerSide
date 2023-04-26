@@ -35,4 +35,16 @@ public interface Config {
      * @return The log directory as a String.
      */
     public String getLogsDir();
+    
+    /**
+     * Returns the log levels from console.
+     * @return The log levels as a String.
+     */
+    public String getConsoleLogLevels();
+
+    /**
+     * Returns the log levels from file.
+     * @return The log levels as a String.
+     */
+    public String getFileLogLevels();
 }
