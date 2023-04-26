@@ -101,29 +101,25 @@ public class EndTurn extends Reaction {
             User user = database.getUserByConnectionHashCode(connectionHashCode);
             Room room = database.getRoomWithUser(user.getUuid());
 
+            room.changeTurn();
+            if (user.getPoints() >= 15){
+                room.setLastTurn(true);
+            }
             if (room.getLastTurn() && room.isPlayersMovesEqual()) {
                 room.endGame();
-            }
-            else {
-                if (user.getPoints() >= 15){
-                    room.setLastTurn(true);
+            }                
+
+            UUID nextUserUUID = room.getCurrentPlayer().getUuid();
+            ResponseData responseData = new ResponseData(nextUserUUID);
+            ServerMessage serverMessage = new ServerMessage(
+                userMessage.getContextId(), 
+                ServerMessageType.NEW_TURN_ANNOUNCEMENT, 
+                Result.OK, 
+                responseData);
+
+                for(User u : room.getAllUsers()){
+                    messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage); 
                 }
-                
-                room.changeTurn();
-
-                UUID nextUserUUID = room.getCurrentPlayer().getUuid();
-                ResponseData responseData = new ResponseData(nextUserUUID);
-                ServerMessage serverMessage = new ServerMessage(
-                    userMessage.getContextId(), 
-                    ServerMessageType.NEW_TURN_ANNOUNCEMENT, 
-                    Result.OK, 
-                    responseData);
-    
-                    for(User u : room.getAllUsers()){
-                        messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage); 
-                    }
-            }
-
 
         } catch (Exception e) {
             ErrorResponse errorResponse = new ErrorResponse(
