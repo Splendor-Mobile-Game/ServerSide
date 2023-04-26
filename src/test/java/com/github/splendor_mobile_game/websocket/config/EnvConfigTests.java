@@ -6,53 +6,15 @@ import com.github.splendor_mobile_game.websocket.config.exceptions.EnvValueWrong
 import com.github.splendor_mobile_game.websocket.config.exceptions.InvalidConfigException;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EnvConfigTests {
     private final String testEnvConfigsDirectoryPath = "./testEnvConfigs/";
 
     @Test
-    public void createDefaultEnvConfigTest(){
-
-        // 1. Setup data for the test
-        int port = 8887;
-        int connectionLostTimeoutSec = 120;
-        int pingIntervalMs = 1000;
-        int connectionCheckIntervalMs = 2000;
-        String logsDir = "./logs/";
-
-        // 2. Call the function you are testing.
-        try {
-            EnvConfig config = new EnvConfig();
-
-            // 3. Check if returned values are equal to expected values.
-            assertEquals(port, config.getPort());
-            assertEquals(connectionLostTimeoutSec, config.getConnectionLostTimeoutSec());
-            assertEquals(pingIntervalMs, config.getPingIntervalMs());
-            assertEquals(connectionCheckIntervalMs, config.getConnectionCheckIntervalMs());
-            assertEquals(logsDir, config.getLogsDir());
-
-        } catch (InvalidConfigException ex){
-            fail(ex.getMessage());
-        }
-    }
-
-    @Test
     public void envFileNotFoundTest(){
-
-        // 1. Setup data for the test
-        String envFilePath = "";
-
-        // 2. Call the function you are testing.
-        try{
-            new EnvConfig((envFilePath));
-            fail("creating new EnvConfig with empty path should not be possible");
-        } catch (EnvFileNotFoundException ignored) {
-
-        } catch (InvalidConfigException ex) {
-            fail(ex.getMessage());
-        }
+        String filepath = this.testEnvConfigsDirectoryPath + "nonexistent.env";
+        assertThrows(EnvFileNotFoundException.class, () -> new EnvConfig(filepath));
     }
 
     @Test
@@ -84,36 +46,53 @@ public class EnvConfigTests {
 
     @Test
     public void envConfigRequiredValueIsNullTest(){
-
-        // 1. Setup data for the test
         String filepath = this.testEnvConfigsDirectoryPath + "second.env";
-
-        // 2. Call the function you are testing.
-        try{
-            new EnvConfig(filepath);
-            fail("null on required value should not be possible");
-        } catch (EnvRequiredValueNotFoundException ignored){
-
-        } catch (InvalidConfigException ex){
-            fail(ex.getMessage());
-        }
+        assertThrows(EnvRequiredValueNotFoundException.class, () -> new EnvConfig(filepath));
     }
 
     @Test
     public void invalidEnvValueTypeTest(){
+        String filepath = this.testEnvConfigsDirectoryPath + "third.env";
+        assertThrows(EnvValueWrongTypeException.class, () -> new EnvConfig(filepath));
+    }
+
+    @Test
+    public void missingEnvValueTest(){
+        String filepath = this.testEnvConfigsDirectoryPath + "fourth.env";
+        assertThrows(EnvValueWrongTypeException.class, () -> new EnvConfig(filepath));
+    }
+
+    @Test
+    public void additionalValuesInEnvConfigFileTest(){
 
         // 1. Setup data for the test
-        String filepath = this.testEnvConfigsDirectoryPath + "third.env";
+        String filepath = this.testEnvConfigsDirectoryPath + "fifth.env";
+        int port = 8887;
+        int connectionLostTimeoutSec = 100;
+        int pingIntervalMs = 1000;
+        int connectionCheckIntervalMs = 1000;
+        String logsDir = "./logs/";
 
         // 2. Call the function you are testing.
         try{
-            new EnvConfig(filepath);
-            fail("string PORT value should not be possible");
-        } catch (EnvValueWrongTypeException ignored){
+            EnvConfig config = new EnvConfig(filepath);
+
+            // 3. Check if returned values are equal to expected values.
+            assertEquals(port, config.getPort());
+            assertEquals(connectionLostTimeoutSec, config.getConnectionLostTimeoutSec());
+            assertEquals(pingIntervalMs, config.getPingIntervalMs());
+            assertEquals(connectionCheckIntervalMs, config.getConnectionCheckIntervalMs());
+            assertEquals(logsDir, config.getLogsDir());
 
         } catch (InvalidConfigException ex){
             fail(ex.getMessage());
         }
     }
 
+    // TODO: DuplicateKeyException should be implemented.
+    @Test
+    public void duplicateKeyInEnvConfigFileTest(){
+        String filepath = this.testEnvConfigsDirectoryPath + "sixth.env";
+        assertThrows(IllegalStateException.class, () -> new EnvConfig(filepath));
+    }
 }
