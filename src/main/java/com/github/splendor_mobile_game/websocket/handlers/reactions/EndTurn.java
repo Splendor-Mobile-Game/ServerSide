@@ -101,13 +101,14 @@ public class EndTurn extends Reaction {
             User user = database.getUserByConnectionHashCode(connectionHashCode);
             Room room = database.getRoomWithUser(user.getUuid());
 
-            if (room.getLastPlayerToPlay() == user){
+            if (room.getLastTurn() && room.isPlayersMovesEqual()) {
                 room.endGame();
             }
             else {
-                if (user.getPoints() >= 15) {
-                    room.lastPlayerToPlay(user);
+                if (user.getPoints() >= 15){
+                    room.setLastTurn(true);
                 }
+                
                 room.changeTurn();
 
                 UUID nextUserUUID = room.getCurrentPlayer().getUuid();
