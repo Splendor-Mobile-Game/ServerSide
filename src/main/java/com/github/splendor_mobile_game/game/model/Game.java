@@ -101,12 +101,13 @@ public class Game {
     
     //The return Card is a card that was drawn from deck and put on table
     public Card takeCardFromRevealed(Card card){
-        
         removeCardFromRevealed(card);
 
         Card cardDrawn = getRandomCard(card.getCardTier());
-        addCardToRevealed(cardDrawn);
-
+        if(cardDrawn!=null){
+            addCardToRevealed(cardDrawn);
+        }
+        
         return cardDrawn;
     }
 
@@ -287,10 +288,12 @@ public class Game {
 
     private Card getRandomCard(CardTier tier){
         Deck deck = getRandomCards(tier,1);
-        if(deck == null){
+
+        if(deck.size()==0){
             return null;
-        }
-        return deck.get(0);
+        }else{
+            return deck.get(0);
+        }      
     }
 
 
@@ -310,9 +313,6 @@ public class Game {
 
         Random rand = new Random();
         for(;amount > 0;amount--) {
-            if(deck.size()==0){
-                return null;
-            }
             int index = rand.nextInt(deck.size()); // Get random index
             Card drawnCard =deck.remove(index);
             array.add(drawnCard);

@@ -75,6 +75,27 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *          }        
  *      }
  * }
+ * If deck is empty meaning new card can't be drawn then sent
+ * {
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "type": "BUY_REVEALED_MINE_ANNOUNCEMENT",
+ *      "result": "OK",
+ *      "data": {
+ *          "buyer":{
+ *              "userUuid":"6850e6c1-6f1d-48c6-a412-52b39225ded7",
+ *              "tokens":{
+ *                  "ruby": 2,
+ *                  "emerald": 0,
+ *                  "sapphire": 1,
+ *                  "diamond": 3,
+ *                  "onyx": 0,
+ *                  "gold": 1
+ *              },
+ *              "cardUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
+ *          },                     
+ *          "newCardRevealed": null     
+ *      }
+ * }
  *
  * Example of invalid request response (it should be sent only to the requester):
  * {
@@ -202,9 +223,29 @@ public class BuyRevealedMine extends Reaction {
 
             buyer.buyCard(boughtCard);
             Card cardDrawn = game.takeCardFromRevealed(boughtCard);
+  
             
-            Log.DEBUG("User " + buyer.getName() + " has bought card (" + boughtCard.getUuid() + ")");
-            Log.DEBUG("New card drawn " + cardDrawn.getUuid());
+            Log.DEBUG("User "+buyer.getName()+" has bought card ("+boughtCard.getUuid()+")");
+
+            CardDataResponse cardDataResponse=null;
+            if(cardDrawn!=null){
+                cardDataResponse = new CardDataResponse(
+                    cardDrawn.getUuid(),
+                    cardDrawn.getCardTier(),
+                    cardDrawn.getAdditionalToken(),
+                    cardDrawn.getPoints(),
+                    cardDrawn.getCost(TokenType.RUBY),
+                    cardDrawn.getCost(TokenType.EMERALD),
+                    cardDrawn.getCost(TokenType.SAPPHIRE),
+                    cardDrawn.getCost(TokenType.DIAMOND),
+                    cardDrawn.getCost(TokenType.ONYX)
+                );
+
+                Log.DEBUG("New card drawn "+cardDrawn.getUuid());
+            }else{
+                cardDataResponse=null;
+                Log.DEBUG("New card was not drawn ");
+            }
 
             ResponseData responseData = new ResponseData(
                 new BuyerDataResponse(
@@ -219,16 +260,7 @@ public class BuyRevealedMine extends Reaction {
                     ), 
                     boughtCard.getUuid()
                 ), 
-                new CardDataResponse(
-                    cardDrawn.getUuid(),
-                    cardDrawn.getCardTier(),
-                    cardDrawn.getAdditionalToken(),
-                    cardDrawn.getPoints(),
-                    cardDrawn.getCost(TokenType.RUBY),
-                    cardDrawn.getCost(TokenType.EMERALD),
-                    cardDrawn.getCost(TokenType.SAPPHIRE),
-                    cardDrawn.getCost(TokenType.DIAMOND),
-                    cardDrawn.getCost(TokenType.ONYX))
+                cardDataResponse
             );
 
             ArrayList<User> players = room.getAllUsers();
