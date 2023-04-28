@@ -15,6 +15,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
 
+
     private final Map<TokenType, Integer> tokensOnTable = new HashMap<TokenType, Integer>();
 
     private int gameReservationCount=0;
@@ -111,6 +112,7 @@ public class Game {
         }
         return false;
     }
+
 
     private void start(int playerCount) {
         // Calculate number of tokens of each type

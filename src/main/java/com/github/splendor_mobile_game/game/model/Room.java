@@ -33,7 +33,7 @@ public class Room {
 
         this.enterCode = generateRoomCode(database);
         Log.DEBUG(this.enterCode);
-
+        
         playerCount++;
         this.users.add(owner);
 
