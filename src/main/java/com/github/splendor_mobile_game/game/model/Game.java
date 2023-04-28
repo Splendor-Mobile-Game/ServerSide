@@ -1,6 +1,7 @@
 package com.github.splendor_mobile_game.game.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -71,6 +72,17 @@ public class Game {
         return gameReservationCount;
     }
 
+    public int getUserRanking(UUID uuid) {
+        User user = database.getUser(uuid);
+        ArrayList<Integer> points = new ArrayList<>();
+        for (User u : users) {
+            if (user.compareTo(u) != 0){
+                points.add(u.getPoints());
+            }
+        }
+        Collections.sort(points, Collections.reverseOrder());
+        return points.indexOf(user.getPoints()) + 1;
+    }
 
     private boolean removeToken(TokenType type){
         if(tokensOnTable.get(type)==0){

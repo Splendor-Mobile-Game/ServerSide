@@ -29,4 +29,5 @@ public enum ServerMessageType {
     NEW_TURN_ANNOUNCEMENT,
     END_TURN_RESPONSE,
     GET_TOKENS_RESPONSE,
+    END_GAME_ANNOUNCEMENT
 }

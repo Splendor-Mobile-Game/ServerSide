@@ -1,5 +1,7 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,11 +85,31 @@ public class EndTurn extends Reaction {
         }
     }
 
+    public class PlayerDataResponse {
+        public UUID playerUUID;
+        public int points;
+        public int place;
+
+        public PlayerDataResponse(UUID playerUUID, int points, int place){
+            this.playerUUID = playerUUID;
+            this.points = points;
+            this.place = place;
+        }
+    }
+
     public class ResponseData {
         public UUID nextUserUuid;
 
         public ResponseData(UUID nextUserUuid) {
             this.nextUserUuid = nextUserUuid;
+        }
+    }
+
+    public class ResponseDataEndGame {
+        public ArrayList<PlayerDataResponse> playerRanking;
+
+        public ResponseDataEndGame(ArrayList<PlayerDataResponse> playerRanking) {
+            this.playerRanking = playerRanking;
         }
     }
 
@@ -100,6 +122,9 @@ public class EndTurn extends Reaction {
 
             User user = database.getUserByConnectionHashCode(connectionHashCode);
             Room room = database.getRoomWithUser(user.getUuid());
+            Game game = room.getGame();
+
+            ServerMessage serverMessage;
 
             room.changeTurn();
             if (user.getPoints() >= 15){
@@ -107,19 +132,33 @@ public class EndTurn extends Reaction {
             }
             if (room.getLastTurn() && room.isPlayersMovesEqual()) {
                 room.endGame();
-            }                
+                
+                ArrayList<PlayerDataResponse> playerRanking = new ArrayList<PlayerDataResponse>();
+                ArrayList<User> users = room.getAllUsers();
+                Collections.sort(users);
 
-            UUID nextUserUUID = room.getCurrentPlayer().getUuid();
-            ResponseData responseData = new ResponseData(nextUserUUID);
-            ServerMessage serverMessage = new ServerMessage(
-                userMessage.getContextId(), 
-                ServerMessageType.NEW_TURN_ANNOUNCEMENT, 
-                Result.OK, 
-                responseData);
-
-                for(User u : room.getAllUsers()){
-                    messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage); 
+                for (User player : users) {
+                    playerRanking.add(new PlayerDataResponse(player.getUuid(), player.getPoints(), game.getUserRanking(user.getUuid())));
                 }
+                ResponseDataEndGame responseData = new ResponseDataEndGame(playerRanking);
+                serverMessage = new ServerMessage(
+                    userMessage.getContextId(), 
+                    ServerMessageType.END_GAME_ANNOUNCEMENT, 
+                    Result.OK, 
+                    responseData);
+            } else {
+                UUID nextUserUUID = room.getCurrentPlayer().getUuid();
+                ResponseData responseData = new ResponseData(nextUserUUID);
+                serverMessage = new ServerMessage(
+                    userMessage.getContextId(), 
+                    ServerMessageType.NEW_TURN_ANNOUNCEMENT, 
+                    Result.OK, 
+                    responseData);
+            }
+
+            for(User u : room.getAllUsers()){
+                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage); 
+            }
 
         } catch (Exception e) {
             ErrorResponse errorResponse = new ErrorResponse(
