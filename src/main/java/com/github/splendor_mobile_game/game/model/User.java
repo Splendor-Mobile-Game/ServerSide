@@ -1,6 +1,7 @@
 package com.github.splendor_mobile_game.game.model;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -11,7 +12,7 @@ import com.github.splendor_mobile_game.game.Exceptions.NotEnoughTokensException;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
-public class User {
+public class User implements Comparable<User> {
 
     private final String name;
 
@@ -131,6 +132,10 @@ public class User {
         return this.points;
     }
 
+    public int getNumberOfPurchesedCards() {
+        return purchasedCards.size();
+    }
+
     public void reserveCard(Card card,boolean goldToken) {
         this.reservedCards.add(card);
         
@@ -197,5 +202,13 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(uuid, connectionHasCode);
+    }
+
+    @Override
+    public int compareTo(User compare) {
+        if (this.points == compare.getPoints()) {
+            return compare.getNumberOfPurchesedCards() - this.getNumberOfPurchesedCards();
+        }
+        return compare.getPoints() - this.points;
     }
 }

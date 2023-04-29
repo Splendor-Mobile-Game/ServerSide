@@ -316,7 +316,7 @@ public class BuyRevealedMine extends Reaction {
 
 
         //Check if it is user's turn
-        if (game.getCurrentPlayer() != player)
+        if (room.getCurrentPlayer() != player)
             throw new UserTurnException("It is not your turn!");
 
 

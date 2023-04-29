@@ -1,10 +1,32 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.Validate;
+
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
+import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomInGameException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserTurnException;
+import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateRoom.DataDTO;
+import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
+import com.github.splendor_mobile_game.websocket.response.Result;
+import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.game.model.Game;
+import com.github.splendor_mobile_game.game.model.Room;
 
 /**
  * This reaction handles the request sent by a player to end their turn. The server sends a message of type `NEW_TURN_ANNOUNCEMENT` to all players, announcing the end of the current turn and selecting the player for the next turn. If a player sends an invalid request, the server sends a response only to the requester.
@@ -12,8 +34,8 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  * Example of a valid user request:
  * 
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "END_TURN"
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "type": "END_TURN",
  *      "data": {
  *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
  *      }
@@ -21,7 +43,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  * 
  * Example of a successful server announcement:
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "NEW_TURN_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
@@ -38,7 +60,7 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  * If a player sends an invalid request, such as when it is not their turn or they are not in any game, the server sends a response only to the requester. For example:
  *
  * {
- *     "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *     "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *     "type": "END_TURN_RESPONSE",
  *     "result": "FAILURE",
  *     "data": {
@@ -54,10 +76,140 @@ public class EndTurn extends Reaction {
         super(connectionHashCode, userMessage, messenger, database);
     }
 
+    @DataClass
+    public static class DataDTO {
+        public UUID userUuid;
+
+        public DataDTO(UUID userUuid) {
+            this.userUuid = userUuid;
+        }
+    }
+
+    public class PlayerDataResponse {
+        public UUID playerUUID;
+        public int points;
+        public int place;
+
+        public PlayerDataResponse(UUID playerUUID, int points, int place){
+            this.playerUUID = playerUUID;
+            this.points = points;
+            this.place = place;
+        }
+    }
+
+    public class ResponseData {
+        public UUID nextUserUuid;
+
+        public ResponseData(UUID nextUserUuid) {
+            this.nextUserUuid = nextUserUuid;
+        }
+    }
+
+    public class ResponseDataEndGame {
+        public ArrayList<PlayerDataResponse> playerRanking;
+
+        public ResponseDataEndGame(ArrayList<PlayerDataResponse> playerRanking) {
+            this.playerRanking = playerRanking;
+        }
+    }
+
     @Override
     public void react() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'react'");
+        DataDTO dataDTO = (DataDTO) userMessage.getData();
+
+        try {
+            validateData(dataDTO, database);
+
+            User user = database.getUserByConnectionHashCode(connectionHashCode);
+            Room room = database.getRoomWithUser(user.getUuid());
+            Game game = room.getGame();
+
+            ServerMessage serverMessage;
+
+            room.changeTurn();
+            if (user.getPoints() >= 15){
+                room.setLastTurn(true);
+            }
+            if (room.getLastTurn() && room.isPlayersMovesEqual()) {
+                room.endGame();
+                
+                ArrayList<PlayerDataResponse> playerRanking = new ArrayList<PlayerDataResponse>();
+                ArrayList<User> users = room.getAllUsers();
+                Collections.sort(users);
+
+                for (User player : users) {
+                    playerRanking.add(new PlayerDataResponse(player.getUuid(), player.getPoints(), game.getUserRanking(user.getUuid())));
+                }
+                ResponseDataEndGame responseData = new ResponseDataEndGame(playerRanking);
+                serverMessage = new ServerMessage(
+                    userMessage.getContextId(), 
+                    ServerMessageType.END_GAME_ANNOUNCEMENT, 
+                    Result.OK, 
+                    responseData);
+            } else {
+                UUID nextUserUUID = room.getCurrentPlayer().getUuid();
+                ResponseData responseData = new ResponseData(nextUserUUID);
+                serverMessage = new ServerMessage(
+                    userMessage.getContextId(), 
+                    ServerMessageType.NEW_TURN_ANNOUNCEMENT, 
+                    Result.OK, 
+                    responseData);
+            }
+
+            for(User u : room.getAllUsers()){
+                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage); 
+            }
+
+        } catch (Exception e) {
+            ErrorResponse errorResponse = new ErrorResponse(
+                Result.FAILURE,
+                e.getMessage(),
+                ServerMessageType.END_TURN_RESPONSE,
+                userMessage.getContextId().toString());
+                messenger.addMessageToSend(connectionHashCode, errorResponse);
+        }         
     }
     
+    private void validateData(DataDTO dataDTO, Database database) 
+    throws UserDoesntExistException, RoomDoesntExistException, RoomInGameException,
+    UserTurnException, InvalidUUIDException {
+        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"); 
+
+        // Check if user UUID matches the pattern
+        Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userUuid.toString());
+        if (!uuidMatcher.find())
+            throw new InvalidUUIDException("Invalid UUID format."); 
+        
+        User player = database.getUser(dataDTO.userUuid);
+
+        // Check if user exists
+        if (player == null) {
+            throw new UserDoesntExistException("There is no such user in the database");
+        }
+
+        Room room = database.getRoomWithUser(player.getUuid());
+
+        // check if room exists
+        if (room == null) {
+            throw new RoomDoesntExistException("Room does not exist whose user is a member of");
+        }
+
+        // checks if player has performed an action
+        if (!player.hasPerformedAction()) {
+            throw new UserDoesntExistException("User has to perform an action before ending a turn");
+        }
+
+        Game game = room.getGame();
+
+        // Check if user is in game
+        if (game == null) {
+            throw new RoomInGameException("The room is not in game state");
+        }
+
+        // Check if it is user's turn
+        if (room.getCurrentPlayer() != player) {
+            throw new UserTurnException("It is not a user's turn");
+        }
+
+    }
 }

@@ -1,6 +1,7 @@
 package com.github.splendor_mobile_game.game.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -15,11 +16,11 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
 
+
     private final Map<TokenType, Integer> tokensOnTable = new HashMap<TokenType, Integer>();
 
     private int gameReservationCount=0;
 
-    private User currentOrder;
     private final ArrayList<User> users = new ArrayList<>();
 
     private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
@@ -33,25 +34,7 @@ public class Game {
     public Game(Database database, ArrayList<User> users) {
         this.database = database;
 
-        currentOrder = users.get(0);
         start(users.size());
-    }
-
-    public User getCurrentPlayer() {
-        return currentOrder;
-    }
-
-    public User changeTurn(){
-        int index = users.indexOf(currentOrder);
-        
-        if(index == users.size()-1){
-            currentOrder = users.get(0);
-            return currentOrder;
-        } 
-        else{
-            currentOrder = users.get(index+1);
-            return currentOrder;
-        }
     }
 
     public ReservationResult reserveCardFromDeck(CardTier tier,User player) throws DeckIsEmptyException{
@@ -89,6 +72,17 @@ public class Game {
         return gameReservationCount;
     }
 
+    public int getUserRanking(UUID uuid) {
+        User user = database.getUser(uuid);
+        ArrayList<Integer> points = new ArrayList<>();
+        for (User u : users) {
+            if (user.compareTo(u) != 0){
+                points.add(u.getPoints());
+            }
+        }
+        Collections.sort(points, Collections.reverseOrder());
+        return points.indexOf(user.getPoints()) + 1;
+    }
 
     private boolean removeToken(TokenType type){
         if(tokensOnTable.get(type)==0){
@@ -131,6 +125,7 @@ public class Game {
         }
         return false;
     }
+
 
     private void start(int playerCount) {
         // Calculate number of tokens of each type
