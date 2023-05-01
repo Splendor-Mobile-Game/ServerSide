@@ -131,7 +131,7 @@ public class GetTokens extends Reaction {
         super(connectionHashCode, userMessage, messenger, database);
     }
 
-    public class TokensChangeDTO {
+    public static class TokensChangeDTO {
         public int ruby;
         public int sapphire;
         public int emerald;
