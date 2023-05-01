@@ -185,7 +185,7 @@ public class GetTokens extends Reaction {
     }
 
     public class ResponseData {
-        DataDTO data;
+        public DataDTO data;
 
         public ResponseData(DataDTO data) {
             this.data = data;
