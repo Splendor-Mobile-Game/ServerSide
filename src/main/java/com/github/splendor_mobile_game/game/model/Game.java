@@ -1,6 +1,7 @@
 package com.github.splendor_mobile_game.game.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -15,9 +16,11 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
 
+
     private final Map<TokenType, Integer> tokensOnTable = new HashMap<TokenType, Integer>();
 
-    private User currentOrder;
+    private int gameReservationCount=0;
+
     private final ArrayList<User> users = new ArrayList<>();
 
     private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
@@ -31,25 +34,7 @@ public class Game {
     public Game(Database database, ArrayList<User> users) {
         this.database = database;
 
-        currentOrder = users.get(0);
         start(users.size());
-    }
-
-    public User getCurrentPlayer() {
-        return currentOrder;
-    }
-
-    public User changeTurn(){
-        int index = users.indexOf(currentOrder);
-        
-        if(index == users.size()-1){
-            currentOrder = users.get(0);
-            return currentOrder;
-        } 
-        else{
-            currentOrder = users.get(index+1);
-            return currentOrder;
-        }
     }
 
     public ReservationResult reserveCardFromDeck(CardTier tier,User player) throws DeckIsEmptyException{
@@ -60,7 +45,43 @@ public class Game {
 
         boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
         player.reserveCard(card,goldenToken);
+
+        gameReservationCount++;
+
         return new ReservationResult(card, goldenToken);
+    }
+    public ReservationResult reserveCardFromTable(Card card,User player) throws DeckIsEmptyException{
+
+        if(card==null){
+            throw new DeckIsEmptyException("Deck is empty");
+        }
+        boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
+        player.reserveCard(card,goldenToken);
+        Card newcard = takeCardFromRevealed(card);
+
+        gameReservationCount++;
+
+        return new ReservationResult(newcard, goldenToken);
+    }
+
+    public void DecreaseGameReservationCount(){
+        gameReservationCount--;
+    }
+
+    public int getGameReservationCount(){
+        return gameReservationCount;
+    }
+
+    public int getUserRanking(UUID uuid) {
+        User user = database.getUser(uuid);
+        ArrayList<Integer> points = new ArrayList<>();
+        for (User u : users) {
+            if (user.compareTo(u) != 0){
+                points.add(u.getPoints());
+            }
+        }
+        Collections.sort(points, Collections.reverseOrder());
+        return points.indexOf(user.getPoints()) + 1;
     }
 
     private boolean removeToken(TokenType type){
@@ -74,12 +95,13 @@ public class Game {
     
     //The return Card is a card that was drawn from deck and put on table
     public Card takeCardFromRevealed(Card card){
-        
         removeCardFromRevealed(card);
 
         Card cardDrawn = getRandomCard(card.getCardTier());
-        addCardToRevealed(cardDrawn);
-
+        if(cardDrawn!=null){
+            addCardToRevealed(cardDrawn);
+        }
+        
         return cardDrawn;
     }
 
@@ -92,25 +114,18 @@ public class Game {
         revealedCards.get(card.getCardTier()).add(card);
     }
 
-    public boolean revealedCardExists(UUID cardUuid){
-
-        boolean isInLvl1= this.revealedCards.get(CardTier.LEVEL_1).stream()
-            .filter(card -> card.getUuid()==cardUuid)
-            .findFirst()
-            .orElse(null) != null;
-
-        boolean isInLvl2= this.revealedCards.get(CardTier.LEVEL_2).stream()
-        .filter(card -> card.getUuid()==cardUuid)
-        .findFirst()
-        .orElse(null) != null;
-
-        boolean isInLvl3= this.revealedCards.get(CardTier.LEVEL_3).stream()
-            .filter(card -> card.getUuid()==cardUuid)
-            .findFirst()
-            .orElse(null) != null;
-
-        return isInLvl1||isInLvl2||isInLvl3;
+    public boolean isCardRevealed(UUID uuid)
+    {
+        for (Deck deck : revealedCards.values())
+        {
+            for(Card card : deck)
+            {
+                if(card.getUuid() == uuid) return true;
+            }
+        }
+        return false;
     }
+
 
     private void start(int playerCount) {
         // Calculate number of tokens of each type
@@ -268,10 +283,12 @@ public class Game {
 
     private Card getRandomCard(CardTier tier){
         Deck deck = getRandomCards(tier,1);
-        if(deck == null){
+
+        if(deck.size()==0){
             return null;
-        }
-        return deck.get(0);
+        }else{
+            return deck.get(0);
+        }      
     }
 
 
@@ -291,9 +308,6 @@ public class Game {
 
         Random rand = new Random();
         for(;amount > 0;amount--) {
-            if(deck.size()==0){
-                return null;
-            }
             int index = rand.nextInt(deck.size()); // Get random index
             Card drawnCard =deck.remove(index);
             array.add(drawnCard);
@@ -327,5 +341,6 @@ public class Game {
 
         return array;
     }
+
 
 }

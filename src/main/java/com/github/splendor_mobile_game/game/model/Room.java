@@ -10,7 +10,9 @@ import java.util.UUID;
 
 public class Room {
 
-
+    private boolean lastTurn;
+    private short movesPlayed;
+    private User currentOrder;
     private final UUID uuid;
     private final String name;
     private final String enterCode;
@@ -31,9 +33,13 @@ public class Room {
 
         this.enterCode = generateRoomCode(database);
         Log.DEBUG(this.enterCode);
-
+        
         playerCount++;
         this.users.add(owner);
+
+        this.movesPlayed = 0;
+        this.currentOrder = users.get(0);
+        this.lastTurn = false;
     }
 
     public void startGame() {
@@ -49,6 +55,32 @@ public class Room {
         this.game = null;
     }
 
+    public User getCurrentPlayer() {
+        return currentOrder;
+    }
+
+    public User changeTurn(){
+        int index = users.indexOf(currentOrder);
+        
+        this.movesPlayed++;
+        
+        if(index == users.size()-1){
+            currentOrder = users.get(0);
+            return currentOrder;
+        } 
+        else{
+            currentOrder = users.get(index+1);
+            return currentOrder;
+        }
+    }
+
+    public boolean getLastTurn() {
+        return this.lastTurn;
+    }
+
+    public boolean isPlayersMovesEqual() {
+        return this.movesPlayed % this.playerCount == 0;
+    }
 
     public int getPlayerCount() {
         return playerCount;
@@ -87,6 +119,10 @@ public class Room {
 
     public User getOwner() {
         return owner;
+    }
+    
+    public void setLastTurn(boolean lastTurn) {
+        this.lastTurn = lastTurn;
     }
 
     public void setOwner(User owner) {

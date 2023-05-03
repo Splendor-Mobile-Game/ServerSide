@@ -32,7 +32,7 @@ public class CreateRoomTest {
 
         String message = """
         {
-            "messageContextId": "$messageContextId",
+            "contextId": "$messageContextId",
             "type": "$type",
             "data": {
                 "userDTO": {
@@ -99,12 +99,12 @@ public class CreateRoomTest {
         // First let's create json we expect
         String expectedJsonString = """
         {
-            "messageContextId":"$messageContextId",
+            "contextId":"$messageContextId",
             "type":"$type_RESPONSE",
             "result":"$result",
             "data":{
                 "user":{
-                    "uuid":"$userId",
+                    "id":"$userId",
                     "name":"$userName"
                 },
                 "room":{
@@ -133,6 +133,7 @@ public class CreateRoomTest {
         
         // I remove this field, so I can compare all other fields in one go
         actualJson.getAsJsonObject().get("data").getAsJsonObject().get("room").getAsJsonObject().remove("uuid");
+        actualJson.getAsJsonObject().get("data").getAsJsonObject().get("room").getAsJsonObject().remove("enterCode");
         
         // Check if they are equal
         assertThat(actualJson).isEqualTo(expectedJson);

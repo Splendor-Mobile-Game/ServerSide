@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.enums.Regex;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
@@ -233,32 +234,22 @@ public class CreateRoom extends Reaction {
      * @throws UserAlreadyInRoomException thrown if user is already a member of any room
      */
     private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, InvalidUsernameException, RoomAlreadyExistsException, InvalidPasswordException, UserAlreadyInRoomException {
-        Pattern uuidPattern     = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
-        Pattern usernamePattern = Pattern.compile("^(?=.*\\p{L})[\\p{L}\\p{N}\\s]+$");
-        Pattern passwordPattern = Pattern.compile("^[a-zA-Z0-9ąćęłńóśźżĄĆĘŁŃÓŚŹŻ\\p{Punct}]+$");
-
-        // Check if user UUID matches the pattern
-        Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.uuid.toString());
-        if (!uuidMatcher.find())
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userDTO.uuid.toString()))
             throw new InvalidUUIDException("Invalid UUID format.");
 
-
-        // Check if user UUID matches the pattern
-        Matcher usernameMatcher = usernamePattern.matcher(dataDTO.userDTO.name);
-        if (!usernameMatcher.find())
+        // Check if user's name matches the pattern
+        if (!Regex.USERNAME_PATTERN.matches((dataDTO.userDTO.name)))
             throw new InvalidUsernameException("Invalid username credentials.");
 
-
-        // Check if user UUID matches the pattern
-        usernameMatcher = usernamePattern.matcher(dataDTO.roomDTO.name);
-        if (!usernameMatcher.find())
+        // Check if room UUID matches the pattern
+        if (!Regex.USERNAME_PATTERN.matches((dataDTO.roomDTO.name)))
             throw new InvalidUsernameException("Invalid room name format.");
 
-
-        // Check if user UUID matches the pattern
-        Matcher passwordMatcher = passwordPattern.matcher(dataDTO.roomDTO.password);
-        if (!passwordMatcher.find())
+        // Check if room's password matches the pattern
+        if (!Regex.PASSWORD_PATTERN.matches((dataDTO.roomDTO.password)))
             throw new InvalidPasswordException("Invalid room password format.");
+
 
 
         // Check if room with specified name already exists NAME OF THE ROOM MUST BE UNIQUE

@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.Color;
+import com.github.splendor_mobile_game.game.enums.Regex;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
@@ -130,7 +131,7 @@ public class GetTokens extends Reaction {
         super(connectionHashCode, userMessage, messenger, database);
     }
 
-    public class TokensChangeDTO {
+    public static class TokensChangeDTO {
         public int ruby;
         public int sapphire;
         public int emerald;
@@ -184,7 +185,7 @@ public class GetTokens extends Reaction {
     }
 
     public class ResponseData {
-        DataDTO data;
+        public DataDTO data;
 
         public ResponseData(DataDTO data) {
             this.data = data;
@@ -295,21 +296,21 @@ public class GetTokens extends Reaction {
     }
 
     private void validateData(DataDTO dataDTO, Database database, Map<TokenType, Integer> tokenMap) throws RoomDoesntExistException, TooManyTokensException, TooManyReturnedTokensException, WrongTokenChoiceException, InvalidUUIDException, NotThisUserTurnException, GameNotStartedException {
-        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userUuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
 
-        // Check if user UUID matches the pattern
-        Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userUuid.toString());
-        if (!uuidMatcher.find())
-            throw new InvalidUUIDException("Invalid UUID format."); // Check if user UUID matches the pattern
+        // Check if there is a room associated with given user
+        if (database.getRoomWithUser(dataDTO.userUuid) == null)
+            throw new RoomDoesntExistException("Room with this user not found");
 
-        if(database.getRoomWithUser(dataDTO.userUuid) == null) throw new RoomDoesntExistException("Room with this user not found");
 
         Room room = database.getRoomWithUser(dataDTO.userUuid);
         User user = database.getUser(dataDTO.userUuid);
 
-        if(user.hasPerformedAction()) throw new NotThisUserTurnException("It's not your turn");
+        if (user.hasPerformedAction()) throw new NotThisUserTurnException("It's not your turn");
 
-        if(room.getGame() == null) throw new GameNotStartedException("Game hasn't started yet");
+        if (room.getGame() == null) throw new GameNotStartedException("Game hasn't started yet");
 
         // System.out.println("USER TOKENS: ");
         // System.out.println(user.getTokenCount());
@@ -320,10 +321,10 @@ public class GetTokens extends Reaction {
         int tokensWithAdded = user.getTokenCount() + dataDTO.tokensChangeDTO.getAddedTokenCount();
         int tokensWithAddedAndReturned = tokensWithAdded - dataDTO.tokensChangeDTO.getReturnedTokenCount();
 
-        if(tokensWithAddedAndReturned > 10) throw new TooManyTokensException("You can't have more than 10 tokens");
-        if(tokensWithAdded > 10 && tokensWithAddedAndReturned < 10)  throw new TooManyReturnedTokensException("If you return tokens, you have to finish on 10");
+        if (tokensWithAddedAndReturned > 10) throw new TooManyTokensException("You can't have more than 10 tokens");
+        if (tokensWithAdded > 10 && tokensWithAddedAndReturned < 10)  throw new TooManyReturnedTokensException("If you return tokens, you have to finish on 10");
 
-        if(!tokenAmountCheck(user, tokenMap, room)) throw new WrongTokenChoiceException("You haven't choosen tokens correctly");
+        if (!tokenAmountCheck(user, tokenMap, room)) throw new WrongTokenChoiceException("You haven't choosen tokens correctly");
 
     }
 

@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.enums.Regex;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
@@ -23,7 +24,7 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  *
  * Players sends this request if they are the host of the game and they want to
  * kick other player from the lobby.
- * In reaction server sends to all players message of type `KICK_ANNONUCEMENT`
+ * In reaction server sends to all players message of type `KICK_ANNOUNCEMENT`
  * announcing that this has happend.
  * 
  * Example of user request
@@ -39,7 +40,7 @@ import com.github.splendor_mobile_game.websocket.response.Result;
  * Example of server announcement
  * {
  * "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- * "type": "KICK_ANNONUCEMENT",
+ * "type": "KICK_ANNOUNCEMENT",
  * "result": "OK",
  * "data": {
  * "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
@@ -58,8 +59,8 @@ public class Kick extends Reaction {
 
     @DataClass
     public static class DataDTO {
-        private UUID userUuid;
-        private UUID kickedUserUuid;
+        private final UUID userUuid;
+        private final UUID kickedUserUuid;
 
         public DataDTO(UUID userUuid, UUID kickedUserUuid) {
             this.userUuid = userUuid;
@@ -92,7 +93,7 @@ public class Kick extends Reaction {
 
     // {
     // "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
-    // "type": "KICK_ANNONUCEMENT",
+    // "type": "KICK_ANNOUNCEMENT",
     // "result": "OK",
     // "data": {
     // "kickedUserUuid": "521ba578-f989-4488-b3ee-91b043abbc83"
@@ -116,7 +117,7 @@ public class Kick extends Reaction {
 
             ResponseData responseData = new ResponseData(kickedUserUuid);
             ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(),
-                    ServerMessageType.KICK_ANNONUCEMENT,
+                    ServerMessageType.KICK_ANNOUNCEMENT,
                     Result.OK, responseData);
 
             for (User u : room.getAllUsers()) {
@@ -131,40 +132,36 @@ public class Kick extends Reaction {
 
     }
 
-    private void validateData(DataDTO dataDTO, Database database)
-            throws InvalidUUIDException, PerrmissionDeniedExeption, RoomDoesntExistException, UserNotAMemberException {
-        Pattern uuidPattern = Pattern
-                .compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, PerrmissionDeniedExeption, UserNotAMemberException {
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userUuid.toString()))
+            throw new InvalidUUIDException("Invalid user UUID format.");
 
-        // checks if room owner exists
-        Matcher userUuidMatcher = uuidPattern.matcher(dataDTO.userUuid.toString());
-        System.out.println(dataDTO.userUuid.toString());
-        if (!userUuidMatcher.find())
-            throw new InvalidUUIDException("Invalid room owner UUID format.");
-
-        // checks if user to be kicked exists
-        Matcher kickUserUuidMatcher = uuidPattern.matcher(dataDTO.kickedUserUuid.toString());
-        if (!kickUserUuidMatcher.find())
+        // Check if user's to be kicked UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.kickedUserUuid.toString()))
             throw new InvalidUUIDException("Invalid user to be kicked UUID format.");
 
         // checks if user-owner and user-to-be-kicked are not the same user
         if (dataDTO.userUuid.equals(dataDTO.kickedUserUuid))
             throw new InvalidUUIDException("You can not kick yourself mate.");
 
-        // checks if room exists
+
+        // Check if room exists
         Room room = database.getRoomWithUser(dataDTO.userUuid);
         if (room == null)
-            throw new RoomDoesntExistException("Could not find a room connected with user-owner UUID.");
+            throw new UserNotAMemberException("You are not a member of any room!");
 
-        // checks if owner is in fact owner
+
+        // Check if owner is in fact owner
         User roomOwner = database.getUser(dataDTO.userUuid);
         if (room.getOwner() != roomOwner)
             throw new PerrmissionDeniedExeption("You need to be a room owner to kick players.");
 
-        // checks if user to be kicked is in the room
+
+        // Check if user to be kicked is in the same room as owner
         User userToBeKicked = database.getUser(dataDTO.kickedUserUuid);
         if (!room.userExists(userToBeKicked))
-            throw new UserNotAMemberException("Could not find a user to be kicked in the room.");
+            throw new UserNotAMemberException("Specified user is not a member of your room!");
     }
 
 }
