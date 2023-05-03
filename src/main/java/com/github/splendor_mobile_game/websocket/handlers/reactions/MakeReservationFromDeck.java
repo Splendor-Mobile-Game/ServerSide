@@ -99,13 +99,15 @@ public class MakeReservationFromDeck extends Reaction {
 
     public class CardDataResponse{
         public UUID uuid;
+        public CardTier cardTier;
         public int prestige;
         public TokenType bonusColor;
         public TokensDataResponse tokensRequired;
 
 
-        public CardDataResponse(UUID uuid, int prestige, TokenType bonusColor, TokensDataResponse tokensRequired) {
+        public CardDataResponse(UUID uuid, CardTier cardTier,  int prestige, TokenType bonusColor, TokensDataResponse tokensRequired) {
             this.uuid = uuid;
+            this.cardTier = cardTier;
             this.prestige = prestige;
             this.bonusColor = bonusColor;
             this.tokensRequired = tokensRequired;
@@ -163,7 +165,8 @@ public class MakeReservationFromDeck extends Reaction {
             ResponseData responseData = new ResponseData(
                 reservee.getUuid(), 
                 new CardDataResponse(
-                    card.getUuid(), 
+                    card.getUuid(),
+                    card.getCardTier(), 
                     card.getPoints(), 
                     card.getAdditionalToken(), 
                     new TokensDataResponse(
