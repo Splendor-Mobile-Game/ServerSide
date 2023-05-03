@@ -11,13 +11,6 @@ import java.util.EnumSet;
 // TODO: Java doc required
 public class Log {
 
-    public enum LogLevel{
-        TRACE,
-        INFO,
-        DEBUG,
-        WARNING,
-        ERROR
-    }
 
     private static EnumSet<LogLevel> fileLogLevels=EnumSet.allOf(LogLevel.class);
     private static EnumSet<LogLevel> consoleLogLevels=EnumSet.allOf(LogLevel.class);
@@ -35,7 +28,9 @@ public class Log {
         Log.fileToWrite.getParentFile().mkdirs();
         Log.savingToFile = true;  
     }
-
+    public static void SetFileLogLevel(EnumSet<LogLevel> fileLogLevels){
+        Log.fileLogLevels = fileLogLevels;
+    }
     public static boolean AddFileLogLevel(LogLevel LogLevel){
         return fileLogLevels.add(LogLevel);
     }

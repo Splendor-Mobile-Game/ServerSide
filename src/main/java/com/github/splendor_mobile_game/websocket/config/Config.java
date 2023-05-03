@@ -1,5 +1,9 @@
 package com.github.splendor_mobile_game.websocket.config;
 
+import java.util.EnumSet;
+
+import com.github.splendor_mobile_game.websocket.utils.LogLevel;
+
 /** The Config interface provides methods to retrieve various configuration parameters. */
 public interface Config {
     
@@ -38,13 +42,13 @@ public interface Config {
     
     /**
      * Returns the log levels from console.
-     * @return The log levels as a String.
+     * @return The log levels as a EnumSet.
      */
-    public String getConsoleLogLevels();
+    public EnumSet<LogLevel> getConsoleLogLevels();
 
     /**
      * Returns the log levels from file.
-     * @return The log levels as a String.
+     * @return The log levels as a EnumSet.
      */
-    public String getFileLogLevels();
+    public EnumSet<LogLevel> getFileLogLevels();
 }

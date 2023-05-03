@@ -47,6 +47,7 @@ public class App {
 		Config config = new EnvConfig("./.env");
 
 		// Initialize the logger
+		Log.SetFileLogLevel(config.getFileLogLevels());
 		Log.setSavingLogsToFile(config.getLogsDir());
 
 		// Define where are reactions to the messages from client and load these reactions
