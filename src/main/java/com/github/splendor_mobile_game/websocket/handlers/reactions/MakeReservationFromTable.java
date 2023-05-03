@@ -47,8 +47,22 @@ import java.util.regex.Pattern;
  *      "type": "RESERVATION_FROM_TABLE_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
- *          "userUuid": "9978b2ba-f3e5-4e23-818a-879b0adcfe9a",
- *          "cardUuid": "a59cabab-6dac-44c7-ae53-ad8e22936f2c"
+ *          "reserveData":{
+    *          "userUuid": "9978b2ba-f3e5-4e23-818a-879b0adcfe9a",
+    *          "cardUuid": "a59cabab-6dac-44c7-ae53-ad8e22936f2c"
+ *          },
+ *          "newCardRevealed":{
+ *              "uuid": "501ba578-f919-4488-b3ee-91b043abbc83",
+ *              "cardTier": 1,
+ *              "additionalToken": "RUBY",
+ *              "points": 2,
+ *              "rubyCost": 0,
+ *              "emeraldCost": 0,
+ *              "sapphireCost": 1,
+ *              "diamondCost": 2,
+ *              "onyxCost": 0
+ *          },
+ *          "gotGoldenToken":"true"        
  *      }
  * }
  *
@@ -98,20 +112,41 @@ public class MakeReservationFromTable extends Reaction {
         }
     }
 
+    public class ReserveeDataResponse {
+        public UUID userUuid;
+        public UUID reservedCardUuid;
+
+        public ReserveeDataResponse(UUID userUuid, UUID reservedCardUuid) {
+            this.userUuid = userUuid;
+            this.reservedCardUuid = reservedCardUuid;
+        }
+    }
+
     //data about card for response
     public class CardDataResponse{
         public UUID uuid;
-        public int prestige;
-        public TokenType bonusColor;
-        public TokensDataResponse tokensRequired;
+        public CardTier cardTier;
+        public TokenType additionalToken;
+        public int points;
+        
+        public int rubyCost;
+        public int emeraldCost;
+        public int sapphireCost;
+        public int diamondCost;
+        public int onyxCost;
 
 
-        public CardDataResponse(UUID uuid, int prestige, TokenType bonusColor, TokensDataResponse tokensRequired) {
+        public CardDataResponse(UUID uuid, CardTier cardTier, TokenType additionalToken, int points, int rubyCost, int emeraldCost, int sapphireCost, int diamondCost, int onyxCost) {
             this.uuid = uuid;
-            this.prestige = prestige;
-            this.bonusColor = bonusColor;
-            this.tokensRequired = tokensRequired;
-        }
+            this.cardTier = cardTier;
+            this.additionalToken = additionalToken;
+            this.points = points;
+            this.rubyCost = rubyCost;
+            this.emeraldCost = emeraldCost;
+            this.sapphireCost = sapphireCost;
+            this.diamondCost = diamondCost;
+            this.onyxCost = onyxCost;
+        }              
     }
 
     //data how much cost card for response
@@ -134,13 +169,13 @@ public class MakeReservationFromTable extends Reaction {
 
     //class that stores data to make a response
     public class ResponseData{
-        public UUID userUuid;
+        public ReserveeDataResponse reservee;
         public CardDataResponse cardDataResponse;
         public boolean gotGoldenToken;
 
 
-        public ResponseData(UUID userUuid, CardDataResponse cardDataResponse, boolean gotGoldenToken) {
-            this.userUuid = userUuid;
+        public ResponseData(ReserveeDataResponse reservee, CardDataResponse cardDataResponse, boolean gotGoldenToken) {
+            this.reservee = reservee;
             this.cardDataResponse = cardDataResponse;
             this.gotGoldenToken = gotGoldenToken;
         }
@@ -163,27 +198,41 @@ public class MakeReservationFromTable extends Reaction {
             ReservationResult reservationResult = game.reserveCardFromTable(database.getCard(dataDTO.cardDTO.uuid),reservee);
 
             //newcard
-            Card card = reservationResult.getCard();
+            Card cardDrawn = reservationResult.getCard();
             boolean gotGoldenToken = reservationResult.getGoldenToken();
 
            //card.getCardTier() returns a card tier from new card, which is also card tier of old one
-            Log.DEBUG("User "+reservee.getName()+" reserved card from table "+card.getCardTier()+" and golden token: "+gotGoldenToken);
+            Log.DEBUG("User "+reservee.getName()+" reserved card from table "+cardDrawn.getCardTier()+" and golden token: "+gotGoldenToken);
+
+
+            CardDataResponse cardDataResponse=null;
+            if(cardDrawn!=null){
+                cardDataResponse = new CardDataResponse(
+                    cardDrawn.getUuid(),
+                    cardDrawn.getCardTier(),
+                    cardDrawn.getAdditionalToken(),
+                    cardDrawn.getPoints(),
+                    cardDrawn.getCost(TokenType.RUBY),
+                    cardDrawn.getCost(TokenType.EMERALD),
+                    cardDrawn.getCost(TokenType.SAPPHIRE),
+                    cardDrawn.getCost(TokenType.DIAMOND),
+                    cardDrawn.getCost(TokenType.ONYX)
+                );
+
+                Log.DEBUG("New card drawn "+cardDrawn.getUuid());
+            }else{
+                cardDataResponse=null;
+                Log.DEBUG("New card was not drawn ");
+            }
+
 
             //creating a responseData which contains user uuid and all informations about new card which will replace the reserved one
             ResponseData responseData = new ResponseData(
-                    reservee.getUuid(),
-                    new CardDataResponse(
-                            card.getUuid(),
-                            card.getPoints(),
-                            card.getAdditionalToken(),
-                            new TokensDataResponse(
-                                    card.getCost(TokenType.RUBY),
-                                    card.getCost(TokenType.EMERALD),
-                                    card.getCost(TokenType.SAPPHIRE),
-                                    card.getCost(TokenType.DIAMOND),
-                                    card.getCost(TokenType.ONYX)
-                            )
-                    ),
+                    new ReserveeDataResponse(
+                        reservee.getUuid(),
+                        dataDTO.cardDTO.uuid //reserved card
+                        ),
+                    cardDataResponse,
                     gotGoldenToken
             );
             ArrayList<User> players = room.getAllUsers();
