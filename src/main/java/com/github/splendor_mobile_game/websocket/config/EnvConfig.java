@@ -68,6 +68,8 @@ public class EnvConfig implements Config {
         this.logsDir = (String) this.loadValue(dotenv, "LOGS_DIR", String.class, true);
         String tmpConsoleLogLevels = (String) this.loadValue(dotenv, "CONSOLE_LOG_LEVELS", String.class, true);
         String tmpFileLogLevels = (String) this.loadValue(dotenv, "FILE_LOG_LEVELS", String.class, true);
+        this.consoleLogLevels = parseLogLevels(tmpConsoleLogLevels);
+        this.fileLogLevels = parseLogLevels(tmpFileLogLevels);
     }
 
     private EnumSet<LogLevel> parseLogLevels(String logLevels){

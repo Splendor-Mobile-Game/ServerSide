@@ -31,6 +31,9 @@ public class Log {
     public static void SetFileLogLevel(EnumSet<LogLevel> fileLogLevels){
         Log.fileLogLevels = fileLogLevels;
     }
+    public static void SetConsoleLogLevel(EnumSet<LogLevel> consoleLogLevels){
+        Log.consoleLogLevels = consoleLogLevels;
+    }
     public static boolean AddFileLogLevel(LogLevel LogLevel){
         return fileLogLevels.add(LogLevel);
     }
