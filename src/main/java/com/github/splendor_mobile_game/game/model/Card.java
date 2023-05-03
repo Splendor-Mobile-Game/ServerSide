@@ -16,6 +16,8 @@ public class Card {
 
     private final int points;
 
+    private final int graphicsID;
+
     // private final int emeraldCost;
     // private final int sapphireCost;
     // private final int rubyCost;
@@ -36,6 +38,7 @@ public class Card {
         this.cost.put(TokenType.DIAMOND, diamondCost);
         this.cost.put(TokenType.ONYX, onyxCost);
 
+        this.graphicsID = (int) ((Math.random() * 5) + 0);
 
         this.additionalToken = token;
     }
@@ -56,6 +59,10 @@ public class Card {
     //     this.additionalToken = tokenType;
     //     return this;
     // }
+
+    public int getGraphicsID() {
+        return graphicsID;
+    }
 
     public int getPoints() {
         return points;

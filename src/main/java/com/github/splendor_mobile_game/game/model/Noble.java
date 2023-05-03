@@ -11,6 +11,8 @@ public class Noble {
     //Noble -> Arystokrata, Magnat
     private final UUID uuid;
 
+    private final int graphicsID;
+
     // private final int emeraldCost; // Green
     // private final int sapphireCost;  // Blue
     // private final int rubyCost;  // Red
@@ -27,10 +29,16 @@ public class Noble {
         this.cost.put(TokenType.RUBY, rubyCost);
         this.cost.put(TokenType.DIAMOND, diamondCost);
         this.cost.put(TokenType.ONYX, onyxCost);
+
+        this.graphicsID = (int) ((Math.random() * 10) + 0);
     }
 
     public UUID getUuid() {
         return uuid;
+    }
+
+    public int getGraphicsID() {
+        return graphicsID;
     }
 
     public int getPoints() {
