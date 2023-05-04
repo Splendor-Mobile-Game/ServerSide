@@ -250,15 +250,7 @@ public class CreateRoom extends Reaction {
         if (!Regex.PASSWORD_PATTERN.matches((dataDTO.roomDTO.password)))
             throw new InvalidPasswordException("Invalid room password format.");
 
-
-
-        // Check if room with specified name already exists NAME OF THE ROOM MUST BE UNIQUE
-        if (database.getRoom(dataDTO.roomDTO.name) != null)
-            throw new RoomAlreadyExistsException("Room with specified name already exists!");
-
-
         // Check if user is already a member of any room
         database.isUserInRoom(dataDTO.userDTO.uuid);
-
     }
 }
