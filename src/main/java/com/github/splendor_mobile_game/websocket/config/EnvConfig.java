@@ -1,6 +1,7 @@
 package com.github.splendor_mobile_game.websocket.config;
 
 import java.io.File;
+import java.util.EnumSet;
 
 import com.github.splendor_mobile_game.websocket.config.exceptions.EnvFileNotFoundException;
 import com.github.splendor_mobile_game.websocket.config.exceptions.EnvRequiredValueNotFoundException;
@@ -8,6 +9,7 @@ import com.github.splendor_mobile_game.websocket.config.exceptions.EnvValueWrong
 import com.github.splendor_mobile_game.websocket.config.exceptions.InvalidConfigException;
 import com.github.splendor_mobile_game.websocket.config.exceptions.UnsupportedEnvValueTypeException;
 import com.github.splendor_mobile_game.websocket.utils.Log;
+import com.github.splendor_mobile_game.websocket.utils.LogLevel;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -18,6 +20,8 @@ public class EnvConfig implements Config {
     private int pingIntervalMs;
     private int connectionCheckIntervalMs;
     private String logsDir;
+    private EnumSet<LogLevel> fileLogLevels=EnumSet.allOf(LogLevel.class);
+    private EnumSet<LogLevel> consoleLogLevels=EnumSet.allOf(LogLevel.class);
 
     /**
      * Creates a new EnvConfig instance with the default path for the environment file.
@@ -62,6 +66,22 @@ public class EnvConfig implements Config {
         this.pingIntervalMs = (Integer) this.loadValue(dotenv, "PING_INTERVAL_MS", Integer.class, true);
         this.connectionCheckIntervalMs = (Integer) this.loadValue(dotenv, "CONNECTION_CHECK_INTERVAL_MS", Integer.class, true);
         this.logsDir = (String) this.loadValue(dotenv, "LOGS_DIR", String.class, true);
+        String tmpConsoleLogLevels = (String) this.loadValue(dotenv, "CONSOLE_LOG_LEVELS", String.class, true);
+        String tmpFileLogLevels = (String) this.loadValue(dotenv, "FILE_LOG_LEVELS", String.class, true);
+        this.consoleLogLevels = parseLogLevels(tmpConsoleLogLevels);
+        this.fileLogLevels = parseLogLevels(tmpFileLogLevels);
+    }
+
+    private EnumSet<LogLevel> parseLogLevels(String logLevels){
+        EnumSet<LogLevel> valueLogLevels = EnumSet.noneOf(LogLevel.class);
+        String[] values = logLevels.split(",");
+
+        for(String value : values){
+            LogLevel enumValue = LogLevel.valueOf(value.trim().toUpperCase());
+            valueLogLevels.add(enumValue);
+        }
+
+        return valueLogLevels;
     }
 
     // TODO: This function can be unit tested
@@ -140,6 +160,16 @@ public class EnvConfig implements Config {
     @Override
     public String getLogsDir() {
         return this.logsDir;
+    }
+
+    @Override
+    public EnumSet<LogLevel> getConsoleLogLevels() {
+        return this.consoleLogLevels;
+    }
+
+    @Override
+    public EnumSet<LogLevel> getFileLogLevels() {
+        return this.fileLogLevels;
     }
 
 }
