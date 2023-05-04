@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
-import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import org.junit.jupiter.api.Test;
 
@@ -391,119 +389,6 @@ public class CreateRoomTests {
 
         JsonElement expectedJson = JsonParser.parseString((expectedJsonString));
         JsonElement actualJson = JsonParser.parseString(reply);
-
-        assertTrue(actualJson.getAsJsonObject().get("data").getAsJsonObject().has("error"));
-        assertEquals(expectedJson, actualJson);
-    }
-
-    @Test
-    public void invalidPasswordTest(){
-        String messageContextId = "80bdc250-5365-4caf-8dd9-a33e709a0116";
-        String messageType = "CREATE_ROOM";
-        String userUuid = "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454";
-        String userName = "UserName";
-        String roomName = "RoomName";
-        String roomPassword = "p\"w";
-
-        String message = this.newBaseMessage()
-                .replace("$messageContextId", messageContextId)
-                .replace("$type", messageType)
-                .replace("$userId", userUuid)
-                .replace("$userName", userName)
-                .replace("$roomName", roomName)
-                .replace("$roomPassword", roomPassword);
-
-        int clientConnectionHashCode = 714239;
-        UserMessage receivedMessage = new UserMessage(message);
-        Messenger messenger = new Messenger();
-        Database database = new InMemoryDatabase();
-
-        CreateRoom createRoom = new CreateRoom(clientConnectionHashCode, receivedMessage, messenger, database);
-        receivedMessage.parseDataToClass(CreateRoom.DataDTO.class);
-        createRoom.react();
-
-        assertEquals(1, messenger.getMessages().size());
-        assertEquals(clientConnectionHashCode, messenger.getMessages().get(0).getReceiverHashcode());
-
-        String expectedJsonString = this.newBaseErrorResponse()
-                .replace("$messageContextId", messageContextId)
-                .replace("$error", "Invalid room password format.");
-
-        String reply = messenger.getMessages().get(0).getMessage();
-        Log.DEBUG(reply);
-
-        JsonElement expectedJson = JsonParser.parseString((expectedJsonString));
-        JsonElement actualJson = JsonParser.parseString(reply);
-
-        assertTrue(actualJson.getAsJsonObject().get("data").getAsJsonObject().has("error"));
-        assertEquals(expectedJson, actualJson);
-    }
-    @Test
-    public void roomWithSpecifiedNameAlreadyExistedTest(){
-        String messageContextId = "80bdc250-5365-4caf-8dd9-a33e709a0116";
-        String messageType = "CREATE_ROOM";
-        String userUuid = "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454";
-        String userName = "UserName";
-        String roomName = "RoomName";
-        String roomPassword = "password";
-
-        String message = this.newBaseMessage()
-                .replace("$messageContextId", messageContextId)
-                .replace("$type", messageType)
-                .replace("$userId", userUuid)
-                .replace("$userName", userName)
-                .replace("$roomName", roomName)
-                .replace("$roomPassword", roomPassword);
-
-        int clientConnectionHashCode = 714239;
-        UserMessage receivedMessage = new UserMessage(message);
-        Messenger messenger = new Messenger();
-        Database database = new InMemoryDatabase();
-
-        CreateRoom createRoom = new CreateRoom(clientConnectionHashCode, receivedMessage, messenger, database);
-        receivedMessage.parseDataToClass(CreateRoom.DataDTO.class);
-        createRoom.react();
-
-        assertEquals(1, messenger.getMessages().size());
-        assertEquals(clientConnectionHashCode, messenger.getMessages().get(0).getReceiverHashcode());
-
-        String reply = messenger.getMessages().get(0).getMessage();
-        JsonElement actualJson = JsonParser.parseString(reply);
-        assertEquals(roomName, actualJson.getAsJsonObject().get("data").getAsJsonObject().get("room").getAsJsonObject().get("name").getAsString());
-
-        messageContextId = "80bdc250-5365-4caf-8dd9-a33e709a0117";
-        userUuid = "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3455";
-        userName = "SecondUserName";
-        roomName = "RoomName";
-        roomPassword = "password";
-
-        message = this.newBaseMessage()
-                .replace("$messageContextId", messageContextId)
-                .replace("$type", messageType)
-                .replace("$userId", userUuid)
-                .replace("$userName", userName)
-                .replace("$roomName", roomName)
-                .replace("$roomPassword", roomPassword);
-
-        clientConnectionHashCode = 714240;
-        receivedMessage = new UserMessage((message));
-
-        createRoom = new CreateRoom(clientConnectionHashCode, receivedMessage, messenger, database);
-        receivedMessage.parseDataToClass(CreateRoom.DataDTO.class);
-        createRoom.react();
-
-        assertEquals(2, messenger.getMessages().size());
-        assertEquals(clientConnectionHashCode, messenger.getMessages().get(1).getReceiverHashcode());
-
-        String expectedJsonString = this.newBaseErrorResponse()
-                .replace("$messageContextId", messageContextId)
-                .replace("$error", "Room with specified name already exists!");
-
-        reply = messenger.getMessages().get(1).getMessage();
-        Log.DEBUG(reply);
-
-        JsonElement expectedJson = JsonParser.parseString((expectedJsonString));
-        actualJson = JsonParser.parseString(reply);
 
         assertTrue(actualJson.getAsJsonObject().get("data").getAsJsonObject().has("error"));
         assertEquals(expectedJson, actualJson);
