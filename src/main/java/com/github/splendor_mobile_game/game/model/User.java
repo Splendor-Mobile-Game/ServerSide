@@ -1,13 +1,11 @@
 package com.github.splendor_mobile_game.game.model;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.github.splendor_mobile_game.game.Exceptions.NotEnoughBonusPointsException;
 import com.github.splendor_mobile_game.game.Exceptions.NotEnoughTokensException;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.websocket.utils.Log;
@@ -113,15 +111,17 @@ public class User implements Comparable<User> {
 
     }
 
-    public void takeNoble(Noble noble) throws NotEnoughBonusPointsException {
+    public boolean takeNoble(Noble noble) {
         for(Map.Entry<TokenType, Integer> set : this.cardBonuses.entrySet()) {
-            if(set.getValue() < noble.getCost((set.getKey()))) throw new NotEnoughBonusPointsException("You don't have enough cards for this Noble to visit you");
+            if(set.getValue() < noble.getCost((set.getKey()))) return false;
+                //throw new NotEnoughBonusPointsException("You don't have enough cards for this Noble to visit you");
         }
 
         this.visitingNobles.add(noble);
         this.addPoints(noble.getPoints());
 
         Log.INFO("Kupiono nobla o id " + noble.getUuid());
+        return true;
     }
 
     private void addPoints(int points) {
