@@ -3,10 +3,9 @@ package com.github.splendor_mobile_game.websocket.handlers.reactions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.Validate;
+import com.github.splendor_mobile_game.game.enums.Regex;
+import com.github.splendor_mobile_game.game.model.Noble;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
@@ -21,7 +20,6 @@ import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntE
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomInGameException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserTurnException;
-import com.github.splendor_mobile_game.websocket.handlers.reactions.CreateRoom.DataDTO;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.game.model.User;
@@ -54,10 +52,27 @@ import com.github.splendor_mobile_game.game.model.Room;
  * Implementation details:
  * - The player who sent the message is identified by their WebSocket's connectionHashCode.
  * - The implementation should include logic to store information about whose turn it is and the order of turns.
+ *
+ *
+ * During the EndTurn process nobles might visit the current user automatically. Maximum amount of noble visits per round is equal to 1.
+ * When user has enough points from cards to make a noble visit him - the announcement should be sent to all users inside the room.
+ * Example NOBLE_RECEIVED_ANNOUNCEMENT:
+ *
+ * {
+ *     "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *     "type": "NOBLE_RECEIVED_ANNOUNCEMENT",
+ *     "result": "OK",
+ *     "data": {
+ *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
+ *          "nobleUuid": "59913c86-bc7e-44a4-ad8e-2ffadd574df3"
+ *     }
+ * }
+ *
+ *
  * 
  * This reaction is also responsible for detecting when the game ends. The game ends when one player has more than 15 points and the server needs to complete the current turn so that every player has done the same amount of actions.
  * 
- * If a player sends an invalid request, such as when it is not their turn or they are not in any game, the server sends a response only to the requester. For example:
+ * If a player sends an invalid request, such as when it is not their turn, or they are not in any game, the server sends a response only to the requester. For example:
  *
  * {
  *     "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
@@ -113,6 +128,17 @@ public class EndTurn extends Reaction {
         }
     }
 
+
+    public class ResponseDataNobleReceived {
+        public UUID userUuid;
+        public UUID nobleUuid;
+
+        public ResponseDataNobleReceived(UUID userUuid, UUID nobleUuid) {
+            this.userUuid = userUuid;
+            this.nobleUuid = nobleUuid;
+        }
+    }
+
     @Override
     public void react() {
         DataDTO dataDTO = (DataDTO) userMessage.getData();
@@ -124,12 +150,34 @@ public class EndTurn extends Reaction {
             Room room = database.getRoomWithUser(user.getUuid());
             Game game = room.getGame();
 
-            ServerMessage serverMessage;
 
-            room.changeTurn();
-            if (user.getPoints() >= 15){
-                room.setLastTurn(true);
+            // Check if player can take any Noble
+            for (Noble noble : game.getNobles()) {
+
+                // if he can then announce it
+                if (user.takeNoble(noble)) {
+                    ResponseDataNobleReceived responseData = new ResponseDataNobleReceived(user.getUuid(), noble.getUuid());
+                    ServerMessage serverMessage = new ServerMessage(
+                            userMessage.getContextId(),
+                            ServerMessageType.NOBLE_RECEIVED_ANNOUNCEMENT,
+                            Result.OK,
+                            responseData);
+
+                    for (User u : room.getAllUsers())
+                        messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
+
+                    break; // Only one noble might be taken during one round
+                }
             }
+
+
+            ServerMessage serverMessage;
+            room.changeTurn();
+
+            // Check if it is the last round
+            if (user.getPoints() >= 15) room.setLastTurn(true);
+
+            // Check if it's the last round and every player did the same amount of actions
             if (room.getLastTurn() && room.isPlayersMovesEqual()) {
                 room.endGame();
                 
@@ -137,16 +185,18 @@ public class EndTurn extends Reaction {
                 ArrayList<User> users = room.getAllUsers();
                 Collections.sort(users);
 
-                for (User player : users) {
+                for (User player : users)
                     playerRanking.add(new PlayerDataResponse(player.getUuid(), player.getPoints(), game.getUserRanking(user.getUuid())));
-                }
+
                 ResponseDataEndGame responseData = new ResponseDataEndGame(playerRanking);
                 serverMessage = new ServerMessage(
                     userMessage.getContextId(), 
                     ServerMessageType.END_GAME_ANNOUNCEMENT, 
                     Result.OK, 
                     responseData);
+
             } else {
+
                 UUID nextUserUUID = room.getCurrentPlayer().getUuid();
                 ResponseData responseData = new ResponseData(nextUserUUID);
                 serverMessage = new ServerMessage(
@@ -154,11 +204,12 @@ public class EndTurn extends Reaction {
                     ServerMessageType.NEW_TURN_ANNOUNCEMENT, 
                     Result.OK, 
                     responseData);
+
             }
 
-            for(User u : room.getAllUsers()){
-                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage); 
-            }
+            for (User u : room.getAllUsers())
+                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
+
 
         } catch (Exception e) {
             ErrorResponse errorResponse = new ErrorResponse(
@@ -169,47 +220,40 @@ public class EndTurn extends Reaction {
                 messenger.addMessageToSend(connectionHashCode, errorResponse);
         }         
     }
-    
+
+
     private void validateData(DataDTO dataDTO, Database database) 
     throws UserDoesntExistException, RoomDoesntExistException, RoomInGameException,
     UserTurnException, InvalidUUIDException {
-        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"); 
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userUuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
 
-        // Check if user UUID matches the pattern
-        Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userUuid.toString());
-        if (!uuidMatcher.find())
-            throw new InvalidUUIDException("Invalid UUID format."); 
-        
-        User player = database.getUser(dataDTO.userUuid);
 
+        User user = database.getUser(dataDTO.userUuid);
         // Check if user exists
-        if (player == null) {
+        if (user == null)
             throw new UserDoesntExistException("There is no such user in the database");
-        }
 
-        Room room = database.getRoomWithUser(player.getUuid());
 
-        // check if room exists
-        if (room == null) {
+        Room room = database.getRoomWithUser(user.getUuid());
+        // Check if room exists
+        if (room == null)
             throw new RoomDoesntExistException("Room does not exist whose user is a member of");
-        }
 
-        // checks if player has performed an action
-        if (!player.hasPerformedAction()) {
+        // Check if player has performed an action
+        if (!user.hasPerformedAction())
             throw new UserDoesntExistException("User has to perform an action before ending a turn");
-        }
+
 
         Game game = room.getGame();
-
         // Check if user is in game
-        if (game == null) {
+        if (game == null)
             throw new RoomInGameException("The room is not in game state");
-        }
 
         // Check if it is user's turn
-        if (room.getCurrentPlayer() != player) {
+        if (room.getCurrentPlayer() != user)
             throw new UserTurnException("It is not a user's turn");
-        }
 
     }
 }
