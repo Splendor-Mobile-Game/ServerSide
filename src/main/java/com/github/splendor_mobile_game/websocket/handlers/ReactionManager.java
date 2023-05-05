@@ -123,6 +123,7 @@ public class ReactionManager {
                 Log.ERROR(clazz.getName() + " was not registered as the Reaction, because it doesn't" 
                     + " implement constructor with `int`, `ReceivedMessage`, `Messenger` and `Database`, but it's required!"
                 );
+                continue;
             }
 
             // Check if the class is public
