@@ -181,7 +181,7 @@ public class EndTurn extends Reaction {
                 ResponseDataPass responseData = new ResponseDataPass(room.getCurrentPlayer().getUuid());
                 ServerMessage serverMessage = new ServerMessage(
                         userMessage.getContextId(),
-                        ServerMessageType.PASS_CONFIRM_REQUEST,
+                        ServerMessageType.PASS_ANNOUNCEMENT,
                        Result.OK,
                         responseData);
 
