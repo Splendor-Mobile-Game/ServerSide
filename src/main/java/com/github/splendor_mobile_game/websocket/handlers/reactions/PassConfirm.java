@@ -18,11 +18,12 @@ import java.util.Collections;
 import java.util.UUID;
 
 /**
- * This class handles the `PASS` reaction. Players can send this request only if they haven't done any other action and it's impossible by the rules of the game to do any action. This will mark the player that they did an action. In reaction, the server sends to all players a message of type `PASS_ANNOUNCEMENT` announcing that this has happened.
+ * This class handles the `PASS_CONFIRM` reaction. Players can send this request only if they haven't done any other action, but they are still able to do so.
+ * Server sends `PASS_ANNOUNCEMENT` to all players announcing that player refused to perform an action.
  *
  * Example of user request:
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "PASS_CONFIRM",
  *      "data": {
  *         "userUuid": "9fc1845e-5469-458d-9893-07d390908479"
@@ -32,7 +33,7 @@ import java.util.UUID;
  *
  * Example of server announcement (where userUUID is uuid of next player's turn):
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "PASS_ANNOUNCEMENT",
  *      "result": "OK",
  *      "data": {
@@ -40,20 +41,16 @@ import java.util.UUID;
  *      }
  * }
  *
- * Implementation details:
- * - The player who sent the message is identified by their WebSocket's connectionHashCode.
- * - You need to modify some game classes, so they store information if the players has taken some action
- *
  * Description of bad requests:
  * - If a player sends a message when it's not their turn or they aren't in any game, trying to pass, but they can do another action, the server should send a response only to the requester.
  *
  * Example of a bad request:
  * {
- *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "PASS_RESPONSE",
+ *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *      "type": "PASS_CONFIRM_RESPONSE",
  *      "result": "FAILURE",
  *      "data": {
- *          "error": "You cannot pass this turn, you can do some action!"
+ *          "error": ""It's not your turn""
  *      }
  * }
  */
