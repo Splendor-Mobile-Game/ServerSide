@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.game.enums.Regex;
+import com.github.splendor_mobile_game.game.exceptions.CanPerformAnActionException;
 import com.github.splendor_mobile_game.game.model.Noble;
 
 import com.github.splendor_mobile_game.database.Database;
@@ -191,24 +192,22 @@ public class EndTurn extends Reaction {
             // Check if user did some action. If not, inform others that he didn't do anything this round.
             if (!user.hasPerformedAction()) {
 
-                // User can do something. Ask for skip turn confirmation
-                if (user.canPerformAnyActions()) {
+                try {
+                    // Check if user can perform any action. If he can, then catch an exception
+                    game.canPerformAnyAction(user);
 
-                    ResponseDataPass responseData = new ResponseDataPass(user.getUuid());
-                    ServerMessage serverMessage = new ServerMessage(
-                            userMessage.getContextId(),
-                            ServerMessageType.PASS_CONFIRM_RESPONSE,
-                            Result.OK,
-                            responseData);
-
-                    messenger.addMessageToSend(user.getConnectionHashCode(), serverMessage);
-
+                } catch (CanPerformAnActionException ex) {
+                    ErrorResponse errorResponse = new ErrorResponse(
+                            Result.FAILURE,
+                            ex.getMessage(),
+                            ServerMessageType.END_TURN_RESPONSE,
+                            userMessage.getContextId().toString());
+                    messenger.addMessageToSend(connectionHashCode, errorResponse);
                     return;  // Rest of the code shouldn't be checked, because user's points are not able to change if he didn't perform any action.
                 }
 
 
                 room.changeTurn();
-                user.setPerformedAction(false); // Reset performAction variable
 
                 // User can't do anything. Skip his turn
                 ResponseDataPass responseData = new ResponseDataPass(room.getCurrentPlayer().getUuid());
@@ -311,7 +310,7 @@ public class EndTurn extends Reaction {
 
         User user = database.getUser(dataDTO.userUuid);
         // Check if user exists
-        if (user == null) throw new UserDoesntExistException("There is no such user in the database");
+        if (user == null) throw new UserDoesntExistException("Couldn't find a user with given UUID.");
 
 
         Room room = database.getRoomWithUser(user.getUuid());
@@ -319,10 +318,10 @@ public class EndTurn extends Reaction {
         if (room == null) throw new UserNotAMemberException("You are not a member of any room!");
 
         // Check if game is running
-        if (room.getGame() == null) throw new GameNotStartedException("Game hasn't started yet");
+        if (room.getGame() == null) throw new GameNotStartedException("Game hasn't started yet.");
 
         // Check if it is user's turn
-        if (room.getCurrentPlayer() != user) throw new UserTurnException("It's not your turn");
+        if (room.getCurrentPlayer() != user) throw new UserTurnException("It's not your turn.");
 
     }
 }

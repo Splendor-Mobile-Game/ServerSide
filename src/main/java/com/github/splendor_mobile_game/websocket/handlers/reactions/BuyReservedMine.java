@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
-import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.enums.Regex;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Card;
-import com.github.splendor_mobile_game.game.model.Game;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
@@ -17,13 +16,7 @@ import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.CardDoesntExistException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomInGameException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserAlreadyInRoomException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMemberException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserTurnException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
@@ -136,7 +129,7 @@ public class BuyReservedMine extends Reaction {
 
     public class BuyerDataResponse {
         public UUID userUuid;
-        public TokensDataResponse tokens;// The new set of tokens of that player after they bought a mine
+        public TokensDataResponse tokens; // The new set of tokens of that player after they bought a mine
         public UUID cardUuid;
 
         public BuyerDataResponse(UUID userUuid, TokensDataResponse tokens, UUID cardUuid) {
@@ -168,7 +161,7 @@ public class BuyReservedMine extends Reaction {
             buyer.setPerformedAction(true);
             buyer.buyCard(boughtCard);
             buyer.removeCardFromReserved(boughtCard);
-            room.getGame().DecreaseGameReservationCount();
+            room.getGame().decreaseGameReservationCount();
 
             Log.DEBUG("User " + buyer.getName() + " has bought card (" + boughtCard.getUuid() + ")");
 
@@ -205,50 +198,45 @@ public class BuyReservedMine extends Reaction {
         }
     }
 
-    private void validateData(DataDTO dataDTO, Database database)
-            throws UserNotAMemberException, UserAlreadyInRoomException, RoomDoesntExistException, UserTurnException,
-            CardDoesntExistException, RoomInGameException, UserDoesntExistException {
+    private void validateData(DataDTO dataDTO, Database database) throws UserTurnException, CardDoesntExistException, UserDoesntExistException, UserNotAMemberException, GameNotStartedException, InvalidUUIDException {
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userDTO.uuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
 
-        User player = database.getUser(dataDTO.userDTO.uuid);
+        // Check if card's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.cardDTO.uuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
+
+
+        User user = database.getUser(dataDTO.userDTO.uuid);
 
         // Check if user exists
-        if (player == null) {
-            throw new UserDoesntExistException("There is no such user in the database");
-        }
+        if (user == null)
+            throw new UserDoesntExistException("Couldn't find a user with given UUID.");
 
-        Room room = database.getRoomWithUser(player.getUuid());
+        Room room = database.getRoomWithUser(user.getUuid());
+        // Check if room exists
+        if (room == null)
+            throw new UserNotAMemberException("You are not a member of any room!");
 
-        // Check if room exists whose user is a member of
-        if (room == null) {
-            throw new RoomDoesntExistException("Room does not exist whose user is a member of");
-        }
-
-        Game game = room.getGame();
-
-        // Check if user is in game
-        if (game == null) {
-            throw new RoomInGameException("The room is not in game state");
-        }
+        // Check if game is running
+        if (room.getGame() == null)
+            throw new GameNotStartedException("Game hasn't started yet.");
 
         // Check if it is user's turn
-        if (room.getCurrentPlayer() != player) {
-            throw new UserTurnException("It is not a user's turn");
-        }
+        if (room.getCurrentPlayer() != user)
+            throw new UserTurnException("It's not your turn.");
 
-        if (player.hasPerformedAction()) {
-            throw new UserTurnException("You have already performed an action");
-        }
+        if (user.hasPerformedAction())
+            throw new UserTurnException("You have already performed an action.");
 
         Card card = database.getCard(dataDTO.cardDTO.uuid);
-
         // Check if card exists
-        if (card == null) {
-            throw new CardDoesntExistException("There is no such card in the database");
-        }
+        if (card == null)
+            throw new CardDoesntExistException("Couldn't find a card with given UUID.");
 
-        // Check if the card is avaiable
-        if (!player.isCardReserved(card)) {
-            throw new CardDoesntExistException("The card is not in the reserved deck");
-        }
+        // Check if the card is available
+        if (!user.isCardReserved(card))
+            throw new CardDoesntExistException("The card is not in the reserved deck.");
     }
 }

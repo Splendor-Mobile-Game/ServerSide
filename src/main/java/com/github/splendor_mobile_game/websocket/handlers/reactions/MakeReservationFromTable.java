@@ -1,7 +1,6 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import com.github.splendor_mobile_game.database.Database;
-import com.github.splendor_mobile_game.game.Exceptions.NotEnoughTokensException;
 import com.github.splendor_mobile_game.game.ReservationResult;
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.TokenType;
@@ -198,7 +197,7 @@ public class MakeReservationFromTable extends Reaction {
             reservee.setPerformedAction(true);
             ReservationResult reservationResult = game.reserveCardFromTable(database.getCard(dataDTO.cardDTO.uuid),reservee);
 
-            // Newcard
+            // newCard
             Card cardDrawn = reservationResult.getCard();
             boolean gotGoldenToken = reservationResult.getGoldenToken();
 
@@ -207,7 +206,7 @@ public class MakeReservationFromTable extends Reaction {
 
 
             CardDataResponse cardDataResponse = null;
-            if(cardDrawn != null){
+            if (cardDrawn != null) {
                 cardDataResponse = new CardDataResponse(
                     cardDrawn.getUuid(),
                     cardDrawn.getCardTier(),
