@@ -165,6 +165,7 @@ public class BuyReservedMine extends Reaction {
             Card boughtCard = database.getCard(dataDTO.cardDTO.uuid);
             Room room = database.getRoomWithUser(buyer.getUuid());
 
+            buyer.setPerformedAction(true);
             buyer.buyCard(boughtCard);
             buyer.removeCardFromReserved(boughtCard);
             room.getGame().DecreaseGameReservationCount();

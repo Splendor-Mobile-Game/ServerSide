@@ -274,6 +274,7 @@ public class BuyRevealedMine extends Reaction {
             for(User player : players){
                 messenger.addMessageToSend(player.getConnectionHashCode(), serverMessage);        
             }
+            buyer.setPerformedAction(true);
 
 
         }catch (Exception e){

@@ -195,18 +195,19 @@ public class MakeReservationFromTable extends Reaction {
             Room room = database.getRoomWithUser(dataDTO.userDTO.uuid);
             Game game = room.getGame();
 
+            reservee.setPerformedAction(true);
             ReservationResult reservationResult = game.reserveCardFromTable(database.getCard(dataDTO.cardDTO.uuid),reservee);
 
-            //newcard
+            // Newcard
             Card cardDrawn = reservationResult.getCard();
             boolean gotGoldenToken = reservationResult.getGoldenToken();
 
-           //card.getCardTier() returns a card tier from new card, which is also card tier of old one
+           // card.getCardTier() returns a card tier from new card, which is also card tier of old one
             Log.DEBUG("User "+reservee.getName()+" reserved card from table "+cardDrawn.getCardTier()+" and golden token: "+gotGoldenToken);
 
 
-            CardDataResponse cardDataResponse=null;
-            if(cardDrawn!=null){
+            CardDataResponse cardDataResponse = null;
+            if(cardDrawn != null){
                 cardDataResponse = new CardDataResponse(
                     cardDrawn.getUuid(),
                     cardDrawn.getCardTier(),
