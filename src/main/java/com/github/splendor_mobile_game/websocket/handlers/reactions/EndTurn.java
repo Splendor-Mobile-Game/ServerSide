@@ -165,7 +165,7 @@ public class EndTurn extends Reaction {
                     ResponseDataPass responseData = new ResponseDataPass(user.getUuid());
                     ServerMessage serverMessage = new ServerMessage(
                             userMessage.getContextId(),
-                            ServerMessageType.PASS_CONFIRM_REQUEST,
+                            ServerMessageType.PASS_CONFIRM_RESPONSE,
                             Result.OK,
                             responseData);
 
@@ -284,18 +284,11 @@ public class EndTurn extends Reaction {
         // Check if room exists
         if (room == null) throw new UserNotAMemberException("You are not a member of any room!");
 
-        // Check if player has performed an action
-        //if (!user.hasPerformedAction())
-            //throw new UserDoesntExistException("You need to perform an action before ending your turn.");
-
-
         // Check if game is running
         if (room.getGame() == null) throw new GameNotStartedException("Game hasn't started yet");
 
         // Check if it is user's turn
         if (room.getCurrentPlayer() != user) throw new UserTurnException("It's not your turn");
 
-
-        //if (user.hasPerformedAction()) throw new NotThisUserTurnException("It's not your turn");
     }
 }

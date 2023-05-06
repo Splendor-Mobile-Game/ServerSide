@@ -1,12 +1,20 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.enums.Regex;
+import com.github.splendor_mobile_game.game.model.Game;
+import com.github.splendor_mobile_game.game.model.Noble;
+import com.github.splendor_mobile_game.game.model.Room;
+import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
-import com.github.splendor_mobile_game.websocket.handlers.DataClass;
-import com.github.splendor_mobile_game.websocket.handlers.Messenger;
-import com.github.splendor_mobile_game.websocket.handlers.Reaction;
-import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.*;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
+import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
+import com.github.splendor_mobile_game.websocket.response.Result;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.UUID;
 
 /**
@@ -15,13 +23,14 @@ import java.util.UUID;
  * Example of user request:
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *      "type": "PASS",
+ *      "type": "PASS_CONFIRM",
  *      "data": {
  *         "userUuid": "9fc1845e-5469-458d-9893-07d390908479"
  *      }
  * }
  *
- * Example of server announcement:
+ *
+ * Example of server announcement (where userUUID is uuid of next player's turn):
  * {
  *      "messageContextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "PASS_ANNOUNCEMENT",
@@ -48,7 +57,7 @@ import java.util.UUID;
  *      }
  * }
  */
-@ReactionName("PASS")
+@ReactionName("PASS_CONFIRM")
 public class PassConfirm extends Reaction {
 
     public PassConfirm(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
@@ -66,9 +75,76 @@ public class PassConfirm extends Reaction {
     }
 
 
+    public class ResponseDataPass {
+        public UUID userUuid;
+
+        public ResponseDataPass(UUID userUuid) {
+            this.userUuid = userUuid;
+        }
+    }
+
+
     @Override
     public void react() {
-        // TODO Auto-generated method stub
+        DataDTO dataDTO = (DataDTO) userMessage.getData();
+
+        try {
+            validateData(dataDTO, database);
+
+            User user = database.getUserByConnectionHashCode(connectionHashCode);
+            Room room = database.getRoomWithUser(user.getUuid());
+
+
+            room.changeTurn();
+
+            // User can't do anything. Skip his turn
+            ResponseDataPass responseData = new ResponseDataPass(room.getCurrentPlayer().getUuid());
+            ServerMessage serverMessage = new ServerMessage(
+                    userMessage.getContextId(),
+                    ServerMessageType.PASS_ANNOUNCEMENT,
+                    Result.OK,
+                    responseData);
+
+            for (User u : room.getAllUsers())
+                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
+
+
+
+        } catch (Exception e) {
+            ErrorResponse errorResponse = new ErrorResponse(
+                    Result.FAILURE,
+                    e.getMessage(),
+                    ServerMessageType.PASS_CONFIRM_RESPONSE,
+                    userMessage.getContextId().toString());
+            messenger.addMessageToSend(connectionHashCode, errorResponse);
+        }
     }
-    
+
+
+
+    private void validateData(DataDTO dataDTO, Database database) throws UserDoesntExistException, UserTurnException, InvalidUUIDException, UserNotAMemberException, GameNotStartedException {
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userUuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
+
+
+        User user = database.getUser(dataDTO.userUuid);
+        // Check if user exists
+        if (user == null) throw new UserDoesntExistException("There is no such user in the database");
+
+
+        Room room = database.getRoomWithUser(user.getUuid());
+        // Check if room exists
+        if (room == null) throw new UserNotAMemberException("You are not a member of any room!");
+
+        // Check if game is running
+        if (room.getGame() == null) throw new GameNotStartedException("Game hasn't started yet");
+
+        // Check if it is user's turn
+        if (room.getCurrentPlayer() != user) throw new UserTurnException("It's not your turn");
+
+        // Check if user did some action. If not, inform others that he didn't do anything this round.
+        if (!user.hasPerformedAction()) throw new UserTurnException("You performed some actions. Can't pass the turn.");
+
+    }
 }
