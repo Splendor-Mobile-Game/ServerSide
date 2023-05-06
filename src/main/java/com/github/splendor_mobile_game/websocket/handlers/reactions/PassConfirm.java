@@ -2,9 +2,12 @@ package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
+import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+
+import java.util.UUID;
 
 /**
  * This class handles the `PASS` reaction. Players can send this request only if they haven't done any other action and it's impossible by the rules of the game to do any action. This will mark the player that they did an action. In reaction, the server sends to all players a message of type `PASS_ANNOUNCEMENT` announcing that this has happened.
@@ -46,11 +49,22 @@ import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
  * }
  */
 @ReactionName("PASS")
-public class Pass extends Reaction {
+public class PassConfirm extends Reaction {
 
-    public Pass(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
+    public PassConfirm(int connectionHashCode, UserMessage userMessage, Messenger messenger, Database database) {
         super(connectionHashCode, userMessage, messenger, database);
     }
+
+
+    @DataClass
+    public static class DataDTO {
+        public UUID userUuid;
+
+        public DataDTO(UUID userUuid) {
+            this.userUuid = userUuid;
+        }
+    }
+
 
     @Override
     public void react() {

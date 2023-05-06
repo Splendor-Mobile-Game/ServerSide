@@ -124,6 +124,14 @@ public class User implements Comparable<User> {
         return true;
     }
 
+
+    public boolean canPerformAnyActions() {
+        // TODO
+        return true;
+    }
+
+
+
     private void addPoints(int points) {
         this.points += points;
     }
