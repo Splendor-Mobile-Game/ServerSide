@@ -4,7 +4,6 @@ import com.github.splendor_mobile_game.websocket.config.exceptions.EnvFileNotFou
 import com.github.splendor_mobile_game.websocket.config.exceptions.EnvRequiredValueNotFoundException;
 import com.github.splendor_mobile_game.websocket.config.exceptions.EnvValueWrongTypeException;
 import com.github.splendor_mobile_game.websocket.config.exceptions.InvalidConfigException;
-import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.github.splendor_mobile_game.websocket.utils.LogLevel;
 import org.junit.jupiter.api.Test;
 
