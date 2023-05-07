@@ -4,7 +4,11 @@ import com.github.splendor_mobile_game.websocket.config.exceptions.EnvFileNotFou
 import com.github.splendor_mobile_game.websocket.config.exceptions.EnvRequiredValueNotFoundException;
 import com.github.splendor_mobile_game.websocket.config.exceptions.EnvValueWrongTypeException;
 import com.github.splendor_mobile_game.websocket.config.exceptions.InvalidConfigException;
+import com.github.splendor_mobile_game.websocket.utils.Log;
+import com.github.splendor_mobile_game.websocket.utils.LogLevel;
 import org.junit.jupiter.api.Test;
+
+import java.util.EnumSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,6 +30,8 @@ public class EnvConfigTests {
         int connectionLostTimeoutSec = 180;
         int pingIntervalMs = 500;
         int connectionCheckIntervalMs = 3000;
+        EnumSet<LogLevel> consoleLogLevels = EnumSet.allOf(LogLevel.class);
+        EnumSet<LogLevel> fileLogLevels = EnumSet.allOf(LogLevel.class);
         String logsDir = "./logs/";
 
         // 2. Call the function you are testing.
@@ -38,6 +44,8 @@ public class EnvConfigTests {
             assertEquals(pingIntervalMs, config.getPingIntervalMs());
             assertEquals(connectionCheckIntervalMs, config.getConnectionCheckIntervalMs());
             assertEquals(logsDir, config.getLogsDir());
+            for (LogLevel ll : consoleLogLevels) { assertTrue(config.getConsoleLogLevels().contains(ll));}
+            for (LogLevel ll : fileLogLevels) { assertTrue(config.getConsoleLogLevels().contains(ll));}
 
         } catch (InvalidConfigException ex){
             fail(ex.getMessage());
@@ -71,6 +79,8 @@ public class EnvConfigTests {
         int connectionLostTimeoutSec = 100;
         int pingIntervalMs = 1000;
         int connectionCheckIntervalMs = 1000;
+        EnumSet<LogLevel> consoleLogLevels = EnumSet.allOf(LogLevel.class);
+        EnumSet<LogLevel> fileLogLevels = EnumSet.allOf(LogLevel.class);
         String logsDir = "./logs/";
 
         // 2. Call the function you are testing.
@@ -83,6 +93,8 @@ public class EnvConfigTests {
             assertEquals(pingIntervalMs, config.getPingIntervalMs());
             assertEquals(connectionCheckIntervalMs, config.getConnectionCheckIntervalMs());
             assertEquals(logsDir, config.getLogsDir());
+            for (LogLevel ll : consoleLogLevels) { assertTrue(config.getConsoleLogLevels().contains(ll));}
+            for (LogLevel ll : fileLogLevels) { assertTrue(config.getConsoleLogLevels().contains(ll));}
 
         } catch (InvalidConfigException ex){
             fail(ex.getMessage());
@@ -94,5 +106,11 @@ public class EnvConfigTests {
     public void duplicateKeyInEnvConfigFileTest(){
         String filepath = this.testEnvConfigsDirectoryPath + "sixth.env";
         assertThrows(IllegalStateException.class, () -> new EnvConfig(filepath));
+    }
+
+    @Test
+    public void invalidLogLevelInConfigFileTest() {
+        String filepath = this.testEnvConfigsDirectoryPath + "seventh.env";
+        assertThrows(IllegalArgumentException.class, () -> new EnvConfig(filepath));
     }
 }
