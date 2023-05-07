@@ -3,6 +3,7 @@ package com.github.splendor_mobile_game.websocket.handlers.reactions;
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.ReservationResult;
 import com.github.splendor_mobile_game.game.enums.CardTier;
+import com.github.splendor_mobile_game.game.enums.Regex;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Card;
 import com.github.splendor_mobile_game.game.model.Game;
@@ -14,17 +15,13 @@ import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUsernameException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserReservationException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.*;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Reaction for handling player's request to make a reservation from the table. The player can only make a reservation if it is their turn.
@@ -202,7 +199,7 @@ public class MakeReservationFromTable extends Reaction {
             boolean gotGoldenToken = reservationResult.getGoldenToken();
 
            // card.getCardTier() returns a card tier from new card, which is also card tier of old one
-            Log.DEBUG("User "+reservee.getName()+" reserved card from table "+cardDrawn.getCardTier()+" and golden token: "+gotGoldenToken);
+            Log.DEBUG("User " + reservee.getName() + " reserved card from table " + cardDrawn.getCardTier() + " and golden token: " + gotGoldenToken);
 
 
             CardDataResponse cardDataResponse = null;
@@ -226,7 +223,7 @@ public class MakeReservationFromTable extends Reaction {
             }
 
 
-            //creating a responseData which contains user uuid and all informations about new card which will replace the reserved one
+            // creating a responseData which contains user uuid and all informations about new card which will replace the reserved one
             ResponseData responseData = new ResponseData(
                     new ReserveeDataResponse(
                         reservee.getUuid(),
@@ -243,48 +240,65 @@ public class MakeReservationFromTable extends Reaction {
                     responseData
             );
 
-            for(User player : players){
+            for (User player : players) {
                 messenger.addMessageToSend(player.getConnectionHashCode(), serverMessage);
             }
 
 
 
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.MAKE_RESERVATION_FROM_TABLE_RESPONSE, userMessage.getContextId().toString());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
         }
 
     }
-    private void validateData(DataDTO dataDTO,Database database) throws Exception {
-        Pattern uuidPattern = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+    private void validateData(DataDTO dataDTO,Database database) throws InvalidUUIDException, UserDoesntExistException, UserNotAMemberException, RoomInGameException, UserTurnException, UserReservationException, CardNotRevealedException, TokenCountException {
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userDTO.uuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
+
+        // Check if card's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.cardDTO.uuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
 
 
-        // Check if user UUID matches the pattern
-        Matcher uuidMatcher = uuidPattern.matcher(dataDTO.userDTO.uuid.toString());
-        if (!uuidMatcher.find()) throw new InvalidUUIDException("Invalid UUID format.");
+        // Check if user exists
+        User user = database.getUser(dataDTO.userDTO.uuid);
+        if (user == null)
+            throw new UserDoesntExistException("Couldn't find a user with given UUID.");
 
-        // Check if card UUID matchers the pattern
-        Matcher uuidMatcherCard = uuidPattern.matcher(dataDTO.cardDTO.uuid.toString());
-        if (!uuidMatcherCard.find()) throw new InvalidUUIDException("Invalid UUID format.");
+        //Check if user is in any room
+        Room room = database.getRoomWithUser(user.getUuid());
+        if (room == null)
+            throw new UserNotAMemberException("You are not a member of any room!");
 
-        //Check if it's this user turn
-        if(database.getRoomWithUser(dataDTO.userDTO.uuid).getCurrentPlayer().getUuid() != dataDTO.userDTO.uuid)
-            throw new InvalidUsernameException("It's not this user turn");
-        //TODO make exception
 
-        //Check if limit of reserved card is reached for player
-        if(database.getUser(dataDTO.userDTO.uuid).getReservationCount()>=3)
-            throw new UserReservationException("User has to many reserved cards in hand");
+        // Check if the game is started
+        Game game = room.getGame();
+        if (game == null)
+            throw new RoomInGameException("The game hasn't started yet!");
 
-        //Check if limit of reserved card is reached for game
-        if(database.getRoomWithUser(dataDTO.userDTO.uuid).getGame().getGameReservationCount()>=5)
-            throw new UserReservationException("User reached the limit of reserved cards per game");
 
-        //Check if card is on table
-        if(database.getRoom(dataDTO.userDTO.uuid).getGame().isCardRevealed(dataDTO.cardDTO.uuid) == false)
-            throw new Exception("There is no this card on table");
-        //TODO make exception
+        // Check if it is user's turn
+        if (room.getCurrentPlayer() != user)
+            throw new UserTurnException("It is not your turn!");
+
+        // Check reservation count
+        if (user.getReservationCount() >= 3)
+            throw new UserReservationException("You have reached the current reserved cards limit.");
+
+        // Check game reservation count
+        if (game.getGameReservationCount() >= 5)
+            throw new UserReservationException("You have reached the limit of reserved cards per game.");
+
+        // Check if card is on table
+        if(!game.isCardRevealed(dataDTO.cardDTO.uuid))
+            throw new CardNotRevealedException("There is no this card on table");
+
+        // Check if user has not maxed tokens
+        if (user.getTokenCount() >= 10)
+            throw new TokenCountException("You have reached the maximum token count on hand.");
 
     }
 

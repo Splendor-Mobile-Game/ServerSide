@@ -41,11 +41,11 @@ public class Game {
 
 
     private boolean canReserveCardFromDeck(User user, CardTier tier) {
-        return !(getRandomCard(tier) == null);
+        return !(getRandomCard(tier) == null) && tokensOnTable.get(TokenType.GOLD_JOKER) > 0 && user.getReservationCount() < 3 && getGameReservationCount() < 5;
     }
 
     private boolean canReserveCardFromTable(User user, Card card) {
-        return !(card == null);
+        return !(card == null) && tokensOnTable.get(TokenType.GOLD_JOKER) > 0 && user.getReservationCount() < 3 && getGameReservationCount() < 5 && isCardRevealed(card.getUuid());
     }
 
 
@@ -124,15 +124,11 @@ public class Game {
         revealedCards.get(card.getCardTier()).add(card);
     }
 
-    public boolean isCardRevealed(UUID uuid)
-    {
+    public boolean isCardRevealed(UUID uuid) {
         for (Deck deck : revealedCards.values())
-        {
-            for(Card card : deck)
-            {
-                if(card.getUuid() == uuid) return true;
-            }
-        }
+            for (Card card : deck)
+                if (card.getUuid() == uuid) return true;
+
         return false;
     }
 
@@ -383,7 +379,20 @@ public class Game {
             if (user.canBuyCard(card)) throw new CanPerformAnActionException("You can buy one of your reserved cards!");
 
 
-        // TODO Check if user can take tokens.
+
+        int greaterThanOneCount = 0;
+        // Check if user can take tokens
+        for (Map.Entry<TokenType, Integer> entry : tokensOnTable.entrySet()) {
+            if (entry.getKey() == TokenType.GOLD_JOKER) continue;
+
+            if (entry.getValue() >= 4)
+                throw new CanPerformAnActionException("You can take 2 tokens of any color!");
+
+            if (entry.getValue() >= 1) greaterThanOneCount += 1;
+        }
+
+        if (greaterThanOneCount >= 3)
+            throw new CanPerformAnActionException("You can take 3 tokens of different colors!");
     }
 
 
