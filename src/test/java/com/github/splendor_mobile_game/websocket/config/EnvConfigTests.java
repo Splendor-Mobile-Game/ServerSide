@@ -112,4 +112,35 @@ public class EnvConfigTests {
         String filepath = this.testEnvConfigsDirectoryPath + "seventh.env";
         assertThrows(IllegalArgumentException.class, () -> new EnvConfig(filepath));
     }
+
+    @Test
+    public void createCustomEnvConfigWithoutAllLogLevelsTest(){
+
+        // 1. Setup data for the test
+        String filepath = this.testEnvConfigsDirectoryPath + "eighth.env";
+        int port = 6789;
+        int connectionLostTimeoutSec = 180;
+        int pingIntervalMs = 500;
+        int connectionCheckIntervalMs = 3000;
+        EnumSet<LogLevel> consoleLogLevels = EnumSet.of(LogLevel.TRACE, LogLevel.INFO, LogLevel.DEBUG);
+        EnumSet<LogLevel> fileLogLevels = EnumSet.of(LogLevel.TRACE, LogLevel.INFO, LogLevel.DEBUG);
+        String logsDir = "./logs/";
+
+        // 2. Call the function you are testing.
+        try{
+            EnvConfig config = new EnvConfig(filepath);
+
+            // 3. Check if returned values are equal to expected values.
+            assertEquals(port, config.getPort());
+            assertEquals(connectionLostTimeoutSec, config.getConnectionLostTimeoutSec());
+            assertEquals(pingIntervalMs, config.getPingIntervalMs());
+            assertEquals(connectionCheckIntervalMs, config.getConnectionCheckIntervalMs());
+            assertEquals(logsDir, config.getLogsDir());
+            for (LogLevel ll : consoleLogLevels) { assertTrue(config.getConsoleLogLevels().contains(ll));}
+            for (LogLevel ll : fileLogLevels) { assertTrue(config.getConsoleLogLevels().contains(ll));}
+
+        } catch (InvalidConfigException ex){
+            fail(ex.getMessage());
+        }
+    }
 }
