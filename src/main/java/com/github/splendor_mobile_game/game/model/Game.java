@@ -12,7 +12,7 @@ import com.github.splendor_mobile_game.game.ReservationResult;
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.exceptions.CanPerformAnActionException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.DeckIsEmptyException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.CardDoesntExistException;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
 public class Game {
@@ -40,18 +40,33 @@ public class Game {
 
 
 
-    private boolean canReserveCardFromDeck(User user, CardTier tier) {
-        return !(getRandomCard(tier) == null) && tokensOnTable.get(TokenType.GOLD_JOKER) > 0 && user.getReservationCount() < 3 && getGameReservationCount() < 5;
+
+    private Card getRandomCardOrNull(CardTier tier) {
+        Deck deck = decks.get(tier);
+
+        // We draw cards until deck will be empty
+        if (deck.size() < 1) return null;
+
+        Random rand = new Random();
+        int index = rand.nextInt(deck.size()); // Get random index
+        return deck.get(index);
     }
 
-    private boolean canReserveCardFromTable(User user, Card card) {
-        return !(card == null) && tokensOnTable.get(TokenType.GOLD_JOKER) > 0 && user.getReservationCount() < 3 && getGameReservationCount() < 5 && isCardRevealed(card.getUuid());
+
+
+
+    private boolean canReserveCardFromDeck(CardTier tier) {
+        return !(getRandomCardOrNull(tier) == null) && getGameReservationCount() < 5;
+    }
+
+    private boolean canReserveCardFromTable(Card card) {
+        return !(card == null) && getGameReservationCount() < 5 && isCardRevealed(card.getUuid());
     }
 
 
-    public ReservationResult reserveCardFromDeck(CardTier tier, User player) throws DeckIsEmptyException{
+    public ReservationResult reserveCardFromDeck(CardTier tier, User player) throws CardDoesntExistException {
         Card card = getRandomCard(tier);
-        if (card == null) throw new DeckIsEmptyException("Deck " + tier + " is empty");
+        if (card == null) throw new CardDoesntExistException("Deck " + tier + " is empty.");
 
         boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
         player.reserveCard(card,goldenToken);
@@ -62,8 +77,8 @@ public class Game {
     }
 
 
-    public ReservationResult reserveCardFromTable(Card card, User player) throws DeckIsEmptyException{
-        if (card == null)  throw new DeckIsEmptyException("Deck is empty");
+    public ReservationResult reserveCardFromTable(Card card, User player) throws CardDoesntExistException {
+        if (card == null)  throw new CardDoesntExistException("There are no more cards available to reserve.");
 
         boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
         player.reserveCard(card,goldenToken);
@@ -354,16 +369,16 @@ public class Game {
     public void canPerformAnyAction(User user) throws CanPerformAnActionException {
 
         // Check if user can reserve any card from deck
-        if (canReserveCardFromDeck(user, CardTier.LEVEL_1)) throw new CanPerformAnActionException("You can reserve a card of tier 1!");
-        if (canReserveCardFromDeck(user, CardTier.LEVEL_2)) throw new CanPerformAnActionException("You can reserve a card of tier 2!");
-        if (canReserveCardFromDeck(user, CardTier.LEVEL_3)) throw new CanPerformAnActionException("You can reserve a card of tier 3!");
+        if (canReserveCardFromDeck(CardTier.LEVEL_1)) throw new CanPerformAnActionException("You can reserve a card of tier 1!");
+        if (canReserveCardFromDeck(CardTier.LEVEL_2)) throw new CanPerformAnActionException("You can reserve a card of tier 2!");
+        if (canReserveCardFromDeck(CardTier.LEVEL_3)) throw new CanPerformAnActionException("You can reserve a card of tier 3!");
 
         // Check if user can buy or reserve card from table
         for (Deck deck : revealedCards.values()) {
             for (Card card : deck) {
 
                 // Check if user can reserve a card from table
-                if (canReserveCardFromTable(user, card))
+                if (canReserveCardFromTable(card))
                     throw new CanPerformAnActionException(String.format("There is a card of %s tier which you can reserve!", deck.getTier().toString()));
 
                 // Check if user can buy a card from table
@@ -386,11 +401,14 @@ public class Game {
             if (entry.getKey() == TokenType.GOLD_JOKER) continue;
 
             if (entry.getValue() >= 4)
-                throw new CanPerformAnActionException("You can take 2 tokens of any color!");
+                throw new CanPerformAnActionException("You can take 2 tokens of some color!");
 
             if (entry.getValue() >= 1) greaterThanOneCount += 1;
         }
 
+        // If we check, if greaterThanOneCount >= 3, then user can take 3 tokens. But actually if only greaterThanOneCount >= 1, then user can still take one token,
+        // because there is no possibility to take 2 or 3 different tokens. But it doesn't matter. What matters, is that user can perform an action regardless how many
+        // tokens he would need to return.
         if (greaterThanOneCount >= 3)
             throw new CanPerformAnActionException("You can take 3 tokens of different colors!");
     }

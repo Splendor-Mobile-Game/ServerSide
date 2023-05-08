@@ -38,39 +38,12 @@ import com.github.splendor_mobile_game.game.model.Room;
  *
  *
  *
- * Before changing player turn we need to check if he has performed any actions. If he didn't perform any action, but he could do so, we need to ask for confirmation of passing his turn:
- * Example PASS_CONFIRM_RESPONSE:
- *
- * {
- *     "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *     "type": "PASS_CONFIRM_RESPONSE",
- *     "result": "OK",
- *     "data": {
- *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7"
- *     }
- * }
- *
- *
- *
- * Otherwise if he wanted to end his turn, and he could do nothing during current round. There is sent PASS_ANNOUNCEMENT to other players, informing that current player didn't do anything.
- * Example PASS_ANNOUNCEMENT:
- *
- * {
- *     "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
- *     "type": "PASS_ANNOUNCEMENT",
- *     "result": "OK",
- *     "data": {
- *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
- *     }
- * }
- *
- *
- *
- *
  * This reaction is also responsible for detecting when the game ends.
  * The game ends when one player has more than 15 points and the server needs to complete the current turn so that every player has done the same amount of actions.
  * The implementation should also include logic to store information about whose turn it is and the order of turns.
- * 
+ *
+ * If user wanted to end his turn, and he couldn't do an action during current round then the NEW_TURN_ANNOUNCEMENT will be sent.
+ *
  * Example of a successful server announcement:
  * {
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
@@ -213,7 +186,7 @@ public class EndTurn extends Reaction {
                 ResponseDataPass responseData = new ResponseDataPass(room.getCurrentPlayer().getUuid());
                 ServerMessage serverMessage = new ServerMessage(
                         userMessage.getContextId(),
-                        ServerMessageType.PASS_ANNOUNCEMENT,
+                        ServerMessageType.NEW_TURN_ANNOUNCEMENT,
                        Result.OK,
                         responseData);
 
