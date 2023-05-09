@@ -55,12 +55,12 @@ public class Game {
 
 
 
-    private boolean canReserveCardFromDeck(CardTier tier) {
-        return !(getRandomCardOrNull(tier) == null) && getGameReservationCount() < 5;
+    private boolean canReserveCardFromDeck(CardTier tier, User user) {
+        return !(getRandomCardOrNull(tier) == null) && user.getReservationCount() < 3 && getGameReservationCount() < 5;
     }
 
-    private boolean canReserveCardFromTable(Card card) {
-        return !(card == null) && getGameReservationCount() < 5 && isCardRevealed(card.getUuid());
+    private boolean canReserveCardFromTable(Card card, User user) {
+        return !(card == null) && user.getReservationCount() < 3 && getGameReservationCount() < 5 && isCardRevealed(card.getUuid());
     }
 
 
@@ -369,16 +369,16 @@ public class Game {
     public void canPerformAnyAction(User user) throws CanPerformAnActionException {
 
         // Check if user can reserve any card from deck
-        if (canReserveCardFromDeck(CardTier.LEVEL_1)) throw new CanPerformAnActionException("You can reserve a card of tier 1!");
-        if (canReserveCardFromDeck(CardTier.LEVEL_2)) throw new CanPerformAnActionException("You can reserve a card of tier 2!");
-        if (canReserveCardFromDeck(CardTier.LEVEL_3)) throw new CanPerformAnActionException("You can reserve a card of tier 3!");
+        if (canReserveCardFromDeck(CardTier.LEVEL_1, user)) throw new CanPerformAnActionException("You can reserve a card of tier 1!");
+        if (canReserveCardFromDeck(CardTier.LEVEL_2, user)) throw new CanPerformAnActionException("You can reserve a card of tier 2!");
+        if (canReserveCardFromDeck(CardTier.LEVEL_3, user)) throw new CanPerformAnActionException("You can reserve a card of tier 3!");
 
         // Check if user can buy or reserve card from table
         for (Deck deck : revealedCards.values()) {
             for (Card card : deck) {
 
                 // Check if user can reserve a card from table
-                if (canReserveCardFromTable(card))
+                if (canReserveCardFromTable(card, user))
                     throw new CanPerformAnActionException(String.format("There is a card of %s tier which you can reserve!", deck.getTier().toString()));
 
                 // Check if user can buy a card from table
@@ -409,7 +409,7 @@ public class Game {
         // If we check, if greaterThanOneCount >= 3, then user can take 3 tokens. But actually if only greaterThanOneCount >= 1, then user can still take one token,
         // because there is no possibility to take 2 or 3 different tokens. But it doesn't matter. What matters, is that user can perform an action regardless how many
         // tokens he would need to return.
-        if (greaterThanOneCount >= 3)
+        if (greaterThanOneCount >= 1)
             throw new CanPerformAnActionException("You can take 3 tokens of different colors!");
     }
 
