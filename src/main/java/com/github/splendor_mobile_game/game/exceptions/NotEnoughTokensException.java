@@ -1,9 +1,8 @@
-package com.github.splendor_mobile_game.game.Exceptions;
+package com.github.splendor_mobile_game.game.exceptions;
 
 public class NotEnoughTokensException extends Exception {
 
-    public NotEnoughTokensException() {
-    }
+    public NotEnoughTokensException() {}
 
     public NotEnoughTokensException(String message) {
         super(message);

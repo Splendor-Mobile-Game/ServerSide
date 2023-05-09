@@ -162,7 +162,7 @@ public class BuyRevealedMine extends Reaction {
 
     public class BuyerDataResponse {
         public UUID userUuid;
-        public TokensDataResponse tokens;// The new set of tokens of that player after they bought a mine
+        public TokensDataResponse tokens; // The new set of tokens of that player after they bought a mine
         public UUID cardUuid;
 
         public BuyerDataResponse(UUID userUuid, TokensDataResponse tokens, UUID cardUuid) {
@@ -274,6 +274,7 @@ public class BuyRevealedMine extends Reaction {
             for(User player : players){
                 messenger.addMessageToSend(player.getConnectionHashCode(), serverMessage);        
             }
+            buyer.setPerformedAction(true);
 
 
         }catch (Exception e){

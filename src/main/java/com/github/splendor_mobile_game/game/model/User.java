@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import com.github.splendor_mobile_game.game.Exceptions.NotEnoughTokensException;
+import com.github.splendor_mobile_game.game.exceptions.NotEnoughTokensException;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.websocket.utils.Log;
 
@@ -75,9 +75,18 @@ public class User implements Comparable<User> {
         }
     }
 
-    //method for buying cards
-    public void buyCard(Card card) throws NotEnoughTokensException {
 
+    // Returns how many goldenTokens must be used in order to buy a card
+
+    /**
+     * Returns number of golden tokens needed to buy a Card
+     *
+     * @param card Card which user wants to buy
+     * @return -1 user is not able to buy a card
+     *          0 no golden tokens are required to buy a card
+     *         >0 number of needed golden tokens
+     */
+    public int howManyGoldenTokens(Card card) {
         int goldTokensUsed = 0;
 
         for(Map.Entry<TokenType, Integer> set : this.tokens.entrySet()) {
@@ -88,10 +97,29 @@ public class User implements Comparable<User> {
                 if((this.getTokenCount(TokenType.GOLD_JOKER) - goldTokensUsed) >= missingTokens) {
                     goldTokensUsed += missingTokens;
                 } else {
-                    throw new NotEnoughTokensException("You don't have enough tokens to buy this card");
+                    return -1;
                 }
             }
         }
+
+        return goldTokensUsed;
+    }
+
+
+    public boolean canBuyCard(Card card) {
+        return !(howManyGoldenTokens(card) == -1);
+    }
+
+
+
+    //method for buying cards
+    public void buyCard(Card card) throws NotEnoughTokensException {
+
+        int goldTokensUsed = howManyGoldenTokens(card);
+
+        if (goldTokensUsed == -1)
+            throw new NotEnoughTokensException("You don't have enough tokens to buy this card");
+
 
         this.tokens.forEach((k,v) -> {
             if(k != TokenType.GOLD_JOKER) {
@@ -181,6 +209,18 @@ public class User implements Comparable<User> {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public ArrayList<Card> getPurchasedCards() {
+        return purchasedCards;
+    }
+
+    public ArrayList<Card> getReservedCards() {
+        return reservedCards;
+    }
+
+    public ArrayList<Noble> getVisitingNobles() {
+        return visitingNobles;
     }
 
     public boolean hasPerformedAction() {
