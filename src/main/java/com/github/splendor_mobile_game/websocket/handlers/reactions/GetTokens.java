@@ -44,10 +44,17 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      "type": "GET_TOKENS",
  *      "data": {
  *          "userUuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
- *          "tokensChangeDTO": {
+ *          "tokensTakenDTO": {
  *              "ruby": 1,
  *              "sapphire": 1,
  *              "emerald": 1,
+ *              "diamond": 0,
+ *              "onyx": 0
+ *          },
+ *          "tokensReturnedDTO": {
+ *              "ruby": 0,
+ *              "sapphire": 1,
+ *              "emerald": 0,
  *              "diamond": 0,
  *              "onyx": 0
  *          }
@@ -59,9 +66,16 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      "type": "GET_TOKENS",
  *      "data": {
  *          "userUuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
- *          "tokensChangeDTO": {
+ *          "tokensTakenDTO": {
  *              "ruby": 0,
- *              "sapphire": 2,
+ *              "sapphire": 0,
+ *              "emerald": 0,
+ *              "diamond": 2,
+ *              "onyx": 0
+ *          },
+ *          "tokensReturnedDTO": {
+ *              "ruby": 0,
+ *              "sapphire": 0,
  *              "emerald": 0,
  *              "diamond": 0,
  *              "onyx": 0
@@ -70,18 +84,25 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  * }
  * if the situation arises that player would get more than 10 tokens in total,
  * then player have to give back some other tokens, so the following might be possible.
- * Consider a player has 9 tokens. They get 3 more and give back some 2, so the balance is 10 at max.
+ * Consider a player has 9 tokens. They get 2 more and give 1, so the balance is 10 at max.
  * {
  *      "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
  *      "type": "GET_TOKENS",
  *      "data": {
  *          "userUuid": "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454",
- *          "tokensChangeDTO": {
- *               "ruby": 2,
- *               "sapphire": 0,
- *               "emerald": 0,
- *               "diamond": 0,
- *               "onyx": 0
+ *          "tokensTakenDTO": {
+ *              "ruby": 0,
+ *              "sapphire": 0,
+ *              "emerald": 0,
+ *              "diamond": 2,
+ *              "onyx": 0
+ *          },
+ *          "tokensReturnedDTO": {
+ *              "ruby": 0,
+ *              "sapphire": 0,
+ *              "emerald": 0,
+ *              "diamond": 1,
+ *              "onyx": 0
  *          }
  *      }
  * }
@@ -93,11 +114,18 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      "result": "OK",
  *      "data": {
  *          "userUuid": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
- *          "tokensChangeDTO": {
- *              "ruby": 1,
- *              "sapphire": 1,
- *              "emerald": 1,
- *              "diamond": -2,
+ *          "tokensTakenDTO": {
+ *              "ruby": 0,
+ *              "sapphire": 0,
+ *              "emerald": 0,
+ *              "diamond": 2,
+ *              "onyx": 0
+ *          },
+ *          "tokensReturnedDTO": {
+ *              "ruby": 0,
+ *              "sapphire": 0,
+ *              "emerald": 0,
+ *              "diamond": 1,
  *              "onyx": 0
  *          }
  *      }
@@ -119,7 +147,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *      "type": "GET_TOKENS_RESPONSE",
  *      "result": "FAILURE"
  *      "data": {
- *          "error": "You cannot get tokens when this is not your turn!"
+ *          "error": "It's not your turn!"
  *      }
  * }
  * 
@@ -145,42 +173,18 @@ public class GetTokens extends Reaction {
             this.diamond = white;
             this.onyx = black;
         }
-
-        public int getTokenCount() {
-            return ruby + sapphire + emerald + diamond + onyx;
-        }
-
-        public int getAddedTokenCount() {
-            int result = 0;
-            if(ruby > 0) result += ruby;
-            if(sapphire > 0) result += sapphire;
-            if(emerald > 0) result += emerald;
-            if(diamond > 0) result += diamond;
-            if(onyx > 0) result += onyx;
-
-            return result;
-        }
-
-        public int getReturnedTokenCount() {
-            int result = 0;
-            if(ruby < 0) result += ruby;
-            if(sapphire < 0) result += sapphire;
-            if(emerald < 0) result += emerald;
-            if(diamond < 0) result += diamond;
-            if(onyx < 0) result += onyx;
-
-            return result * (-1);
-        }
     }
 
     @DataClass
     public static class DataDTO {
         public UUID userUuid;
-        public TokensChangeDTO tokensChangeDTO;
+        public TokensChangeDTO tokensTakenDTO;
+        public TokensChangeDTO tokensReturnedDTO;
 
-        public DataDTO(UUID userUuid, TokensChangeDTO tokensChangeDTO) {
+        public DataDTO(UUID userUuid, TokensChangeDTO tokensTakenDTO, TokensChangeDTO tokensReturnedDTO) {
             this.userUuid = userUuid;
-            this.tokensChangeDTO = tokensChangeDTO;
+            this.tokensTakenDTO = tokensTakenDTO;
+            this.tokensReturnedDTO = tokensReturnedDTO;
         }
     }
 
@@ -197,89 +201,27 @@ public class GetTokens extends Reaction {
         DataDTO dataDTO = (DataDTO) userMessage.getData();
        
         try {
-            Map<TokenType, Integer> tokenMap = new HashMap<TokenType, Integer>();
-            tokenMap.put(TokenType.RUBY, dataDTO.tokensChangeDTO.ruby);
-            tokenMap.put(TokenType.SAPPHIRE, dataDTO.tokensChangeDTO.sapphire);
-            tokenMap.put(TokenType.EMERALD, dataDTO.tokensChangeDTO.emerald);
-            tokenMap.put(TokenType.DIAMOND, dataDTO.tokensChangeDTO.diamond);
-            tokenMap.put(TokenType.ONYX, dataDTO.tokensChangeDTO.onyx);
+            Map<TokenType, Integer> tokensTaken = new HashMap<TokenType, Integer>();
+            tokensTaken.put(TokenType.RUBY, dataDTO.tokensTakenDTO.ruby);
+            tokensTaken.put(TokenType.SAPPHIRE, dataDTO.tokensTakenDTO.sapphire);
+            tokensTaken.put(TokenType.EMERALD, dataDTO.tokensTakenDTO.emerald);
+            tokensTaken.put(TokenType.DIAMOND, dataDTO.tokensTakenDTO.diamond);
+            tokensTaken.put(TokenType.ONYX, dataDTO.tokensTakenDTO.onyx);
 
-            validateData(dataDTO, database, tokenMap);
+            Map<TokenType, Integer> tokensReturned = new HashMap<TokenType, Integer>();
+            tokensReturned.put(TokenType.RUBY, dataDTO.tokensReturnedDTO.ruby);
+            tokensReturned.put(TokenType.SAPPHIRE, dataDTO.tokensReturnedDTO.sapphire);
+            tokensReturned.put(TokenType.EMERALD, dataDTO.tokensReturnedDTO.emerald);
+            tokensReturned.put(TokenType.DIAMOND, dataDTO.tokensReturnedDTO.diamond);
+            tokensReturned.put(TokenType.ONYX, dataDTO.tokensReturnedDTO.onyx);
+
+            validateData(dataDTO, database, tokensTaken, tokensReturned);
             
             Room room = database.getRoomWithUser(dataDTO.userUuid);
             User user = database.getUser(dataDTO.userUuid);
 
-            // System.out.println("ruby on table");
-            // System.out.println(room.getGame().getTokenCount(TokenType.RUBY));
-
-            // System.out.println("sapphire on table");
-            // System.out.println(room.getGame().getTokenCount(TokenType.SAPPHIRE));
-
-            // System.out.println("emerald on table");
-            // System.out.println(room.getGame().getTokenCount(TokenType.EMERALD));
-
-            // System.out.println("diamond on table");
-            // System.out.println(room.getGame().getTokenCount(TokenType.DIAMOND));
-
-            // System.out.println("onyx on table");
-            // System.out.println(room.getGame().getTokenCount(TokenType.ONYX));
-
-            // System.out.println("---------------------------------------------------");
-
-            // System.out.println("ruby on user");
-            // System.out.println(user.getTokenCount(TokenType.RUBY));
-
-            // System.out.println("sapphire on user");
-            // System.out.println(user.getTokenCount(TokenType.SAPPHIRE));
-
-            // System.out.println("emerald on user");
-            // System.out.println(user.getTokenCount(TokenType.EMERALD));
-
-            // System.out.println("diamond on user");
-            // System.out.println(user.getTokenCount(TokenType.DIAMOND));
-
-            // System.out.println("onyx on user");
-            // System.out.println(user.getTokenCount(TokenType.ONYX));
-
-
-            // System.out.println();
-            // System.out.println();
-            // System.out.println();
-
-            changeTokens(user, room, tokenMap);
+            changeTokens(user, room, tokensTaken, tokensReturned);
             user.setPerformedAction(true);
-
-            // System.out.println("ruby on table");
-            // System.out.println(room.getGame().getTokenCount(TokenType.RUBY));
-
-            // System.out.println("sapphire on table");
-            // System.out.println(room.getGame().getTokenCount(TokenType.SAPPHIRE));
-
-            // System.out.println("emerald on table");
-            // System.out.println(room.getGame().getTokenCount(TokenType.EMERALD));
-
-            // System.out.println("diamond on table");
-            // System.out.println(room.getGame().getTokenCount(TokenType.DIAMOND));
-
-            // System.out.println("onyx on table");
-            // System.out.println(room.getGame().getTokenCount(TokenType.ONYX));
-
-            // System.out.println("---------------------------------------------------");
-
-            // System.out.println("ruby on user");
-            // System.out.println(user.getTokenCount(TokenType.RUBY));
-
-            // System.out.println("sapphire on user");
-            // System.out.println(user.getTokenCount(TokenType.SAPPHIRE));
-
-            // System.out.println("emerald on user");
-            // System.out.println(user.getTokenCount(TokenType.EMERALD));
-
-            // System.out.println("diamond on user");
-            // System.out.println(user.getTokenCount(TokenType.DIAMOND));
-
-            // System.out.println("onyx on user");
-            // System.out.println(user.getTokenCount(TokenType.ONYX));
 
             ResponseData responseData = new ResponseData(dataDTO);
 
@@ -295,138 +237,112 @@ public class GetTokens extends Reaction {
         }
     }
 
-    private void validateData(DataDTO dataDTO, Database database, Map<TokenType, Integer> tokenMap) throws RoomDoesntExistException, TooManyTokensException, TooManyReturnedTokensException, WrongTokenChoiceException, InvalidUUIDException, NotThisUserTurnException, GameNotStartedException {
-        // Check if user's UUID matches the pattern
-        if (!Regex.UUID_PATTERN.matches(dataDTO.userUuid.toString()))
-            throw new InvalidUUIDException("Invalid UUID format.");
-
-        // Check if there is a room associated with given user
-        if (database.getRoomWithUser(dataDTO.userUuid) == null)
-            throw new RoomDoesntExistException("Room with this user not found");
-
+    private void validateData(DataDTO dataDTO, Database database, Map<TokenType, Integer> tokensTaken, Map<TokenType, Integer> tokensReturned) throws RoomDoesntExistException, TooManyTokensException, TooManyReturnedTokensException, WrongTokenChoiceException, InvalidUUIDException, NotThisUserTurnException, GameNotStartedException {
+        if(database.getUser(dataDTO.userUuid) == null) throw new InvalidUUIDException("User with this UUID not found");
+        if(database.getRoomWithUser(dataDTO.userUuid) == null) throw new RoomDoesntExistException("This user isn't in any room");
 
         Room room = database.getRoomWithUser(dataDTO.userUuid);
         User user = database.getUser(dataDTO.userUuid);
 
-        if (user.hasPerformedAction()) throw new NotThisUserTurnException("It's not your turn");
+        if(room.getGame() == null) throw new GameNotStartedException("You can't take tokens when game didn't start");
 
-        if (room.getGame() == null) throw new GameNotStartedException("Game hasn't started yet");
+        if(user.hasPerformedAction()) throw new NotThisUserTurnException("It's not your turn");
 
-        // System.out.println("USER TOKENS: ");
-        // System.out.println(user.getTokenCount());
-
-        // System.out.println("GET ADDED TOKEN COUNT: ");
-        // System.out.println(dataDTO.tokensChangeDTO.getAddedTokenCount());
-
-        int tokensWithAdded = user.getTokenCount() + dataDTO.tokensChangeDTO.getAddedTokenCount();
-        int tokensWithAddedAndReturned = tokensWithAdded - dataDTO.tokensChangeDTO.getReturnedTokenCount();
-
-        if (tokensWithAddedAndReturned > 10) throw new TooManyTokensException("You can't have more than 10 tokens");
-        if (tokensWithAdded > 10 && tokensWithAddedAndReturned < 10)  throw new TooManyReturnedTokensException("If you return tokens, you have to finish on 10");
-
-        if (!tokenAmountCheck(user, tokenMap, room)) throw new WrongTokenChoiceException("You haven't choosen tokens correctly");
-
-    }
-
-    private boolean tokenAmountCheck(User user, Map<TokenType, Integer> tokenMap, Room room) {
-
-        //checking if user has enough tokens for possible return
-        for(Map.Entry<TokenType, Integer> set : tokenMap.entrySet()) {
-            if(set.getValue() < 0 && set.getValue()*(-1) > user.getTokenCount(set.getKey())) return false;
+        if(!mustUserReturnTokens(room, user, tokensTaken) && isUserTryingToReturnTokens(room, user, tokensReturned)) {
+            throw new TooManyReturnedTokensException("You are trying to return tokens when you already have less than 10");
         }
 
-        boolean isUserTakingTwo = twoTokensTakenCheck(user, tokenMap, room);
-        boolean isUserTakingThree = threeTokensTakenCheck(user, tokenMap, room);
+        if(isUserTryingToReturnTokens(room, user, tokensReturned) && canUserReturnChosenTokens(room, user, tokensReturned)) {
+            throw new WrongTokenChoiceException("You don't have enough tokens to return");
+        }
 
-        //checking if user tries to take two tokens
-        if(isUserTakingTwo && !isUserTakingThree) return true;
-        
-        //checking if user tries to take three tokens
-        if(!isUserTakingTwo && isUserTakingThree) return true;
+        if(mustUserReturnTokens(room, user, tokensTaken) && finalTokenAmount(room, user, tokensTaken, tokensReturned) < 10) {
+            throw new TooManyReturnedTokensException("You are trying to return too many tokens");
+        }
 
-        //if user isn't trying to take two or three tokens returning false
+        if(finalTokenAmount(room, user, tokensTaken, tokensReturned) > 10) {
+            throw new TooManyTokensException("You have too many tokens");
+        }
+
+        if(!isTokensCombinationRight(room, user, tokensTaken)) throw new WrongTokenChoiceException("Your token choice is wrong");
+    }
+
+    
+    //helper functions
+    private boolean mustUserReturnTokens(Room room, User user, Map<TokenType, Integer> tokensTaken) {
+        int tokenSum = user.getTokenCount();
+
+        for(Map.Entry<TokenType, Integer> set : tokensTaken.entrySet()) {
+            tokenSum += set.getValue();
+        }
+
+        if(tokenSum > 10) return true;
         return false;
     }
 
-    private boolean twoTokensTakenCheck(User user, Map<TokenType, Integer> tokenMap, Room room) {
-
-        ArrayList<TokenType> twoTokensTypes = new ArrayList<TokenType>();
-        ArrayList<TokenType> oneTokenTypes = new ArrayList<TokenType>();
-        int negativeTokenAmount = 0;
-
-        for(Map.Entry<TokenType, Integer> set : tokenMap.entrySet()) {
-            //if user tries to take more than 2 tokens of some type, he definitelly doesn't try to take 2
-            if(set.getValue() > 2) return false;
-
-            //checking what types user tries to take 2 tokens of
-            if(set.getValue() == 2) {
-                if(room.getGame().getTokenCount(set.getKey()) <= 0) return false;
-                twoTokensTypes.add(set.getKey());
-            }
-
-            //checking same thing considering user might try to already return one of taken tokens
-            if(set.getValue() == 1) {
-                if(room.getGame().getTokenCount(set.getKey()) <= 0) return false;
-                oneTokenTypes.add(set.getKey());
-            }
-
-            //checking how many types user is trying to return
-            if(set.getValue() < 0) negativeTokenAmount++;
+    private boolean isUserTryingToReturnTokens(Room room, User user, Map<TokenType, Integer> tokensReturned) {
+        for(Map.Entry<TokenType, Integer> set : tokensReturned.entrySet()) {
+            if(set.getValue() > 0) return true;
         }
 
-        //checking if user tries to return some tokens when he can't return anything
-        if(user.getTokenCount() <= 8 && negativeTokenAmount > 0) return false;
-
-        if(twoTokensTypes.size() == 1 && oneTokenTypes.size() == 0) {
-            //checking if user can take two tokens of type he is trying to
-            if(room.getGame().getTokenCount(twoTokensTypes.get(0)) < 4) return false;
-            return true;
-        }
-        else if(user.getTokenCount() == 9 && oneTokenTypes.size() == 1 && twoTokensTypes.size() == 0) {
-            //as above but considering user is trying to already return one of taken tokens
-            if(room.getGame().getTokenCount(oneTokenTypes.get(0)) < 4) return false;
-            return true;
-        }
-        //now we are sure ( I hope :) ) user isn't trying to take two tokens so we can return false
-        else return false;
+        return false;
     }
 
-    private boolean threeTokensTakenCheck(User user, Map<TokenType, Integer> tokenMap, Room room) {
-        int oneTokenAmount = 0;
-        int negativeTokenAmount = 0;
-
-        for(Map.Entry<TokenType, Integer> set : tokenMap.entrySet()) {
-            //if user is trying more than one token of specific type he definitelly doesn't try to take three different tokens
-            if(set.getValue() > 1) return false;
-
-            //checking which types user is trying to take
-            if(set.getValue() == 1) {
-                if(room.getGame().getTokenCount(set.getKey()) <= 0) return false;
-                oneTokenAmount++;
-            }
-
-            //checking if user tries to return some tokens
-            if(set.getValue() < 0) negativeTokenAmount++;
+    private boolean canUserReturnChosenTokens(Room room, User user, Map<TokenType, Integer> tokensReturned) {
+        for(Map.Entry<TokenType, Integer> set : tokensReturned.entrySet()) {
+            if(set.getValue() > user.getTokenCount(set.getKey())) return false;
         }
 
-        if(user.getTokenCount() <= 7 && negativeTokenAmount > 0) return false;
+        return true;
+    }
 
-        if(negativeTokenAmount == 0) {
-            if(user.getTokenCount() <= 7 && oneTokenAmount == 3) return true;
-            if(user.getTokenCount() == 8 && oneTokenAmount == 2) return true;
-            if(user.getTokenCount() == 9 && oneTokenAmount == 1) return true;
-        } else if(negativeTokenAmount == 1) {
-            if(user.getTokenCount() == 8 && oneTokenAmount == 3) return true;
-            if(user.getTokenCount() == 9 && oneTokenAmount == 2) return true;
-        } else if(negativeTokenAmount == 2) {
-            if(user.getTokenCount() == 9 && oneTokenAmount == 3) return true;
+    private int finalTokenAmount(Room room, User user, Map<TokenType, Integer> tokensTaken, Map<TokenType, Integer> tokensReturned) {
+        int tokenSum = user.getTokenCount();
+
+        for(Map.Entry<TokenType, Integer> set : tokensTaken.entrySet()) {
+            tokenSum += set.getValue();
+        }
+
+        for(Map.Entry<TokenType, Integer> set : tokensReturned.entrySet()) {
+            tokenSum -= set.getValue();
+        }
+
+        return tokenSum;
+    }
+
+    private boolean isTokensCombinationRight(Room room, User user, Map<TokenType, Integer> tokensTaken) {
+        ArrayList<TokenType> twoTokenTypes = new ArrayList<TokenType>();
+        ArrayList<TokenType> oneTokenTypes = new ArrayList<TokenType>();
+
+        for(Map.Entry<TokenType, Integer> set : tokensTaken.entrySet()) {
+            if(set.getValue() > 2 || set.getValue() < 0) return false;
+            if(set.getValue() == 2) twoTokenTypes.add(set.getKey());
+            if(set.getValue() == 1) oneTokenTypes.add(set.getKey());
+        }
+
+        if(twoTokenTypes.size() == 1 && oneTokenTypes.size() == 0) {
+            if(room.getGame().getTokenCount(twoTokenTypes.get(0)) >= 4) return true;
+            return false;
+        }
+
+        if(oneTokenTypes.size() == 3 && twoTokenTypes.size() == 0) {
+            for (TokenType type : oneTokenTypes) {
+                if(room.getGame().getTokenCount(type) <= 0) return false;
+            }
+            return true;
         }
 
         return false;
     }
     
-    private void changeTokens(User user, Room room, Map<TokenType, Integer> tokenMap) {
-        user.changeTokens(tokenMap);
-        room.getGame().changeTokens(tokenMap);
+    private void changeTokens(User user, Room room, Map<TokenType, Integer> tokensTaken, Map<TokenType, Integer> tokensReturned) {
+        Map<TokenType, Integer> tokensChange = new HashMap<TokenType, Integer>();
+
+        for(Map.Entry<TokenType, Integer> set : tokensTaken.entrySet()) {
+            tokensChange.put(set.getKey(), set.getValue() - tokensReturned.get(set.getKey()));
+        }
+        
+        user.changeTokens(tokensChange);
+        room.getGame().changeTokens(tokensChange);
     }
 }
