@@ -1,10 +1,23 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import com.github.splendor_mobile_game.database.Database;
+import com.github.splendor_mobile_game.game.enums.Regex;
+import com.github.splendor_mobile_game.game.model.Room;
+import com.github.splendor_mobile_game.game.model.User;
+import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
+import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMemberException;
+import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
+import com.github.splendor_mobile_game.websocket.response.Result;
+
+import java.util.UUID;
 
 /**
  *  ------------- IMPORTANT ------------------
@@ -63,9 +76,65 @@ public class SendChatMessage extends Reaction {
         super(connectionHashCode, userMessage, messenger, database);
     }
 
+    public static class DataDTO{
+        private UUID userUuid;
+        private String message;
+
+        public DataDTO(UUID userUuid, String message) {
+            this.userUuid = userUuid;
+            this.message = message;
+        }
+    }
+
+    public static class ResponseData {
+        private UUID userUuid;
+        private String message;
+
+        public ResponseData(UUID userUuid, String message) {
+            this.userUuid = userUuid;
+            this.message = message;
+        }
+    }
+
     @Override
     public void react() {
-        // TODO Auto-generated method stub
+        DataDTO dataDTO = (DataDTO) userMessage.getData();
+
+        try {
+            validateData(dataDTO, database);
+
+            Room room = database.getRoom(dataDTO.userUuid);
+
+            room.getChat().addMessage(dataDTO.message, dataDTO.userUuid);
+
+            ResponseData responseData = new ResponseData(dataDTO.userUuid, dataDTO.message);
+            ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.SEND_CHAT_MESSAGE_ANNOUNCEMENT, Result.OK, responseData);
+
+            // Send join information to all players
+            for (User u : room.getAllUsers()) {
+                messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);
+            }
+        }
+        catch (Exception e) {
+            ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE, e.getMessage(), ServerMessageType.SEND_CHAT_MESSAGE_RESPONSE, userMessage.getContextId().toString());
+            messenger.addMessageToSend(connectionHashCode, errorResponse);
+        }
+    }
+
+    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, UserDoesntExistException, UserNotAMemberException {
+        // Check if user's UUID matches the pattern
+        if (!Regex.UUID_PATTERN.matches(dataDTO.userUuid.toString()))
+            throw new InvalidUUIDException("Invalid UUID format.");
+
+        // Check if user exists
+        User user = database.getUser(dataDTO.userUuid);
+        if (user == null)
+            throw new UserDoesntExistException("Couldn't find a user with given UUID.");
+
+        //Check if user is in any room
+        Room room = database.getRoomWithUser(user.getUuid());
+        if (room == null)
+            throw new UserNotAMemberException("You are not a member of any room!");
     }
     
 }

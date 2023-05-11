@@ -14,4 +14,5 @@ public enum UserRequestType {
     END_TURN,
     BUY_REVEALED_MINE,
     BUY_RESERVED_MINE,
+    SEND_CHAT_MESSAGE
 }
