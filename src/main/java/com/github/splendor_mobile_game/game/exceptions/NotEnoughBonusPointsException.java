@@ -1,9 +1,8 @@
-package com.github.splendor_mobile_game.game.Exceptions;
+package com.github.splendor_mobile_game.game.exceptions;
 
 public class NotEnoughBonusPointsException extends Exception {
 
-    public NotEnoughBonusPointsException() {
-    }
+    public NotEnoughBonusPointsException() {}
 
     public NotEnoughBonusPointsException(String message) {
         super(message);
