@@ -1,8 +1,8 @@
 package com.github.splendor_mobile_game.game.model;
 
-import com.github.splendor_mobile_game.game.Exceptions.NotEnoughTokensException;
 import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.TokenType;
+import com.github.splendor_mobile_game.game.exceptions.NotEnoughTokensException;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
