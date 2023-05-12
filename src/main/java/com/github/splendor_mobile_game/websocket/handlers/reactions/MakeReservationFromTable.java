@@ -108,7 +108,7 @@ public class MakeReservationFromTable extends Reaction {
         }
     }
 
-    public class ReserveeDataResponse {
+    public static class ReserveeDataResponse {
         public UUID userUuid;
         public UUID reservedCardUuid;
 
@@ -119,7 +119,7 @@ public class MakeReservationFromTable extends Reaction {
     }
 
     //data about card for response
-    public class CardDataResponse{
+    public static class CardDataResponse{
         public UUID uuid;
         public CardTier cardTier;
         public TokenType additionalToken;
@@ -146,7 +146,7 @@ public class MakeReservationFromTable extends Reaction {
     }
 
     //data how much cost card for response
-    public class TokensDataResponse{
+    public static class TokensDataResponse{
         public int ruby;
         public int emerald;
         public int sapphire;
@@ -164,7 +164,7 @@ public class MakeReservationFromTable extends Reaction {
     }
 
     //class that stores data to make a response
-    public class ResponseData{
+    public static class ResponseData{
         public ReserveeDataResponse reservee;
         public CardDataResponse cardDataResponse;
         public boolean gotGoldenToken;

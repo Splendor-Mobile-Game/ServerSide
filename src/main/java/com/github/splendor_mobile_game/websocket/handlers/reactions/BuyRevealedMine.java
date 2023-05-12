@@ -141,7 +141,7 @@ public class BuyRevealedMine extends Reaction {
         }    
     }
 
-    public class TokensDataResponse {
+    public static class TokensDataResponse {
         public int ruby;
         public int emerald;
         public int sapphire;
@@ -160,7 +160,7 @@ public class BuyRevealedMine extends Reaction {
         }      
     }
 
-    public class BuyerDataResponse {
+    public static class BuyerDataResponse {
         public UUID userUuid;
         public TokensDataResponse tokens; // The new set of tokens of that player after they bought a mine
         public UUID cardUuid;
@@ -172,7 +172,7 @@ public class BuyRevealedMine extends Reaction {
         }
     }
 
-    public class CardDataResponse{
+    public static class CardDataResponse{
         public UUID uuid;
         public CardTier cardTier;
         public TokenType additionalToken;
@@ -199,7 +199,7 @@ public class BuyRevealedMine extends Reaction {
     }
 
 
-    public class ResponseData {
+    public static class ResponseData {
         public BuyerDataResponse buyer;
         public CardDataResponse newCardRevealed;
 

@@ -80,7 +80,7 @@ public class Kick extends Reaction {
     // }
     // }
 
-    public class ResponseData {
+    public static class ResponseData {
         public UUID kickedUserUuid;
 
         public ResponseData(UUID kickedUserUuid) {

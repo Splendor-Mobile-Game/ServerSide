@@ -102,7 +102,7 @@ public class EndTurn extends Reaction {
         }
     }
 
-    public class PlayerDataResponse {
+    public static class PlayerDataResponse {
         public UUID playerUUID;
         public int points;
         public int place;
@@ -114,7 +114,7 @@ public class EndTurn extends Reaction {
         }
     }
 
-    public class ResponseData {
+    public static class ResponseData {
         public UUID nextUserUuid;
 
         public ResponseData(UUID nextUserUuid) {
@@ -122,7 +122,7 @@ public class EndTurn extends Reaction {
         }
     }
 
-    public class ResponseDataEndGame {
+    public static class ResponseDataEndGame {
         public ArrayList<PlayerDataResponse> playerRanking;
 
         public ResponseDataEndGame(ArrayList<PlayerDataResponse> playerRanking) {
@@ -131,7 +131,7 @@ public class EndTurn extends Reaction {
     }
 
 
-    public class ResponseDataNobleReceived {
+    public static class ResponseDataNobleReceived {
         public UUID userUuid;
         public UUID nobleUuid;
 
@@ -142,7 +142,7 @@ public class EndTurn extends Reaction {
     }
 
 
-    public class ResponseDataPass {
+    public static class ResponseDataPass {
         public UUID userUuid;
 
         public ResponseDataPass(UUID userUuid) {

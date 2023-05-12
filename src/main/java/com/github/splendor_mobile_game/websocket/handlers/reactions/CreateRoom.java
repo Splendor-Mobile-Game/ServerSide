@@ -147,7 +147,7 @@ public class CreateRoom extends Reaction {
     /**
      * Data sent by the server
      */
-    public class ResponseData {
+    public static class ResponseData {
         public UserDataResponse user;
         public RoomDataResponse room;
 
@@ -161,7 +161,7 @@ public class CreateRoom extends Reaction {
     /**
      * User data sent by the server
      */
-    public class UserDataResponse {
+    public static class UserDataResponse {
         public UUID id;
         public String name;
 
@@ -175,7 +175,7 @@ public class CreateRoom extends Reaction {
     /**
      * Room data sent by the server
      */
-    public class RoomDataResponse {
+    public static class RoomDataResponse {
         public UUID uuid;
         public String name;
         public String enterCode;

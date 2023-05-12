@@ -188,7 +188,7 @@ public class GetTokens extends Reaction {
         }
     }
 
-    public class ResponseData {
+    public static class ResponseData {
         public DataDTO data;
 
         public ResponseData(DataDTO data) {
