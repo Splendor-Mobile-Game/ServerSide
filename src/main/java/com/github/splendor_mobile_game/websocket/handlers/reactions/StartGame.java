@@ -295,7 +295,7 @@ public class StartGame extends Reaction {
 
 
 
-    public class TokensDataResponse {
+    public static class TokensDataResponse {
         public int ruby;
         public int emerald;
         public int sapphire;
@@ -313,7 +313,7 @@ public class StartGame extends Reaction {
         }
     }
 
-    public class NobleDataResponse {
+    public static class NobleDataResponse {
         public UUID uuid;
         public int prestige;
 
@@ -335,7 +335,7 @@ public class StartGame extends Reaction {
         }
     }
 
-    public class MinesCardDataResponse {
+    public static class MinesCardDataResponse {
         public UUID uuid;
         public int prestige;
         public Color color;
@@ -360,7 +360,7 @@ public class StartGame extends Reaction {
         
     }
 
-    public class UserDataResponse {
+    public static class UserDataResponse {
         public UUID uuid;
 
         public UserDataResponse(UUID uuid) {
@@ -368,7 +368,7 @@ public class StartGame extends Reaction {
         }      
     }
 
-    public class ResponseData {
+    public static class ResponseData {
         public TokensDataResponse tokens;
         public ArrayList<NobleDataResponse> nobles;
 

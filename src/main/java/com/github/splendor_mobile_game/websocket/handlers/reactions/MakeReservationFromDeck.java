@@ -97,7 +97,7 @@ public class MakeReservationFromDeck extends Reaction {
         }
     }
 
-    public class CardDataResponse{
+    public static class CardDataResponse{
         public UUID uuid;
         public CardTier cardTier;
         public int prestige;
@@ -114,7 +114,7 @@ public class MakeReservationFromDeck extends Reaction {
         }    
     }
 
-    public class TokensDataResponse{
+    public static class TokensDataResponse{
         public int ruby;
         public int emerald;
         public int sapphire;
@@ -131,7 +131,7 @@ public class MakeReservationFromDeck extends Reaction {
         }      
     }
 
-    public class ResponseData{
+    public static class ResponseData{
         public UUID userUuid;
         public CardDataResponse card;
         public boolean goldenToken;
