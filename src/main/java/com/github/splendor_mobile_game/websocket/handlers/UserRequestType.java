@@ -9,6 +9,7 @@ public enum UserRequestType {
     MAKE_RESERVATION_FROM_TABLE,
     START_GAME,
     DEBUG_GET_RANDOM_CARD,
+    END_TURN_TEST,
     LEAVE_ROOM,
     GET_TOKENS,
     END_TURN,
