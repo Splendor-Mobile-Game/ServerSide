@@ -114,7 +114,7 @@ public class EndTurn extends Reaction {
         }
     }
 
-    public class ResponseData {
+    public static class ResponseData {
         public UUID nextUserUuid;
 
         public ResponseData(UUID nextUserUuid) {

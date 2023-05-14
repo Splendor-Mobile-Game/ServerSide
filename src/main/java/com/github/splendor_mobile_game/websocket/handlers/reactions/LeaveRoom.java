@@ -117,14 +117,6 @@ public class LeaveRoom extends Reaction{
             this.userDTO = userDTO;
         }
     }
-
-    public static class ResponseDataSkipTurn {
-        public UUID nextUserUuid;
-
-        public ResponseDataSkipTurn(UUID nextUserUuid) {
-            this.nextUserUuid = nextUserUuid;
-        }
-    }
     
     public static class ResponseData {
         public UserDataResponse user;
@@ -163,7 +155,7 @@ public class LeaveRoom extends Reaction{
             if(game!=null && room.getCurrentPlayer()==user){               
                 room.changeTurn();
                 
-                ResponseDataSkipTurn responseData = new ResponseDataSkipTurn(room.getCurrentPlayer().getUuid());
+                EndTurn.ResponseData responseData = new EndTurn.ResponseData(room.getCurrentPlayer().getUuid());
                 ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.NEW_TURN_ANNOUNCEMENT, Result.OK, responseData);
 
                 for (User u : usersTmp) {         

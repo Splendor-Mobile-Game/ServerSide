@@ -10,6 +10,7 @@ import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.handlers.reactions.EndTurn;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.LeaveRoom;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
@@ -71,7 +72,7 @@ public class SimpleConnectionChecker extends ConnectionChecker {
                 room.changeTurn();
 
                 // Create a message to inform other players that is new turn
-                LeaveRoom.ResponseDataSkipTurn responseData = new LeaveRoom.ResponseDataSkipTurn(room.getCurrentPlayer().getUuid());
+                EndTurn.ResponseData responseData = new EndTurn.ResponseData(room.getCurrentPlayer().getUuid());
                 ServerMessage serverMessage = new ServerMessage(UUID.randomUUID(), ServerMessageType.NEW_TURN_ANNOUNCEMENT, Result.OK, responseData);
 
                 // Send leave information to other players
