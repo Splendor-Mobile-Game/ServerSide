@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.Regex;
+import com.github.splendor_mobile_game.game.model.Game;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
@@ -147,7 +148,21 @@ public class LeaveRoom extends Reaction{
             validateData(dataDTO, database);
             User user = database.getUser(dataDTO.userDTO.uuid);
             Room room = database.getRoom(dataDTO.roomDTO.uuid);
+            Game game = room.getGame();
             ArrayList<User> usersTmp = room.getAllUsers();
+
+            // If player it is player's turn changeTurn and make an announcement
+            if(game!=null && room.getCurrentPlayer()==user){               
+                room.changeTurn();
+                
+                EndTurn.ResponseData responseData = new EndTurn.ResponseData(room.getCurrentPlayer().getUuid());
+                ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.NEW_TURN_ANNOUNCEMENT, Result.OK, responseData);
+
+                for (User u : usersTmp) {         
+                    messenger.addMessageToSend(u.getConnectionHashCode(), serverMessage);                      
+                }
+            }
+
             room.leaveGame(user);
             database.getAllUsers().remove(user);
 
@@ -190,9 +205,7 @@ public class LeaveRoom extends Reaction{
 
             ErrorResponse errorResponse = new ErrorResponse(Result.FAILURE,e.getMessage(), ServerMessageType.LEAVE_ROOM_RESPONSE, userMessage.getContextId().toString());
             messenger.addMessageToSend(connectionHashCode, errorResponse);
-
-        }
-        
+        }     
     }
 
 
@@ -218,7 +231,6 @@ public class LeaveRoom extends Reaction{
         if (user != null)
             if (!room.userExists(user))
                 throw new UserNotAMemberException("User is not a member of this room");
-
     }
 
 }

@@ -10,6 +10,7 @@ import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.handlers.reactions.EndTurn;
 import com.github.splendor_mobile_game.websocket.handlers.reactions.LeaveRoom;
 import com.github.splendor_mobile_game.websocket.response.Result;
 import com.github.splendor_mobile_game.websocket.utils.Log;
@@ -66,6 +67,26 @@ public class SimpleConnectionChecker extends ConnectionChecker {
         Room room = database.getRoomWithUser(user.getUuid());
         if (room != null) {
             room.leaveGame(user);
+            
+            if(room.getGame()!=null && room.getCurrentPlayer()==user){
+                room.changeTurn();
+
+                // Create a message to inform other players that is new turn
+                EndTurn.ResponseData responseData = new EndTurn.ResponseData(room.getCurrentPlayer().getUuid());
+                ServerMessage serverMessage = new ServerMessage(UUID.randomUUID(), ServerMessageType.NEW_TURN_ANNOUNCEMENT, Result.OK, responseData);
+
+                // Send leave information to other players
+                for (User u : room.getAllUsers()) {
+                    WebSocket userConnection = connections.get(u.getConnectionHashCode());
+                    if (userConnection != null) {
+                        String message = serverMessage.toJson();
+                        userConnection.send(message);
+                        Log.DEBUG("Message sent to (" +
+                            u.getConnectionHashCode() + ":" + userConnection.getRemoteSocketAddress() + "): " + message
+                        );
+                    }
+                }
+            }
 
             // Create a message to inform other players that the user has left the room
             LeaveRoom.UserDataResponse userDataResponse = new LeaveRoom.UserDataResponse(user.getUuid(), user.getName());

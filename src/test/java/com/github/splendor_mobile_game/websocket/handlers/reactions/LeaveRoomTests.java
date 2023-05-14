@@ -6,7 +6,9 @@ import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.InvalidReceivedMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
+import com.github.splendor_mobile_game.websocket.handlers.Message;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
+import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -136,6 +138,39 @@ public class LeaveRoomTests {
         User user = this.database.getAllUsers().get(1);
         assertEquals(userId, user.getUuid().toString());
         assertEquals(userName, user.getName());
+    }
+
+    private void startGame(String userId, String roomId, String enterCode) {
+        String message = """
+            {
+                "contextId": "80bdc250-5365-4caf-8dd9-a33e709a0117",
+                "type": "START_GAME",
+                "data": {
+                    "userDTO": {
+                        "uuid": "$userId"
+                    },
+                    "roomDTO": {
+                        "uuid": "$roomId"
+                    }
+                }
+            }
+            """;
+
+        message = message
+                .replace("$userId", userId)
+                .replace("$roomId", roomId);
+
+        int clientConnectionHashCode = 100001;
+        UserMessage receivedMessage = new UserMessage(message);
+        Messenger messenger = new Messenger();
+        StartGame startGame = new StartGame(clientConnectionHashCode, receivedMessage, messenger, this.database);
+        receivedMessage.parseDataToClass(StartGame.DataDTO.class);
+        startGame.react();
+
+        //assertEquals(2, messenger.getMessages().size());
+        //assertEquals(2, this.database.getAllUsers().size());
+        //User user = this.database.getAllUsers().get(1);
+        //assertEquals(userId, user.getUuid().toString());
     }
 
     @Test
@@ -447,5 +482,63 @@ public class LeaveRoomTests {
         gameRoom = this.database.getAllRooms().get(0);
         owner = new User(UUID.fromString("f8c3de3d-1fea-4d7c-a8b0-29f63c4c3455"), "JOINER", 100001);
         assertEquals(owner, gameRoom.getOwner());
+    }
+
+    @Test
+    public void tescikTakiSobie() throws InvalidReceivedMessage {
+        this.database = new InMemoryDatabase();
+        JsonObject room = this.createRoom();
+        String enterCode = room.get("enterCode").getAsString();
+        String roomId = room.get("uuid").getAsString();
+
+        String messageContextId = "80bdc250-5365-4caf-8dd9-a33e709a0118";
+
+        String ownerUuid = "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454";
+
+        String userUuid = "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3455";
+        String userName = "JOINER";
+        this.joinRoom(userUuid, userName, enterCode);
+
+        this.startGame(ownerUuid, roomId, enterCode);
+
+        String message = this.newBaseMessage()
+                .replace("$messageContextId", messageContextId)
+                .replace("$userId", ownerUuid)
+                .replace("$roomId", roomId);
+
+        int clientConnectionHashCode = 100001;
+        UserMessage receivedMessage = new UserMessage(message);
+        Messenger messenger = new Messenger();
+        LeaveRoom leaveRoom = new LeaveRoom(clientConnectionHashCode, receivedMessage, messenger, this.database);
+        receivedMessage.parseDataToClass(LeaveRoom.DataDTO.class);
+        leaveRoom.react();
+
+        for(Message msg: messenger.getMessages()){
+            Log.DEBUG(msg.getMessage());
+        }
+
+        assertEquals(6, messenger.getMessages().size());
+        assertEquals(1, this.database.getAllUsers().size());
+
+        String expectedJsonString = """
+                {
+                   "contextId":"$messageContextId",
+                   "type":"NEW_TURN_ANNOUNCEMENT",
+                   "result":"OK",
+                   "data":{
+                        "nextUserUuid":"$userId"
+                   }
+                }
+                """
+                .replace("$messageContextId", "80bdc250-5365-4caf-8dd9-a33e709a0118")
+                .replace("$userId", userUuid);
+
+        String reply = messenger.getMessages().get(0).getMessage();
+        JsonElement actualJson = JsonParser.parseString(reply);
+
+        JsonElement user = actualJson.getAsJsonObject().get("data").getAsJsonObject().get("nextUserUuid");
+        assertEquals(userUuid, user.getAsString());
+
+        assertEquals(JsonParser.parseString(expectedJsonString), actualJson);
     }
 }
