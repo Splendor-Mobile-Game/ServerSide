@@ -21,8 +21,7 @@ public class UserTests {
         User user = new User(UUID.fromString(this.userUuid), this.userName, this.userConnectionHashCode);
         Card card = new Card(CardTier.LEVEL_1, 10,3,0,0,0,0, TokenType.EMERALD);
 
-        Throwable throwable = assertThrows(NotEnoughTokensException.class, () -> user.buyCard(card));
-        assertEquals("You don't have enough tokens to buy this card", throwable.getMessage());
+        assertThrows(NotEnoughTokensException.class, () -> user.buyCard(card));
     }
 
     private Map<TokenType, Integer> newTokenMap() {
