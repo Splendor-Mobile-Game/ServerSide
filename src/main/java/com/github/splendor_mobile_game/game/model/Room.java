@@ -22,7 +22,7 @@ public class Room {
     private User owner;
     private Game game=null;
     private final Database database;
-
+    private Chat chat = new Chat();
 
     public Room(UUID uuid, String name, String password, User owner, Database database) {
         this.uuid     = uuid;
@@ -72,6 +72,10 @@ public class Room {
             currentOrder = users.get(index+1);
             return currentOrder;
         }
+    }
+
+    public Chat getChat() {
+        return chat;
     }
 
     public boolean getLastTurn() {
