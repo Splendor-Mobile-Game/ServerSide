@@ -2,7 +2,6 @@ package com.github.splendor_mobile_game.game.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -10,7 +9,6 @@ public class Chat {
     private ArrayList<ChatMessage> chatMessages = new ArrayList<>();
 
     public ArrayList<ChatMessage> getChatMessages() {
-        Collections.sort(chatMessages);
         return chatMessages;
     }
 
@@ -20,15 +18,14 @@ public class Chat {
     }
 
     public ChatMessage getLastMessage() {
-        Collections.sort(chatMessages);
         return chatMessages.get(chatMessages.size() - 1);
     }
 
-    public void addMessage(String message, UUID senderUuid) {
+    public void sendMessage(String message, UUID senderUuid) {
         chatMessages.add(new ChatMessage(senderUuid, message));
     }
 
-    public class ChatMessage implements Comparable<ChatMessage>  {
+    public class ChatMessage  {
         private final UUID senderUUID;
         private final LocalDateTime date;
         private final String message;
@@ -53,11 +50,6 @@ public class Chat {
             return senderUUID;
         }
 
-        @Override
-        public int compareTo(ChatMessage o) {
-            if (this.date.isBefore(o.getDate())) return -1;
-            return 1;
-        }
     }
 
 }

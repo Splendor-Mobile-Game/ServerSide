@@ -11,7 +11,6 @@ import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.InvalidUUIDException;
-import com.github.splendor_mobile_game.websocket.handlers.exceptions.RoomDoesntExistException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserDoesntExistException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.UserNotAMemberException;
 import com.github.splendor_mobile_game.websocket.response.ErrorResponse;
@@ -105,7 +104,7 @@ public class SendChatMessage extends Reaction {
 
             Room room = database.getRoom(dataDTO.userUuid);
 
-            room.getChat().addMessage(dataDTO.message, dataDTO.userUuid);
+            room.getChat().sendMessage(dataDTO.message, dataDTO.userUuid);
 
             ResponseData responseData = new ResponseData(dataDTO.userUuid, dataDTO.message);
             ServerMessage serverMessage = new ServerMessage(userMessage.getContextId(), ServerMessageType.SEND_CHAT_MESSAGE_ANNOUNCEMENT, Result.OK, responseData);
