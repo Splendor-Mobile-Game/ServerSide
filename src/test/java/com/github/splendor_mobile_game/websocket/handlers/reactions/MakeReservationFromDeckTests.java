@@ -1,10 +1,15 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
+import com.github.splendor_mobile_game.game.enums.TokenType;
+import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
+import com.github.splendor_mobile_game.websocket.response.Result;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import org.junit.jupiter.api.Test;
 
 import com.github.splendor_mobile_game.database.Database;
@@ -13,19 +18,17 @@ import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
-import com.github.splendor_mobile_game.websocket.utils.Log;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MakeReservationFromDeckTests {
 
     private Database database;
-    private final String roomPassword = "PASSWORD";
 
     private String newBaseMessage() {
         return """
                 {
-                    "contextId":"02442d1b-2095-4aaa-9db1-0dae99d88e03",
+                    "contextId":"02442d1b-2095-4aaa-9db1-0dae99d88e00",
                     "type": "MAKE_RESERVATION_FROM_DECK",
                     "data": {
                         "userUuid": "$userUuid",
@@ -35,69 +38,57 @@ public class MakeReservationFromDeckTests {
                 """;
     }
 
-    private JsonObject createRoom() {
-        String userUuid = "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454";
-        String userName = "OWNER";
-
-        String message = """
-            {
-                "contextId": "80bdc250-5365-4caf-8dd9-a33e709a0116",
-                "type": "CREATE_ROOM",
-                "data": {
-                    "userDTO": {
-                        "uuid": "$userId",
-                        "name": "$userName"
-                    },
-                    "roomDTO": {
-                        "name": "$roomName",
-                        "password": "$roomPassword"
-                    }
-                }
+    private String newBaseErrorResponse(){
+        return """
+        {
+            "contextId":"$messageContextId",
+            "type":"MAKE_RESERVATION_FROM_DECK_RESPONSE",
+            "result":"FAILURE",
+            "data":{
+                "error":"$error"
             }
-            """;
-
-        String roomName = "ROOM";
-        message = message
-                .replace("$userId", userUuid)
-                .replace("$userName", userName)
-                .replace("$roomName", roomName)
-                .replace("$roomPassword", this.roomPassword);
-
-        int clientConnectionHashCode = 100000;
-        UserMessage receivedMessage = new UserMessage(message);
-        Messenger messenger = new Messenger();
-        CreateRoom createRoom = new CreateRoom(clientConnectionHashCode, receivedMessage, messenger, this.database);
-        receivedMessage.parseDataToClass(CreateRoom.DataDTO.class);
-        createRoom.react();
-
-        assertEquals(1, messenger.getMessages().size());
-        assertEquals(1, this.database.getAllUsers().size());
-        User user = this.database.getAllUsers().get(0);
-        assertEquals(userUuid, user.getUuid().toString());
-        assertEquals(userName, user.getName());
-
-        JsonElement response = JsonParser.parseString(messenger.getMessages().get(0).getMessage());
-        return response.getAsJsonObject().get("data").getAsJsonObject().get("room").getAsJsonObject();
+        }""";
     }
 
     @Test
     public void validRequestTest() {
-        // 1. Setup data for the test
         this.database = new InMemoryDatabase();
-        JsonObject jsonRoom = this.createRoom();
-        String roomUuid = jsonRoom.get("uuid").getAsString();
 
-        int clientConnectionHashCode = 714239;
-        Messenger messenger = new Messenger();
+        User owner = new User(UUID.randomUUID(), "OWNER", 100000);
+        User player = new User(UUID.randomUUID(), "PLAYER", 100001);
+        Room room = new Room(UUID.randomUUID(), "ROOM", "PASSWORD", owner, this.database);
+        room.getAllUsers().add(player);
+        this.database.addUser(owner);
+        this.database.addUser(player);
+        this.database.addRoom(room);
 
-        Room room = this.database.getRoom(UUID.fromString(roomUuid));
-
-        User player = new User(UUID.randomUUID(), "PLAYER", 1234);
-        database.addUser(player);
-        room.joinGame(player);
         room.startGame();
 
-        String userUuid = player.getUuid().toString();
+        String message = this.newBaseMessage()
+                .replace("$userUuid", owner.getUuid().toString())
+                .replace("$cardTier", "LEVEL_1");
+
+        Messenger messenger = new Messenger();
+        UserMessage receivedMessage = new UserMessage(message);
+        MakeReservationFromDeck mrfd = new MakeReservationFromDeck(owner.getConnectionHashCode(), receivedMessage, messenger, this.database);
+        receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
+        mrfd.react();
+
+        assertEquals(2, messenger.getMessages().size());
+        assertEquals(owner.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
+
+        String reply = messenger.getMessages().get(0).getMessage();
+        JsonElement actualJson = JsonParser.parseString(reply);
+
+        assertEquals(ServerMessageType.MAKE_RESERVATION_FROM_DECK_ANNOUNCEMENT.toString(), actualJson.getAsJsonObject().get("type").getAsString());
+        assertEquals(Result.OK.toString(), actualJson.getAsJsonObject().get("result").getAsString());
+
+        assertTrue(owner.hasPerformedAction());
+    }
+
+    @Test
+    public void invalidUserUuidTest() {
+        String userUuid = "invalid-uuid";
         String cardTier = "LEVEL_1";
 
         String message = this.newBaseMessage()
@@ -105,22 +96,306 @@ public class MakeReservationFromDeckTests {
                 .replace("$cardTier", cardTier);
 
         UserMessage receivedMessage = new UserMessage(message);
-        MakeReservationFromDeck makeReservationFromDeck = new MakeReservationFromDeck(clientConnectionHashCode, receivedMessage, messenger, database);
+        Throwable throwable = assertThrows(JsonSyntaxException.class, () -> receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class));
+        assertTrue(throwable.getMessage().contains("Failed parsing"));
+    }
 
-        Log.DEBUG(message);
+    @Test
+    public void userNotFoundTest() {
+        this.database = new InMemoryDatabase();
 
-        // Parse the data given in the message
+        String userUuid = "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3455";
+        String cardTier = "LEVEL_1";
+
+        String message = this.newBaseMessage()
+                .replace("$userUuid", userUuid)
+                .replace("$cardTier", cardTier);
+
+        int clientConnectionHashCode = 100000;
+        UserMessage receivedMessage = new UserMessage(message);
+        Messenger messenger = new Messenger();
+        MakeReservationFromDeck mrfd = new MakeReservationFromDeck(clientConnectionHashCode, receivedMessage, messenger, this.database);
         receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
-        int receivedMessageHashCode = receivedMessage.hashCode();
+        mrfd.react();
 
-        // 2. Call the function you are testing
-        makeReservationFromDeck.react();
+        assertEquals(1,messenger.getMessages().size());
+        assertEquals(clientConnectionHashCode, messenger.getMessages().get(0).getReceiverHashcode());
 
-        // 3. Get response from the server
-        String serverReply = messenger.getMessages().get(0).getMessage();
-        Log.DEBUG(serverReply);
+        String expectedJsonString = this.newBaseErrorResponse()
+                .replace("$messageContextId", "02442d1b-2095-4aaa-9db1-0dae99d88e00")
+                .replace("$error", "Couldn't find a user with given UUID.");
 
-        // 4. Check that return value and side effects of this call is correct
-        // TO DO
+        String reply = messenger.getMessages().get(0).getMessage();
+
+        JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
+        JsonElement actualJson = JsonParser.parseString(reply);
+
+        assertTrue(actualJson.getAsJsonObject().get("data").getAsJsonObject().has("error"));
+        assertEquals(expectedJson, actualJson);
+    }
+
+    @Test
+    public void userNotARoomMemberTest() {
+        this.database = new InMemoryDatabase();
+
+        User player = new User(UUID.randomUUID(), "PLAYER", 100000);
+        this.database .addUser(player);
+
+        String message = this.newBaseMessage()
+                .replace("$userUuid", player.getUuid().toString())
+                .replace("$cardTier", "LEVEL_1");
+
+        UserMessage receivedMessage = new UserMessage(message);
+        Messenger messenger = new Messenger();
+        MakeReservationFromDeck mrfd = new MakeReservationFromDeck(player.getConnectionHashCode(), receivedMessage, messenger, this.database);
+        receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
+        mrfd.react();
+
+        assertEquals(1,messenger.getMessages().size());
+        assertEquals(player.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
+
+        String expectedJsonString = this.newBaseErrorResponse()
+                .replace("$messageContextId", "02442d1b-2095-4aaa-9db1-0dae99d88e00")
+                .replace("$error", "You are not a member of any room!");
+
+        String reply = messenger.getMessages().get(0).getMessage();
+
+        JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
+        JsonElement actualJson = JsonParser.parseString(reply);
+
+        assertTrue(actualJson.getAsJsonObject().get("data").getAsJsonObject().has("error"));
+        assertEquals(expectedJson, actualJson);
+    }
+
+    @Test
+    public void gameNotStartedTest() {
+        this.database = new InMemoryDatabase();
+
+        User player = new User(UUID.randomUUID(), "PLAYER", 100000);
+        Room room = new Room(UUID.randomUUID(), "ROOM", "PASSWORD", player, this.database);
+        this.database.addUser(player);
+        this.database.addRoom(room);
+
+        String message = this.newBaseMessage()
+                .replace("$userUuid", player.getUuid().toString())
+                .replace("$cardTier", "LEVEL_1");
+
+        UserMessage receivedMessage = new UserMessage(message);
+        Messenger messenger = new Messenger();
+        MakeReservationFromDeck mrfd = new MakeReservationFromDeck(player.getConnectionHashCode(), receivedMessage, messenger, this.database);
+        receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
+        mrfd.react();
+
+        assertEquals(1,messenger.getMessages().size());
+        assertEquals(player.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
+
+        String expectedJsonString = this.newBaseErrorResponse()
+                .replace("$messageContextId", "02442d1b-2095-4aaa-9db1-0dae99d88e00")
+                .replace("$error", "The game hasn't started yet!");
+
+        String reply = messenger.getMessages().get(0).getMessage();
+
+        JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
+        JsonElement actualJson = JsonParser.parseString(reply);
+
+        assertTrue(actualJson.getAsJsonObject().get("data").getAsJsonObject().has("error"));
+        assertEquals(expectedJson, actualJson);
+    }
+
+    @Test
+    public void otherPlayerTurnTest() {
+        this.database = new InMemoryDatabase();
+
+        User owner = new User(UUID.randomUUID(), "OWNER", 100000);
+        User player = new User(UUID.randomUUID(), "PLAYER", 100001);
+        Room room = new Room(UUID.randomUUID(), "ROOM", "PASSWORD", owner, this.database);
+        room.getAllUsers().add(player);
+        this.database.addUser(owner);
+        this.database.addUser(player);
+        this.database.addRoom(room);
+
+        room.startGame();
+
+        String message = this.newBaseMessage()
+                .replace("$userUuid", player.getUuid().toString())
+                .replace("$cardTier", "LEVEL_1");
+
+        UserMessage receivedMessage = new UserMessage(message);
+        Messenger messenger = new Messenger();
+        MakeReservationFromDeck mrfd = new MakeReservationFromDeck(player.getConnectionHashCode(), receivedMessage, messenger, this.database);
+        receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
+        mrfd.react();
+
+        assertEquals(1, messenger.getMessages().size());
+        assertEquals(player.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
+
+        String expectedJsonString = this.newBaseErrorResponse()
+                .replace("$messageContextId", "02442d1b-2095-4aaa-9db1-0dae99d88e00")
+                .replace("$error", "It is not your turn!");
+
+        String reply = messenger.getMessages().get(0).getMessage();
+
+        JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
+        JsonElement actualJson = JsonParser.parseString(reply);
+
+        assertTrue(actualJson.getAsJsonObject().get("data").getAsJsonObject().has("error"));
+        assertEquals(expectedJson, actualJson);
+    }
+
+    @Test
+    public void reservationLimitReachedTest() {
+        this.database = new InMemoryDatabase();
+
+        User owner = new User(UUID.randomUUID(), "OWNER", 100000);
+        User player = new User(UUID.randomUUID(), "PLAYER", 100001);
+        Room room = new Room(UUID.randomUUID(), "ROOM", "PASSWORD", owner, this.database);
+        room.getAllUsers().add(player);
+        this.database.addUser(owner);
+        this.database.addUser(player);
+        this.database.addRoom(room);
+
+        room.startGame();
+
+        String message = this.newBaseMessage()
+                .replace("$userUuid", owner.getUuid().toString())
+                .replace("$cardTier", "LEVEL_1");
+
+        Messenger messenger = new Messenger();
+        for (int i = 0; i < 3; i++) {
+            UserMessage receivedMessage = new UserMessage(message);
+            MakeReservationFromDeck mrfd = new MakeReservationFromDeck(owner.getConnectionHashCode(), receivedMessage, messenger, this.database);
+            receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
+            mrfd.react();
+        }
+
+        messenger = new Messenger();
+        UserMessage receivedMessage = new UserMessage(message);
+        MakeReservationFromDeck mrfd = new MakeReservationFromDeck(owner.getConnectionHashCode(), receivedMessage, messenger, this.database);
+        receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
+        mrfd.react();
+
+        assertEquals(1,messenger.getMessages().size());
+        assertEquals(owner.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
+
+        String expectedJsonString = this.newBaseErrorResponse()
+                .replace("$messageContextId", "02442d1b-2095-4aaa-9db1-0dae99d88e00")
+                .replace("$error", "You have reached the current reserved cards limit.");
+
+        String reply = messenger.getMessages().get(0).getMessage();
+
+        JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
+        JsonElement actualJson = JsonParser.parseString(reply);
+
+        assertTrue(actualJson.getAsJsonObject().get("data").getAsJsonObject().has("error"));
+        assertEquals(expectedJson, actualJson);
+    }
+
+    @Test
+    public void gameReservationLimitReachedTest() {
+        this.database = new InMemoryDatabase();
+
+        User owner = new User(UUID.randomUUID(), "OWNER", 100000);
+        User player = new User(UUID.randomUUID(), "PLAYER", 100001);
+        Room room = new Room(UUID.randomUUID(), "ROOM", "PASSWORD", owner, this.database);
+        room.getAllUsers().add(player);
+        this.database.addUser(owner);
+        this.database.addUser(player);
+        this.database.addRoom(room);
+
+        room.startGame();
+
+        String message = this.newBaseMessage()
+                .replace("$userUuid", owner.getUuid().toString())
+                .replace("$cardTier", "LEVEL_1");
+
+        Messenger messenger = new Messenger();
+        for (int i = 0; i < 3; i++) {
+            UserMessage receivedMessage = new UserMessage(message);
+            MakeReservationFromDeck mrfd = new MakeReservationFromDeck(owner.getConnectionHashCode(), receivedMessage, messenger, this.database);
+            receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
+            mrfd.react();
+        }
+
+        room.changeTurn();
+
+        message = this.newBaseMessage()
+                .replace("$userUuid", player.getUuid().toString())
+                .replace("$cardTier", "LEVEL_1");
+
+        for (int i = 0; i < 2; i++) {
+            UserMessage receivedMessage = new UserMessage(message);
+            MakeReservationFromDeck mrfd = new MakeReservationFromDeck(player.getConnectionHashCode(), receivedMessage, messenger, this.database);
+            receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
+            mrfd.react();
+        }
+
+        messenger = new Messenger();
+        UserMessage receivedMessage = new UserMessage(message);
+        MakeReservationFromDeck mrfd = new MakeReservationFromDeck(player.getConnectionHashCode(), receivedMessage, messenger, this.database);
+        receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
+        mrfd.react();
+
+        assertEquals(1,messenger.getMessages().size());
+        assertEquals(player.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
+
+        String expectedJsonString = this.newBaseErrorResponse()
+                .replace("$messageContextId", "02442d1b-2095-4aaa-9db1-0dae99d88e00")
+                .replace("$error", "You have reached the limit of reserved cards per game.");
+
+        String reply = messenger.getMessages().get(0).getMessage();
+
+        JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
+        JsonElement actualJson = JsonParser.parseString(reply);
+
+        assertTrue(actualJson.getAsJsonObject().get("data").getAsJsonObject().has("error"));
+        assertEquals(expectedJson, actualJson);
+    }
+
+    @Test
+    public void maxTokenCountReachedTest() {
+        this.database = new InMemoryDatabase();
+
+        User owner = new User(UUID.randomUUID(), "OWNER", 100000);
+        User player = new User(UUID.randomUUID(), "PLAYER", 100001);
+        Room room = new Room(UUID.randomUUID(), "ROOM", "PASSWORD", owner, this.database);
+        room.getAllUsers().add(player);
+        this.database.addUser(owner);
+        this.database.addUser(player);
+        this.database.addRoom(room);
+
+        Map<TokenType, Integer> tokens = new HashMap<>();
+        for (TokenType type : TokenType.values()) {
+            if(type == TokenType.GOLD_JOKER) continue;
+            tokens.put(type, 0);
+        }
+        tokens.put(TokenType.EMERALD, 10);
+        owner.changeTokens(tokens);
+
+        room.startGame();
+
+        String message = this.newBaseMessage()
+                .replace("$userUuid", owner.getUuid().toString())
+                .replace("$cardTier", "LEVEL_1");
+
+        UserMessage receivedMessage = new UserMessage(message);
+        Messenger messenger = new Messenger();
+        MakeReservationFromDeck mrfd = new MakeReservationFromDeck(owner.getConnectionHashCode(), receivedMessage, messenger, this.database);
+        receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
+        mrfd.react();
+
+        assertEquals(1,messenger.getMessages().size());
+        assertEquals(owner.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
+
+        String expectedJsonString = this.newBaseErrorResponse()
+                .replace("$messageContextId", "02442d1b-2095-4aaa-9db1-0dae99d88e00")
+                .replace("$error", "You have reached the maximum token count on hand.");
+
+        String reply = messenger.getMessages().get(0).getMessage();
+
+        JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
+        JsonElement actualJson = JsonParser.parseString(reply);
+
+        assertTrue(actualJson.getAsJsonObject().get("data").getAsJsonObject().has("error"));
+        assertEquals(expectedJson, actualJson);
     }
 }
