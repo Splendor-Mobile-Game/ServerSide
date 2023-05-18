@@ -11,11 +11,7 @@ import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
-import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
-import com.github.splendor_mobile_game.websocket.response.Result;
-import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
@@ -112,9 +108,6 @@ public class BuyReservedMineTests {
         String message = this.newBaseMessage(messageUuid)
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", cardToBuy.getUuid().toString());
-                
-        Log.DEBUG(message);
-        
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
@@ -129,7 +122,6 @@ public class BuyReservedMineTests {
         assertTrue(owner.hasPerformedAction());
 
         String reply = messenger.getMessages().get(0).getMessage();
-        Log.DEBUG(reply);
         
         String expectedJsonString = """
         {
@@ -161,7 +153,6 @@ public class BuyReservedMineTests {
     
     @Test
     public void invalidUserUuidTest() {
-        Log.DEBUG("invalidUserUuidTest");
 
         String userUuid = "invalid-uuid";
         String cardUuid = "80bdc250-5365-4caf-8dd9-a33e709a0112";
@@ -169,7 +160,6 @@ public class BuyReservedMineTests {
         String message = this.newBaseMessage(messageUuid)
                 .replace("$userUuid", userUuid)
                 .replace("$cardUuid", cardUuid);                
-        Log.DEBUG(message);
 
         UserMessage receivedMessage = new UserMessage(message);
         assertThrows(JsonSyntaxException.class, () -> receivedMessage.parseDataToClass(BuyReservedMine.DataDTO.class));
@@ -177,7 +167,6 @@ public class BuyReservedMineTests {
 
     @Test
     public void invalidCardUuidTest() {
-        Log.DEBUG("invalidCardUuidTest");
 
         String userUuid = "80bdc250-5365-4caf-8dd9-a33e709a0111";
         String cardUuid = "invalid-uuid";
@@ -185,7 +174,6 @@ public class BuyReservedMineTests {
         String message = this.newBaseMessage(messageUuid)
                 .replace("$userUuid", userUuid)
                 .replace("$cardUuid", cardUuid);
-        Log.DEBUG(message);
 
         UserMessage receivedMessage = new UserMessage(message);
         assertThrows(JsonSyntaxException.class, () -> receivedMessage.parseDataToClass(BuyReservedMine.DataDTO.class));
@@ -193,7 +181,6 @@ public class BuyReservedMineTests {
 
     @Test
     public void userNotFoundTest() {
-        Log.DEBUG("userNotFoundTest");
 
         String userUuid = "80bdc250-5365-4caf-8dd9-a33e709a0111";
         String cardUuid = "80bdc250-5365-4caf-8dd9-a33e709a0112";
@@ -201,7 +188,6 @@ public class BuyReservedMineTests {
         String message = this.newBaseMessage(messageUuid)
                 .replace("$userUuid", userUuid)
                 .replace("$cardUuid", cardUuid);
-        Log.DEBUG(message);
 
         int clientConnectionHashCode = 100000;
         UserMessage receivedMessage = new UserMessage(message);
@@ -217,7 +203,6 @@ public class BuyReservedMineTests {
                 .replace("$error", "Couldn't find a user with given UUID.");
 
         String reply = messenger.getMessages().get(0).getMessage();
-        Log.DEBUG(reply);
         
         JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
         JsonElement actualJson = JsonParser.parseString(reply);
@@ -228,7 +213,6 @@ public class BuyReservedMineTests {
 
     @Test
     public void userNotInRoomTest() {
-        Log.DEBUG("userNotInRoomTest");
 
         String cardUuid = "80bdc250-5365-4caf-8dd9-a33e709a0112";
 
@@ -238,7 +222,6 @@ public class BuyReservedMineTests {
         String message = this.newBaseMessage(messageUuid)
                 .replace("$userUuid", user.getUuid().toString())
                 .replace("$cardUuid", cardUuid);
-        Log.DEBUG(message);
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
@@ -253,7 +236,6 @@ public class BuyReservedMineTests {
                 .replace("$error", "You are not a member of any room!");
 
         String reply = messenger.getMessages().get(0).getMessage();
-        Log.DEBUG(reply);
         
         JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
         JsonElement actualJson = JsonParser.parseString(reply);
@@ -264,7 +246,6 @@ public class BuyReservedMineTests {
 
     @Test
     public void gameNotStartedTest() {
-        Log.DEBUG("gameNotStartedTest");
 
         String cardUuid = "80bdc250-5365-4caf-8dd9-a33e709a0112";
 
@@ -276,7 +257,6 @@ public class BuyReservedMineTests {
         String message = this.newBaseMessage(messageUuid)
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", cardUuid);
-        Log.DEBUG(message);
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
@@ -291,7 +271,6 @@ public class BuyReservedMineTests {
                 .replace("$error", "Game hasn't started yet.");
 
         String reply = messenger.getMessages().get(0).getMessage();
-        Log.DEBUG(reply);
         
         JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
         JsonElement actualJson = JsonParser.parseString(reply);
@@ -302,7 +281,6 @@ public class BuyReservedMineTests {
 
     @Test
     public void invalidTurnTest() {
-        Log.DEBUG("invalidTurnTest");
 
         String cardUuid = "80bdc250-5365-4caf-8dd9-a33e709a0112";
 
@@ -319,7 +297,6 @@ public class BuyReservedMineTests {
         String message = this.newBaseMessage(messageUuid)
                 .replace("$userUuid", player.getUuid().toString())
                 .replace("$cardUuid", cardUuid);
-        Log.DEBUG(message);
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
@@ -334,7 +311,6 @@ public class BuyReservedMineTests {
                 .replace("$error", "It's not your turn.");
 
         String reply = messenger.getMessages().get(0).getMessage();
-        Log.DEBUG(reply);
         
         JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
         JsonElement actualJson = JsonParser.parseString(reply);
@@ -345,7 +321,6 @@ public class BuyReservedMineTests {
 
     @Test
     public void userHasPerformedActionTest() {
-        Log.DEBUG("userHasPerformedActionTest");
 
         User owner = new User(UUID.randomUUID(), "OWNER", 100000);
         User player = new User(UUID.randomUUID(), "PLAYER", 100001);
@@ -363,7 +338,6 @@ public class BuyReservedMineTests {
         String message = this.newBaseMessage(messageUuid)
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", card.getUuid().toString());
-        Log.DEBUG(message);
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
@@ -397,7 +371,6 @@ public class BuyReservedMineTests {
                 .replace("$error", "You have already performed an action.");
 
         String reply = messenger.getMessages().get(0).getMessage();
-        Log.DEBUG(reply);
         
         JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
         JsonElement actualJson = JsonParser.parseString(reply);
@@ -408,7 +381,6 @@ public class BuyReservedMineTests {
 
     @Test
     public void cardNotFoundTest() {
-        Log.DEBUG("cardNotFoundTest");
 
         String cardUuid = "80bdc250-5365-4caf-8dd9-a33e709a0112";
 
@@ -425,7 +397,6 @@ public class BuyReservedMineTests {
         String message = this.newBaseMessage(messageUuid)
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", cardUuid);
-        Log.DEBUG(message);
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
@@ -440,7 +411,6 @@ public class BuyReservedMineTests {
                 .replace("$error", "Couldn't find a card with given UUID.");
 
         String reply = messenger.getMessages().get(0).getMessage();
-        Log.DEBUG(reply);
         
         JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
         JsonElement actualJson = JsonParser.parseString(reply);
@@ -451,7 +421,6 @@ public class BuyReservedMineTests {
 
     @Test
     public void cardNotReservedTest() {
-        Log.DEBUG("cardNotReservedTest");
 
         User owner = new User(UUID.randomUUID(), "OWNER", 100000);
         User player = new User(UUID.randomUUID(), "PLAYER", 100001);
@@ -469,7 +438,6 @@ public class BuyReservedMineTests {
         String message = this.newBaseMessage(messageUuid)
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", card.getUuid().toString());
-        Log.DEBUG(message);
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
@@ -484,7 +452,6 @@ public class BuyReservedMineTests {
                 .replace("$error", "The card is not in the reserved deck.");
 
         String reply = messenger.getMessages().get(0).getMessage();
-        Log.DEBUG(reply);
         
         JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
         JsonElement actualJson = JsonParser.parseString(reply);
@@ -495,7 +462,6 @@ public class BuyReservedMineTests {
 
     @Test
     public void insufficientTokensTest() {
-        Log.DEBUG("insufficientTokensTest");
 
         User owner = new User(UUID.randomUUID(), "OWNER", 100000);
         User player = new User(UUID.randomUUID(), "PLAYER", 100001);
@@ -533,7 +499,6 @@ public class BuyReservedMineTests {
         String message = this.newBaseMessage(messageUuid)
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", cardToBuy.getUuid().toString());
-        Log.DEBUG(message);
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
@@ -547,7 +512,6 @@ public class BuyReservedMineTests {
         assertTrue(owner.getReservedCards().contains(cardToBuy));
 
         String reply = messenger.getMessages().get(0).getMessage();
-        Log.DEBUG(reply);
 
         String expectedJsonString = """
         {
