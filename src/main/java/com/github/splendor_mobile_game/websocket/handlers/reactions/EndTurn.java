@@ -71,7 +71,35 @@ import com.github.splendor_mobile_game.game.model.Room;
  *     }
  * }
  *
+ * This reaction handles the announcement of the end of the game. It is triggered when the game reaches its last round
+ * and every player has made the same amount of actions. The server sends a message of type END_GAME_ANNOUNCEMENT to
+ * all players, providing the final ranking of players based on their points.
+ * Example END_GAME_ANNOUNCEMENT:
  *
+ * {
+ *     "contextId": "02442d1b-2095-4aaa-9db1-0dae99d88e03",
+ *     "type": "END_GAME_ANNOUNCEMENT",
+ *     "result": "OK",
+ *     "data": {
+ *         "playerRanking": [
+ *             {
+ *                 "playerUUID": "6850e6c1-6f1d-48c6-a412-52b39225ded7",
+ *                 "points": 20,
+ *                 "place": 1
+ *             },
+ *             {
+ *                 "playerUUID": "59913c86-bc7e-44a4-ad8e-2ffadd574df3",
+ *                 "points": 18,
+ *                 "place": 2
+ *             },
+ *             {
+ *                 "playerUUID": "921ff7d7-12ff-4a63-b162-d6a9ed98e6f4",
+ *                 "points": 15,
+ *                 "place": 3
+ *             }
+ *         ]
+ *     }
+ * }
  *
  *
  * If a player sends an invalid request, such as when it is not their turn, or they are not in any game, the server sends a response only to the requester. For example:
