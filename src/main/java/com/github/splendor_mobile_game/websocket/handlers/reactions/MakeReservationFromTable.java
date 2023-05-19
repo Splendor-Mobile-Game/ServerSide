@@ -130,9 +130,9 @@ public class MakeReservationFromTable extends Reaction {
         public int sapphireCost;
         public int diamondCost;
         public int onyxCost;
+        public int graphicsID;
 
-
-        public CardDataResponse(UUID uuid, CardTier cardTier, TokenType additionalToken, int points, int rubyCost, int emeraldCost, int sapphireCost, int diamondCost, int onyxCost) {
+        public CardDataResponse(UUID uuid, CardTier cardTier, TokenType additionalToken, int points, int rubyCost, int emeraldCost, int sapphireCost, int diamondCost, int onyxCost, int graphicsID) {
             this.uuid = uuid;
             this.cardTier = cardTier;
             this.additionalToken = additionalToken;
@@ -142,6 +142,7 @@ public class MakeReservationFromTable extends Reaction {
             this.sapphireCost = sapphireCost;
             this.diamondCost = diamondCost;
             this.onyxCost = onyxCost;
+            this.graphicsID = graphicsID;
         }              
     }
 
@@ -213,7 +214,8 @@ public class MakeReservationFromTable extends Reaction {
                     cardDrawn.getCost(TokenType.EMERALD),
                     cardDrawn.getCost(TokenType.SAPPHIRE),
                     cardDrawn.getCost(TokenType.DIAMOND),
-                    cardDrawn.getCost(TokenType.ONYX)
+                    cardDrawn.getCost(TokenType.ONYX),
+                    cardDrawn.getGraphicsID()
                 );
 
                 Log.DEBUG("New card drawn "+cardDrawn.getUuid());

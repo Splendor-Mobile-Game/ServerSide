@@ -103,14 +103,16 @@ public class MakeReservationFromDeck extends Reaction {
         public int prestige;
         public TokenType bonusColor;
         public TokensDataResponse tokensRequired;
+        public int graphicsID;
 
 
-        public CardDataResponse(UUID uuid, CardTier cardTier,  int prestige, TokenType bonusColor, TokensDataResponse tokensRequired) {
+        public CardDataResponse(UUID uuid, CardTier cardTier,  int prestige, TokenType bonusColor, TokensDataResponse tokensRequired, int graphicsID) {
             this.uuid = uuid;
             this.cardTier = cardTier;
             this.prestige = prestige;
             this.bonusColor = bonusColor;
             this.tokensRequired = tokensRequired;
+            this.graphicsID = graphicsID;
         }    
     }
 
@@ -176,7 +178,8 @@ public class MakeReservationFromDeck extends Reaction {
                         card.getCost(TokenType.SAPPHIRE), 
                         card.getCost(TokenType.DIAMOND), 
                         card.getCost(TokenType.ONYX)
-                    )
+                    ),
+                    card.getGraphicsID()
                 ),
                 goldenToken
             );

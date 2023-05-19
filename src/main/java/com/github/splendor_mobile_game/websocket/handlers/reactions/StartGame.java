@@ -322,9 +322,10 @@ public class StartGame extends Reaction {
         public int sapphireMinesRequired;
         public int diamondMinesRequired;
         public int onyxMinesRequired;
+        public int graphicsID;
 
         public NobleDataResponse(UUID uuid, int prestige, int rubyMinesRequired, int emeraldMinesRequired,
-                int sapphireMinesRequired, int diamondMinesRequired, int onyxMinesRequired) {
+                int sapphireMinesRequired, int diamondMinesRequired, int onyxMinesRequired, int graphicsID) {
             this.uuid = uuid;
             this.prestige = prestige;
             this.rubyMinesRequired = rubyMinesRequired;
@@ -332,6 +333,7 @@ public class StartGame extends Reaction {
             this.sapphireMinesRequired = sapphireMinesRequired;
             this.diamondMinesRequired = diamondMinesRequired;
             this.onyxMinesRequired = onyxMinesRequired;
+            this.graphicsID = graphicsID;
         }
     }
 
@@ -345,9 +347,10 @@ public class StartGame extends Reaction {
         public int sapphireTokensRequired;
         public int diamondTokensRequired;
         public int onyxTokensRequired;
+        public int graphicsID;
 
         public MinesCardDataResponse(UUID uuid, int prestige, Color color, int rubyTokensRequired,
-                int emeraldTokensRequired, int sapphireTokensRequired, int diamondTokensRequired, int onyxTokensRequired) {
+                int emeraldTokensRequired, int sapphireTokensRequired, int diamondTokensRequired, int onyxTokensRequired, int graphicsID) {
             this.uuid = uuid;
             this.prestige = prestige;
             this.color = color;
@@ -356,6 +359,7 @@ public class StartGame extends Reaction {
             this.sapphireTokensRequired = sapphireTokensRequired;
             this.diamondTokensRequired = diamondTokensRequired;
             this.onyxTokensRequired = onyxTokensRequired;
+            this.graphicsID = graphicsID;
         }
         
     }
@@ -511,7 +515,8 @@ public class StartGame extends Reaction {
                 card.getCost(TokenType.EMERALD),
                 card.getCost(TokenType.SAPPHIRE),
                 card.getCost(TokenType.DIAMOND),
-                card.getCost(TokenType.ONYX)       
+                card.getCost(TokenType.ONYX),
+                card.getGraphicsID()
             ));
         }
 
@@ -528,7 +533,8 @@ public class StartGame extends Reaction {
                 noble.getCost(TokenType.EMERALD),
                 noble.getCost(TokenType.SAPPHIRE), 
                 noble.getCost(TokenType.DIAMOND), 
-                noble.getCost(TokenType.ONYX)
+                noble.getCost(TokenType.ONYX),
+                noble.getGraphicsID()
             ));
         }
 
