@@ -72,8 +72,8 @@ import com.github.splendor_mobile_game.game.model.Room;
  * }
  *
  * This reaction handles the announcement of the end of the game. It is triggered when the game reaches its last round
- * and every player has made the same amount of actions. The server sends a message of type END_GAME_ANNOUNCEMENT to
- * all players, providing the final ranking of players based on their points.
+ * (at least one player has 15 or more points) and every player has made the same amount of actions. The server sends
+ * a message of type END_GAME_ANNOUNCEMENT to all players, providing the final ranking of players based on their points.
  * Example END_GAME_ANNOUNCEMENT:
  *
  * {
