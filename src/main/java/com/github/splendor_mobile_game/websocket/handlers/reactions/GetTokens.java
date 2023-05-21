@@ -220,77 +220,8 @@ public class GetTokens extends Reaction {
             Room room = database.getRoomWithUser(dataDTO.userUuid);
             User user = database.getUser(dataDTO.userUuid);
 
-            System.out.println("ruby on table");
-            System.out.println(room.getGame().getTokenCount(TokenType.RUBY));
-
-            System.out.println("sapphire on table");
-            System.out.println(room.getGame().getTokenCount(TokenType.SAPPHIRE));
-
-            System.out.println("emerald on table");
-            System.out.println(room.getGame().getTokenCount(TokenType.EMERALD));
-
-            System.out.println("diamond on table");
-            System.out.println(room.getGame().getTokenCount(TokenType.DIAMOND));
-
-            System.out.println("onyx on table");
-            System.out.println(room.getGame().getTokenCount(TokenType.ONYX));
-
-            System.out.println("---------------------------------------------------");
-
-            System.out.println("ruby on user");
-            System.out.println(user.getTokenCount(TokenType.RUBY));
-
-            System.out.println("sapphire on user");
-            System.out.println(user.getTokenCount(TokenType.SAPPHIRE));
-
-            System.out.println("emerald on user");
-            System.out.println(user.getTokenCount(TokenType.EMERALD));
-
-            System.out.println("diamond on user");
-            System.out.println(user.getTokenCount(TokenType.DIAMOND));
-
-            System.out.println("onyx on user");
-            System.out.println(user.getTokenCount(TokenType.ONYX));
-
-
-            System.out.println();
-            System.out.println();
-            System.out.println();
-
             changeTokens(user, room, tokensTaken, tokensReturned);
             user.setPerformedAction(true);
-
-            System.out.println("ruby on table");
-            System.out.println(room.getGame().getTokenCount(TokenType.RUBY));
-
-            System.out.println("sapphire on table");
-            System.out.println(room.getGame().getTokenCount(TokenType.SAPPHIRE));
-
-            System.out.println("emerald on table");
-            System.out.println(room.getGame().getTokenCount(TokenType.EMERALD));
-
-            System.out.println("diamond on table");
-            System.out.println(room.getGame().getTokenCount(TokenType.DIAMOND));
-
-            System.out.println("onyx on table");
-            System.out.println(room.getGame().getTokenCount(TokenType.ONYX));
-
-            System.out.println("---------------------------------------------------");
-
-            System.out.println("ruby on user");
-            System.out.println(user.getTokenCount(TokenType.RUBY));
-
-            System.out.println("sapphire on user");
-            System.out.println(user.getTokenCount(TokenType.SAPPHIRE));
-
-            System.out.println("emerald on user");
-            System.out.println(user.getTokenCount(TokenType.EMERALD));
-
-            System.out.println("diamond on user");
-            System.out.println(user.getTokenCount(TokenType.DIAMOND));
-
-            System.out.println("onyx on user");
-            System.out.println(user.getTokenCount(TokenType.ONYX));
 
             ResponseData responseData = new ResponseData(dataDTO);
 
@@ -312,11 +243,7 @@ public class GetTokens extends Reaction {
 
         Room room = database.getRoomWithUser(dataDTO.userUuid);
         User user = database.getUser(dataDTO.userUuid);
-
-        if(room.getGame() == null) {
-            room.startGame();
-        }
-
+        
         if(room.getGame() == null) throw new GameNotStartedException("You can't take tokens when game didn't start");
 
         if(!room.getCurrentPlayer().getUuid().equals(user.getUuid())) throw new NotThisUserTurnException("It's not your turn");
