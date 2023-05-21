@@ -56,7 +56,8 @@ import java.util.UUID;
  *              "emeraldCost": 0,
  *              "sapphireCost": 1,
  *              "diamondCost": 2,
- *              "onyxCost": 0
+ *              "onyxCost": 0,
+ *              "graphicsID": 1
  *          },
  *          "gotGoldenToken":"true"        
  *      }

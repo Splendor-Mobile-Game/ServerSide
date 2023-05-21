@@ -71,7 +71,8 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *              "emeraldCost": 0,
  *              "sapphireCost": 1,
  *              "diamondCost": 2,
- *              "onyxCost": 0
+ *              "onyxCost": 0,
+ *              "graphicsID": 1
  *          }        
  *      }
  * }
