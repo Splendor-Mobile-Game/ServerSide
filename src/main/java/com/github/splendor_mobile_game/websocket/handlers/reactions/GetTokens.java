@@ -209,19 +209,88 @@ public class GetTokens extends Reaction {
             tokensTaken.put(TokenType.ONYX, dataDTO.tokensTakenDTO.onyx);
 
             Map<TokenType, Integer> tokensReturned = new HashMap<TokenType, Integer>();
-            tokensReturned.put(TokenType.RUBY, dataDTO.tokensReturnedDTO.ruby);
-            tokensReturned.put(TokenType.SAPPHIRE, dataDTO.tokensReturnedDTO.sapphire);
-            tokensReturned.put(TokenType.EMERALD, dataDTO.tokensReturnedDTO.emerald);
-            tokensReturned.put(TokenType.DIAMOND, dataDTO.tokensReturnedDTO.diamond);
-            tokensReturned.put(TokenType.ONYX, dataDTO.tokensReturnedDTO.onyx);
+            tokensReturned.put(TokenType.RUBY, Math.abs(dataDTO.tokensReturnedDTO.ruby));
+            tokensReturned.put(TokenType.SAPPHIRE, Math.abs(dataDTO.tokensReturnedDTO.sapphire));
+            tokensReturned.put(TokenType.EMERALD, Math.abs(dataDTO.tokensReturnedDTO.emerald));
+            tokensReturned.put(TokenType.DIAMOND, Math.abs(dataDTO.tokensReturnedDTO.diamond));
+            tokensReturned.put(TokenType.ONYX, Math.abs(dataDTO.tokensReturnedDTO.onyx));
 
             validateData(dataDTO, database, tokensTaken, tokensReturned);
             
             Room room = database.getRoomWithUser(dataDTO.userUuid);
             User user = database.getUser(dataDTO.userUuid);
 
+            System.out.println("ruby on table");
+            System.out.println(room.getGame().getTokenCount(TokenType.RUBY));
+
+            System.out.println("sapphire on table");
+            System.out.println(room.getGame().getTokenCount(TokenType.SAPPHIRE));
+
+            System.out.println("emerald on table");
+            System.out.println(room.getGame().getTokenCount(TokenType.EMERALD));
+
+            System.out.println("diamond on table");
+            System.out.println(room.getGame().getTokenCount(TokenType.DIAMOND));
+
+            System.out.println("onyx on table");
+            System.out.println(room.getGame().getTokenCount(TokenType.ONYX));
+
+            System.out.println("---------------------------------------------------");
+
+            System.out.println("ruby on user");
+            System.out.println(user.getTokenCount(TokenType.RUBY));
+
+            System.out.println("sapphire on user");
+            System.out.println(user.getTokenCount(TokenType.SAPPHIRE));
+
+            System.out.println("emerald on user");
+            System.out.println(user.getTokenCount(TokenType.EMERALD));
+
+            System.out.println("diamond on user");
+            System.out.println(user.getTokenCount(TokenType.DIAMOND));
+
+            System.out.println("onyx on user");
+            System.out.println(user.getTokenCount(TokenType.ONYX));
+
+
+            System.out.println();
+            System.out.println();
+            System.out.println();
+
             changeTokens(user, room, tokensTaken, tokensReturned);
             user.setPerformedAction(true);
+
+            System.out.println("ruby on table");
+            System.out.println(room.getGame().getTokenCount(TokenType.RUBY));
+
+            System.out.println("sapphire on table");
+            System.out.println(room.getGame().getTokenCount(TokenType.SAPPHIRE));
+
+            System.out.println("emerald on table");
+            System.out.println(room.getGame().getTokenCount(TokenType.EMERALD));
+
+            System.out.println("diamond on table");
+            System.out.println(room.getGame().getTokenCount(TokenType.DIAMOND));
+
+            System.out.println("onyx on table");
+            System.out.println(room.getGame().getTokenCount(TokenType.ONYX));
+
+            System.out.println("---------------------------------------------------");
+
+            System.out.println("ruby on user");
+            System.out.println(user.getTokenCount(TokenType.RUBY));
+
+            System.out.println("sapphire on user");
+            System.out.println(user.getTokenCount(TokenType.SAPPHIRE));
+
+            System.out.println("emerald on user");
+            System.out.println(user.getTokenCount(TokenType.EMERALD));
+
+            System.out.println("diamond on user");
+            System.out.println(user.getTokenCount(TokenType.DIAMOND));
+
+            System.out.println("onyx on user");
+            System.out.println(user.getTokenCount(TokenType.ONYX));
 
             ResponseData responseData = new ResponseData(dataDTO);
 
@@ -244,9 +313,15 @@ public class GetTokens extends Reaction {
         Room room = database.getRoomWithUser(dataDTO.userUuid);
         User user = database.getUser(dataDTO.userUuid);
 
+        if(room.getGame() == null) {
+            room.startGame();
+        }
+
         if(room.getGame() == null) throw new GameNotStartedException("You can't take tokens when game didn't start");
 
-        if(user.hasPerformedAction()) throw new NotThisUserTurnException("It's not your turn");
+        if(!room.getCurrentPlayer().getUuid().equals(user.getUuid())) throw new NotThisUserTurnException("It's not your turn");
+
+        if(user.hasPerformedAction()) throw new NotThisUserTurnException("You've already made an action this round");
 
         if(!mustUserReturnTokens(room, user, tokensTaken) && isUserTryingToReturnTokens(room, user, tokensReturned)) {
             throw new TooManyReturnedTokensException("You are trying to return tokens when you already have less than 10");
@@ -264,7 +339,7 @@ public class GetTokens extends Reaction {
             throw new TooManyTokensException("You have too many tokens");
         }
 
-        if(!isTokensCombinationRight(room, user, tokensTaken)) throw new WrongTokenChoiceException("Your token choice is wrong");
+        isTokensCombinationRight(room, user, tokensTaken);
     }
 
     
@@ -310,29 +385,34 @@ public class GetTokens extends Reaction {
         return tokenSum;
     }
 
-    private boolean isTokensCombinationRight(Room room, User user, Map<TokenType, Integer> tokensTaken) {
+    private boolean isTokensCombinationRight(Room room, User user, Map<TokenType, Integer> tokensTaken) throws WrongTokenChoiceException {
         ArrayList<TokenType> twoTokenTypes = new ArrayList<TokenType>();
         ArrayList<TokenType> oneTokenTypes = new ArrayList<TokenType>();
 
         for(Map.Entry<TokenType, Integer> set : tokensTaken.entrySet()) {
-            if(set.getValue() > 2 || set.getValue() < 0) return false;
+            if(set.getValue() > 2){
+                throw new WrongTokenChoiceException(String.format("You've taken too many %s tokens", set.getKey()));
+            }
+            if(set.getValue() < 0) {
+                throw new WrongTokenChoiceException(String.format("You've taken not enough %s tokens", set.getKey()));
+            }
             if(set.getValue() == 2) twoTokenTypes.add(set.getKey());
             if(set.getValue() == 1) oneTokenTypes.add(set.getKey());
         }
 
         if(twoTokenTypes.size() == 1 && oneTokenTypes.size() == 0) {
             if(room.getGame().getTokenCount(twoTokenTypes.get(0)) >= 4) return true;
-            return false;
+            else throw new WrongTokenChoiceException(String.format("There are not enough %s tokens on the table", twoTokenTypes.get(0)));
         }
 
         if(oneTokenTypes.size() == 3 && twoTokenTypes.size() == 0) {
             for (TokenType type : oneTokenTypes) {
-                if(room.getGame().getTokenCount(type) <= 0) return false;
+                if(room.getGame().getTokenCount(type) <= 0) throw new WrongTokenChoiceException(String.format("There are not enough %s tokens on the table", type));
             }
             return true;
         }
 
-        return false;
+        throw new WrongTokenChoiceException("Your token choice is wrong");
     }
     
     private void changeTokens(User user, Room room, Map<TokenType, Integer> tokensTaken, Map<TokenType, Integer> tokensReturned) {
