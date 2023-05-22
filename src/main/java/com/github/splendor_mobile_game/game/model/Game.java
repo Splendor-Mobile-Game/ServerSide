@@ -172,7 +172,7 @@ public class Game {
         revealedCards.put(CardTier.LEVEL_3,new Deck(CardTier.LEVEL_3,getRandomCards((CardTier.LEVEL_3),4)));
 
         // Choose random noble cards from database
-        nobles = getRandomNobles(4);//Always we draw four noblemen
+        nobles = getRandomNobles(playerCount+1);
 
         //Only for testing TO BE DELTED
         //testForDuplicates(CardTier.LEVEL_1);
