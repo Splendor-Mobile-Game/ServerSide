@@ -21,7 +21,7 @@ public class Noble {
 
     private Map<TokenType, Integer> cost = new HashMap<TokenType, Integer>();
 
-    public Noble(int emeraldCost, int sapphireCost, int rubyCost, int diamondCost, int onyxCost) {
+    public Noble(int emeraldCost, int sapphireCost, int rubyCost, int diamondCost, int onyxCost, int graphicsID) {
         this.uuid = UUID.randomUUID();
 
         this.cost.put(TokenType.EMERALD, emeraldCost);
@@ -30,7 +30,7 @@ public class Noble {
         this.cost.put(TokenType.DIAMOND, diamondCost);
         this.cost.put(TokenType.ONYX, onyxCost);
 
-        this.graphicsID = (int) ((Math.random() * 10) + 0);
+        this.graphicsID = graphicsID;
     }
 
     public UUID getUuid() {

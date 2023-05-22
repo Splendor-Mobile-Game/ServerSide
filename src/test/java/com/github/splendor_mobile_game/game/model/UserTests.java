@@ -77,7 +77,7 @@ public class UserTests {
     @Test
     public void takeNobleInsufficientTokensTest() {
         User user = new User(UUID.fromString(this.userUuid), this.userName, this.userConnectionHashCode);
-        Noble noble = new Noble(1,0,0,0,0);
+        Noble noble = new Noble(1,0,0,0,0, 1);
 
         assertFalse(user.takeNoble(noble));
         assertEquals(0, user.getPoints());
@@ -92,7 +92,7 @@ public class UserTests {
         assertEquals(1, user.getNumberOfPurchesedCards());
         assertEquals(3, user.getPoints());
 
-        Noble noble = new Noble(1,0,0,0,0);
+        Noble noble = new Noble(1,0,0,0,0, 1);
         assertTrue(user.takeNoble(noble));
         assertEquals(6, user.getPoints());
     }
