@@ -57,7 +57,7 @@ import java.util.UUID;
  *              "sapphireCost": 1,
  *              "diamondCost": 2,
  *              "onyxCost": 0,
- *              "graphicsID": 1
+ *              "cardID": 1
  *          },
  *          "gotGoldenToken":"true"        
  *      }
@@ -131,9 +131,9 @@ public class MakeReservationFromTable extends Reaction {
         public int sapphireCost;
         public int diamondCost;
         public int onyxCost;
-        public int graphicsID;
+        public int cardID;
 
-        public CardDataResponse(UUID uuid, CardTier cardTier, TokenType additionalToken, int points, int rubyCost, int emeraldCost, int sapphireCost, int diamondCost, int onyxCost, int graphicsID) {
+        public CardDataResponse(UUID uuid, CardTier cardTier, TokenType additionalToken, int points, int rubyCost, int emeraldCost, int sapphireCost, int diamondCost, int onyxCost, int cardID) {
             this.uuid = uuid;
             this.cardTier = cardTier;
             this.additionalToken = additionalToken;
@@ -143,7 +143,7 @@ public class MakeReservationFromTable extends Reaction {
             this.sapphireCost = sapphireCost;
             this.diamondCost = diamondCost;
             this.onyxCost = onyxCost;
-            this.graphicsID = graphicsID;
+            this.cardID = cardID;
         }              
     }
 

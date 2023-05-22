@@ -57,7 +57,8 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                  "diamond": 3,
  *                  "onyx": 0
  *              }
- *              "goldenToken": true
+ *              "goldenToken": true,
+ *              "cardID": 3
  *          }
  *      }
  * }
@@ -103,16 +104,16 @@ public class MakeReservationFromDeck extends Reaction {
         public int prestige;
         public TokenType bonusColor;
         public TokensDataResponse tokensRequired;
-        public int graphicsID;
+        public int cardID;
 
 
-        public CardDataResponse(UUID uuid, CardTier cardTier,  int prestige, TokenType bonusColor, TokensDataResponse tokensRequired, int graphicsID) {
+        public CardDataResponse(UUID uuid, CardTier cardTier,  int prestige, TokenType bonusColor, TokensDataResponse tokensRequired, int cardID) {
             this.uuid = uuid;
             this.cardTier = cardTier;
             this.prestige = prestige;
             this.bonusColor = bonusColor;
             this.tokensRequired = tokensRequired;
-            this.graphicsID = graphicsID;
+            this.cardID = cardID;
         }    
     }
 
