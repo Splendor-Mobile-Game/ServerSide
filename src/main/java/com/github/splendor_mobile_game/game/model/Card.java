@@ -16,7 +16,7 @@ public class Card {
 
     private final int points;
 
-    private final int graphicsID;
+    private final int cardID;
 
     // private final int emeraldCost;
     // private final int sapphireCost;
@@ -27,7 +27,7 @@ public class Card {
     private Map<TokenType, Integer> cost = new HashMap<TokenType, Integer>();
 
 
-    public Card(CardTier cardTier, int points, int emeraldCost, int sapphireCost, int rubyCost, int diamondCost, int onyxCost, TokenType token) {
+    public Card(CardTier cardTier, int points, int emeraldCost, int sapphireCost, int rubyCost, int diamondCost, int onyxCost, TokenType token, int cardID) {
         this.uuid         = UUID.randomUUID();
         this.cardTier     = cardTier;
         this.points       = points;
@@ -38,7 +38,7 @@ public class Card {
         this.cost.put(TokenType.DIAMOND, diamondCost);
         this.cost.put(TokenType.ONYX, onyxCost);
 
-        this.graphicsID = (int) ((Math.random() * 5) + 0);
+        this.cardID = cardID;
 
         this.additionalToken = token;
     }
@@ -60,8 +60,8 @@ public class Card {
     //     return this;
     // }
 
-    public int getGraphicsID() {
-        return graphicsID;
+    public int getCardID() {
+        return cardID;
     }
 
     public int getPoints() {

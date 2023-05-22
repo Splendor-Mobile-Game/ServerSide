@@ -216,7 +216,7 @@ public class MakeReservationFromTable extends Reaction {
                     cardDrawn.getCost(TokenType.SAPPHIRE),
                     cardDrawn.getCost(TokenType.DIAMOND),
                     cardDrawn.getCost(TokenType.ONYX),
-                    cardDrawn.getGraphicsID()
+                    cardDrawn.getCardID()
                 );
 
                 Log.DEBUG("New card drawn "+cardDrawn.getUuid());

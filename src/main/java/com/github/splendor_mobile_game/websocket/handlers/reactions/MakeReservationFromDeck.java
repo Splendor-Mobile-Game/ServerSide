@@ -179,7 +179,7 @@ public class MakeReservationFromDeck extends Reaction {
                         card.getCost(TokenType.DIAMOND), 
                         card.getCost(TokenType.ONYX)
                     ),
-                    card.getGraphicsID()
+                    card.getCardID()
                 ),
                 goldenToken
             );

@@ -75,7 +75,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireMinesRequired":3,
  *                 "diamondMinesRequired":3,
  *                 "onyxMinesRequired":3,
- *                 "graphicsID": 1
+ *                 "nobleID": 1
  *             },
  *             {
  *                 "uuid":"5fd47d77-3e99-4eb3-8436-5e818a17041d",
@@ -85,7 +85,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireMinesRequired":0,
  *                 "diamondMinesRequired":3,
  *                 "onyxMinesRequired":3,
- *                 "graphicsID": 1
+ *                 "nobleID": 1
  *             },
  *             {
  *                 "uuid":"2552e762-46ea-457d-93e9-f2eebe047f44",
@@ -95,7 +95,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireMinesRequired":4,
  *                 "diamondMinesRequired":0,
  *                 "onyxMinesRequired":0,
- *                 "graphicsID": 1
+ *                 "nobleID": 1
  *             },
  *             {
  *                 "uuid":"0dae8b0c-afd0-4379-b64b-c169cb7528c6",
@@ -105,7 +105,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireMinesRequired":0,
  *                 "diamondMinesRequired":4,
  *                 "onyxMinesRequired":4,
- *                 "graphicsID": 1
+ *                 "nobleID": 1
  *             }
  *         ],
  *         "firstLevelMinesCards":[
@@ -118,7 +118,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":0,
  *                 "diamondTokensRequired":0,
  *                 "onyxTokensRequired":0,
- *                 "graphicsID": 1
+ *                 "cardID": 1
  *             },
  *             {
  *                 "uuid":"593a7332-77d7-4f30-872d-4d310a16126d",
@@ -129,7 +129,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":4,
  *                 "diamondTokensRequired":0,
  *                 "onyxTokensRequired":0,
- *                 "graphicsID": 1
+ *                 "cardID": 1
  *             },
  *             {
  *                 "uuid":"3aad3655-2831-4c5f-b6d6-5ba59bb4c28c",
@@ -140,7 +140,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":0,
  *                 "diamondTokensRequired":1,
  *                 "onyxTokensRequired":0,
- *                 "graphicsID": 1
+ *                 "cardID": 1
  *             },
  *             {
  *                 "uuid":"8e0f6fb5-004a-4ed8-89b3-49955fdd5ee5",
@@ -151,7 +151,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":0,
  *                 "diamondTokensRequired":0,
  *                 "onyxTokensRequired":1,
- *                 "graphicsID": 1
+ *                 "cardID": 1
  *             }
  *         ],
  *         "secondLevelMinesCards":[
@@ -164,7 +164,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":0,
  *                 "diamondTokensRequired":0,
  *                 "onyxTokensRequired":0,
- *                 "graphicsID": 1
+ *                 "cardID": 1
  *             },
  *             {
  *                 "uuid":"b57e6ff6-69aa-4504-a9e1-0ca50b9461f6",
@@ -175,7 +175,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":0,
  *                 "diamondTokensRequired":0,
  *                 "onyxTokensRequired":3,
- *                 "graphicsID": 1
+ *                 "cardID": 1
  *             },
  *             {
  *                 "uuid":"a87fb24c-37c4-4359-a6dc-4505df7e8848",
@@ -186,7 +186,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":0,
  *                 "diamondTokensRequired":0,
  *                 "onyxTokensRequired":0,
- *                 "graphicsID": 1
+ *                 "cardID": 1
  *             },
  *             {
  *                 "uuid":"88b96c47-66d8-45ca-ae47-dd536298ab52",
@@ -197,7 +197,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":4,
  *                 "diamondTokensRequired":1,
  *                 "onyxTokensRequired":0,
- *                 "graphicsID": 1
+ *                 "cardID": 1
  *             }
  *         ],
  *         "thirdLevelMinesCards":[
@@ -210,7 +210,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":0,
  *                 "diamondTokensRequired":0,
  *                 "onyxTokensRequired":7,
- *                 "graphicsID": 1
+ *                 "cardID": 1
  *             },
  *             {
  *                 "uuid":"1b262ffc-8ca4-44d1-a6f2-063cf0d7619b",
@@ -221,7 +221,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":0,
  *                 "diamondTokensRequired":0,
  *                 "onyxTokensRequired":0,
- *                 "graphicsID": 2
+ *                 "cardID": 2
  *             },
  *             {
  *                 "uuid":"14ffcc43-d178-4476-afc4-9cdd55e0cc38",
@@ -232,7 +232,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":3,
  *                 "diamondTokensRequired":3,
  *                 "onyxTokensRequired":0,
- *                 "graphicsID": 1
+ *                 "cardID": 1
  *             },
  *             {
  *                 "uuid":"07b7827f-f31d-491f-95f3-da92f46eeb45",
@@ -243,7 +243,7 @@ import com.github.splendor_mobile_game.websocket.utils.Log;
  *                 "sapphireTokensRequired":7,
  *                 "diamondTokensRequired":0,
  *                 "onyxTokensRequired":0,
- *                 "graphicsID": 3
+ *                 "cardID": 3
  *             }
  *         ],
  *         "userToPlay":{
@@ -338,10 +338,10 @@ public class StartGame extends Reaction {
         public int sapphireMinesRequired;
         public int diamondMinesRequired;
         public int onyxMinesRequired;
-        public int graphicsID;
+        public int nobleID;
 
         public NobleDataResponse(UUID uuid, int prestige, int rubyMinesRequired, int emeraldMinesRequired,
-                int sapphireMinesRequired, int diamondMinesRequired, int onyxMinesRequired, int graphicsID) {
+                int sapphireMinesRequired, int diamondMinesRequired, int onyxMinesRequired, int nobleID) {
             this.uuid = uuid;
             this.prestige = prestige;
             this.rubyMinesRequired = rubyMinesRequired;
@@ -349,7 +349,7 @@ public class StartGame extends Reaction {
             this.sapphireMinesRequired = sapphireMinesRequired;
             this.diamondMinesRequired = diamondMinesRequired;
             this.onyxMinesRequired = onyxMinesRequired;
-            this.graphicsID = graphicsID;
+            this.nobleID = nobleID;
         }
     }
 
@@ -363,10 +363,10 @@ public class StartGame extends Reaction {
         public int sapphireTokensRequired;
         public int diamondTokensRequired;
         public int onyxTokensRequired;
-        public int graphicsID;
+        public int cardID;
 
         public MinesCardDataResponse(UUID uuid, int prestige, Color color, int rubyTokensRequired,
-                int emeraldTokensRequired, int sapphireTokensRequired, int diamondTokensRequired, int onyxTokensRequired, int graphicsID) {
+                int emeraldTokensRequired, int sapphireTokensRequired, int diamondTokensRequired, int onyxTokensRequired, int cardID) {
             this.uuid = uuid;
             this.prestige = prestige;
             this.color = color;
@@ -375,7 +375,7 @@ public class StartGame extends Reaction {
             this.sapphireTokensRequired = sapphireTokensRequired;
             this.diamondTokensRequired = diamondTokensRequired;
             this.onyxTokensRequired = onyxTokensRequired;
-            this.graphicsID = graphicsID;
+            this.cardID = cardID;
         }
         
     }
@@ -532,7 +532,7 @@ public class StartGame extends Reaction {
                 card.getCost(TokenType.SAPPHIRE),
                 card.getCost(TokenType.DIAMOND),
                 card.getCost(TokenType.ONYX),
-                card.getGraphicsID()
+                card.getCardID()
             ));
         }
 
@@ -550,7 +550,7 @@ public class StartGame extends Reaction {
                 noble.getCost(TokenType.SAPPHIRE), 
                 noble.getCost(TokenType.DIAMOND), 
                 noble.getCost(TokenType.ONYX),
-                noble.getGraphicsID()
+                noble.getNobleID()
             ));
         }
 
