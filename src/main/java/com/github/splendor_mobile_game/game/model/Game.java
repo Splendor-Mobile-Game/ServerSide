@@ -147,6 +147,11 @@ public class Game {
         return false;
     }
 
+    public void addTokens(TokenType tokenType,int count){
+        int prev = tokensOnTable.get(tokenType);
+        tokensOnTable.put(tokenType,count+prev);
+    }
+
 
     private void start(int playerCount) {
         // Calculate number of tokens of each type
