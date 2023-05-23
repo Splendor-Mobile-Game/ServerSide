@@ -142,7 +142,7 @@ public class Game {
     public boolean isCardRevealed(UUID uuid) {
         for (Deck deck : revealedCards.values())
             for (Card card : deck)
-                if (card.getUuid() == uuid) return true;
+                if (uuid.equals(card.getUuid())) return true;
 
         return false;
     }

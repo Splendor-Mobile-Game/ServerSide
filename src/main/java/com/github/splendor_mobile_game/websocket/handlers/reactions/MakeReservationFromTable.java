@@ -11,6 +11,7 @@ import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
 import com.github.splendor_mobile_game.websocket.communication.UserMessage;
+import com.github.splendor_mobile_game.websocket.handlers.DataClass;
 import com.github.splendor_mobile_game.websocket.handlers.Messenger;
 import com.github.splendor_mobile_game.websocket.handlers.Reaction;
 import com.github.splendor_mobile_game.websocket.handlers.ReactionName;
@@ -100,6 +101,7 @@ public class MakeReservationFromTable extends Reaction {
             this.uuid = uuid;
         }
     }
+    @DataClass
     public static class DataDTO{
         private UserDTO userDTO;
         private CardDTO cardDTO;
