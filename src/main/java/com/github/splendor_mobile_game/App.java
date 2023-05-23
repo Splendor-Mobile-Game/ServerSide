@@ -21,7 +21,9 @@ public class App {
 
 	/** A list of classes that contain reactions to messages from clients. */
 	private static List<Class<?>> classesWithReactions = new ArrayList<>(Arrays.asList(
-		CreateRoom.class, JoinRoom.class, DebugGetRandomCard.class, LeaveRoom.class, GetTokens.class, EndTurnTest.class, StartGame.class, BuyRevealedMine.class, MakeReservationFromDeck.class, BuyReservedMine.class, EndTurn.class
+		CreateRoom.class, JoinRoom.class, DebugGetRandomCard.class, LeaveRoom.class, GetTokens.class,
+		 EndTurnTest.class, StartGame.class, BuyRevealedMine.class, MakeReservationFromDeck.class, 
+		 BuyReservedMine.class, EndTurn.class,MakeReservationFromTable.class,Kick.class,SendChatMessage.class
 	));
 
 
