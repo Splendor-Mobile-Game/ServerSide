@@ -102,7 +102,8 @@ public class InMemoryDatabase implements Database {
                         Integer.parseInt(data[1]),
                         Integer.parseInt(data[3]),
                         Integer.parseInt(data[4]),
-                        Integer.parseInt(data[0])
+                        Integer.parseInt(data[0]),
+                        Integer.parseInt(data[5])
                     );
                                     
                     this.allNobles.add(nobleCard);
@@ -142,7 +143,8 @@ public class InMemoryDatabase implements Database {
                                     Integer.parseInt(data[6]),
                                     Integer.parseInt(data[7]),
                                     Integer.parseInt(data[3]),
-                                    TokenType.valueOf(data[1]));
+                                    TokenType.valueOf(data[1]),
+                                    Integer.parseInt(data[8]));
                                     
                     this.allCards.add(card);
                 } catch (IllegalArgumentException e) {

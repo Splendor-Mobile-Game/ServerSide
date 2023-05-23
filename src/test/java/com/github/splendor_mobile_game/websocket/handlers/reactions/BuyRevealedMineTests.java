@@ -470,7 +470,7 @@ public class BuyRevealedMineTests {
         User player = new User(UUID.randomUUID(), "PLAYER", 100001);
         Room room = new Room(UUID.randomUUID(), "ROOM", "PASSWORD", owner, this.database);
         room.getAllUsers().add(player);
-        Card card = new Card(CardTier.LEVEL_1, 0, 0,0,0,0,0, TokenType.EMERALD);
+        Card card = new Card(CardTier.LEVEL_1, 0, 0,0,0,0,0, TokenType.EMERALD, 3);
         this.database.addUser(owner);
         this.database.addUser(player);
         this.database.addRoom(room);
