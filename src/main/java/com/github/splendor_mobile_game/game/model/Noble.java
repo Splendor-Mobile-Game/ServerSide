@@ -11,6 +11,8 @@ public class Noble {
     //Noble -> Arystokrata, Magnat
     private final UUID uuid;
 
+    private final int nobleID;
+
     // private final int emeraldCost; // Green
     // private final int sapphireCost;  // Blue
     // private final int rubyCost;  // Red
@@ -19,7 +21,7 @@ public class Noble {
 
     private Map<TokenType, Integer> cost = new HashMap<TokenType, Integer>();
 
-    public Noble(int emeraldCost, int sapphireCost, int rubyCost, int diamondCost, int onyxCost) {
+    public Noble(int emeraldCost, int sapphireCost, int rubyCost, int diamondCost, int onyxCost, int nobleID) {
         this.uuid = UUID.randomUUID();
 
         this.cost.put(TokenType.EMERALD, emeraldCost);
@@ -27,10 +29,16 @@ public class Noble {
         this.cost.put(TokenType.RUBY, rubyCost);
         this.cost.put(TokenType.DIAMOND, diamondCost);
         this.cost.put(TokenType.ONYX, onyxCost);
+
+        this.nobleID = nobleID;
     }
 
     public UUID getUuid() {
         return uuid;
+    }
+
+    public int getNobleID() {
+        return nobleID;
     }
 
     public int getPoints() {

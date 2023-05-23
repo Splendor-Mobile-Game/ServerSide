@@ -19,7 +19,7 @@ public class UserTests {
     @Test
     public void buyCardInsufficientTokensTest() {
         User user = new User(UUID.fromString(this.userUuid), this.userName, this.userConnectionHashCode);
-        Card card = new Card(CardTier.LEVEL_1, 10,3,0,0,0,0, TokenType.EMERALD);
+        Card card = new Card(CardTier.LEVEL_1, 10,3,0,0,0,0, TokenType.EMERALD, 3);
 
         assertThrows(NotEnoughTokensException.class, () -> user.buyCard(card));
     }
@@ -36,7 +36,7 @@ public class UserTests {
     @Test
     public void successfulCardPurchaseTest() throws NotEnoughTokensException{
         User user = new User(UUID.fromString(this.userUuid), this.userName, this.userConnectionHashCode);
-        Card card = new Card(CardTier.LEVEL_1, 10,3,0,0,0,0, TokenType.EMERALD);
+        Card card = new Card(CardTier.LEVEL_1, 10,3,0,0,0,0, TokenType.EMERALD, 3);
 
         Map<TokenType, Integer> tokens = this.newTokenMap();
         tokens.put(TokenType.EMERALD, 3);
@@ -54,7 +54,7 @@ public class UserTests {
     @Test
     public void successfulCardPurchaseWithGoldTokenTest() throws NotEnoughTokensException{
         User user = new User(UUID.fromString(this.userUuid), this.userName, this.userConnectionHashCode);
-        Card card = new Card(CardTier.LEVEL_1, 10,3,0,0,0,0, TokenType.EMERALD);
+        Card card = new Card(CardTier.LEVEL_1, 10,3,0,0,0,0, TokenType.EMERALD, 3);
 
         Map<TokenType, Integer> tokens = this.newTokenMap();
         tokens.put(TokenType.EMERALD, 2);
@@ -77,7 +77,7 @@ public class UserTests {
     @Test
     public void takeNobleInsufficientTokensTest() {
         User user = new User(UUID.fromString(this.userUuid), this.userName, this.userConnectionHashCode);
-        Noble noble = new Noble(1,0,0,0,0);
+        Noble noble = new Noble(1,0,0,0,0, 1);
 
         assertFalse(user.takeNoble(noble));
         assertEquals(0, user.getPoints());
@@ -86,13 +86,13 @@ public class UserTests {
     @Test
     public void successfulTakeNobleTest() throws NotEnoughTokensException {
         User user = new User(UUID.fromString(this.userUuid), this.userName, this.userConnectionHashCode);
-        Card card = new Card(CardTier.LEVEL_1, 3,0,0,0,0,0, TokenType.EMERALD);
+        Card card = new Card(CardTier.LEVEL_1, 3,0,0,0,0,0, TokenType.EMERALD, 3);
 
         user.buyCard(card);
         assertEquals(1, user.getNumberOfPurchesedCards());
         assertEquals(3, user.getPoints());
 
-        Noble noble = new Noble(1,0,0,0,0);
+        Noble noble = new Noble(1,0,0,0,0, 1);
         assertTrue(user.takeNoble(noble));
         assertEquals(6, user.getPoints());
     }

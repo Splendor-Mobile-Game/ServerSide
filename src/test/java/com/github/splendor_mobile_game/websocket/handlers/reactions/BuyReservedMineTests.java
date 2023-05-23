@@ -326,7 +326,7 @@ public class BuyReservedMineTests {
         User player = new User(UUID.randomUUID(), "PLAYER", 100001);
         Room room = new Room(UUID.randomUUID(), "ROOM", "PASSWORD", owner, this.database);
         room.getAllUsers().add(player);
-        Card card = new Card(CardTier.LEVEL_1, 0, 0,0,0,0,0, TokenType.EMERALD);
+        Card card = new Card(CardTier.LEVEL_1, 0, 0,0,0,0,0, TokenType.EMERALD, 3);
         this.database.addUser(owner);
         this.database.addUser(player);
         this.database.addRoom(room);
@@ -350,7 +350,7 @@ public class BuyReservedMineTests {
         assertFalse(room.getGame().getRevealedCards(CardTier.LEVEL_1).contains(card));
         assertTrue(owner.hasPerformedAction());
 
-        card = new Card(CardTier.LEVEL_1,0,0,0,0,0,0, TokenType.EMERALD);
+        card = new Card(CardTier.LEVEL_1,0,0,0,0,0,0, TokenType.EMERALD, 3);
         this.database.getAllCards().add(card);
         owner.reserveCard(card, false);
 
@@ -426,7 +426,7 @@ public class BuyReservedMineTests {
         User player = new User(UUID.randomUUID(), "PLAYER", 100001);
         Room room = new Room(UUID.randomUUID(), "ROOM", "PASSWORD", owner, this.database);
         room.getAllUsers().add(player);
-        Card card = new Card(CardTier.LEVEL_1, 0, 0,0,0,0,0, TokenType.EMERALD);
+        Card card = new Card(CardTier.LEVEL_1, 0, 0,0,0,0,0, TokenType.EMERALD, 3);
         this.database.addUser(owner);
         this.database.addUser(player);
         this.database.addRoom(room);
