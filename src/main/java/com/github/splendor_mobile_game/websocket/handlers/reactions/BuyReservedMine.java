@@ -1,12 +1,16 @@
 package com.github.splendor_mobile_game.websocket.handlers.reactions;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import com.github.splendor_mobile_game.database.Database;
 import com.github.splendor_mobile_game.game.enums.Regex;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.model.Card;
+import com.github.splendor_mobile_game.game.model.Game;
 import com.github.splendor_mobile_game.game.model.Room;
 import com.github.splendor_mobile_game.game.model.User;
 import com.github.splendor_mobile_game.websocket.communication.ServerMessage;
@@ -157,9 +161,22 @@ public class BuyReservedMine extends Reaction {
             User buyer = database.getUser(dataDTO.userDTO.uuid);
             Card boughtCard = database.getCard(dataDTO.cardDTO.uuid);
             Room room = database.getRoomWithUser(buyer.getUuid());
+            Game game = room.getGame();
 
             buyer.setPerformedAction(true);
+
+            Map<TokenType, Integer> tokens = new HashMap<>();
+            for(TokenType tokenType : EnumSet.allOf(TokenType.class)){
+                tokens.put(tokenType,buyer.getTokenCount(tokenType));
+            }
+            
             buyer.buyCard(boughtCard);
+
+            //Return tokens to table
+            for(TokenType tokenType : EnumSet.allOf(TokenType.class)){
+                game.addTokens(tokenType, tokens.get(tokenType)-buyer.getTokenCount(tokenType));
+            }
+            
             buyer.removeCardFromReserved(boughtCard);
             room.getGame().decreaseGameReservationCount();
 
