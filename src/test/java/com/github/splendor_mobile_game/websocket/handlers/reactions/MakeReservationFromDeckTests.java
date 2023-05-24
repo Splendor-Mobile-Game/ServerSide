@@ -64,9 +64,10 @@ public class MakeReservationFromDeckTests {
 
         room.startGame();
 
+        String cardTier = "1";
         String message = this.newBaseMessage()
                 .replace("$userUuid", owner.getUuid().toString())
-                .replace("$cardTier", "LEVEL_1");
+                .replace("$cardTier", cardTier);
 
         Messenger messenger = new Messenger();
         UserMessage receivedMessage = new UserMessage(message);
@@ -89,7 +90,7 @@ public class MakeReservationFromDeckTests {
     @Test
     public void invalidUserUuidTest() {
         String userUuid = "invalid-uuid";
-        String cardTier = "LEVEL_1";
+        String cardTier = "1";
 
         String message = this.newBaseMessage()
                 .replace("$userUuid", userUuid)
@@ -105,7 +106,7 @@ public class MakeReservationFromDeckTests {
         this.database = new InMemoryDatabase();
 
         String userUuid = "f8c3de3d-1fea-4d7c-a8b0-29f63c4c3455";
-        String cardTier = "LEVEL_1";
+        String cardTier = "1";
 
         String message = this.newBaseMessage()
                 .replace("$userUuid", userUuid)
@@ -141,9 +142,10 @@ public class MakeReservationFromDeckTests {
         User player = new User(UUID.randomUUID(), "PLAYER", 100000);
         this.database .addUser(player);
 
+        String cardTier = "1";
         String message = this.newBaseMessage()
                 .replace("$userUuid", player.getUuid().toString())
-                .replace("$cardTier", "LEVEL_1");
+                .replace("$cardTier", cardTier);
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
@@ -176,9 +178,10 @@ public class MakeReservationFromDeckTests {
         this.database.addUser(player);
         this.database.addRoom(room);
 
+        String cardTier = "1";
         String message = this.newBaseMessage()
                 .replace("$userUuid", player.getUuid().toString())
-                .replace("$cardTier", "LEVEL_1");
+                .replace("$cardTier", cardTier);
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
@@ -216,9 +219,10 @@ public class MakeReservationFromDeckTests {
 
         room.startGame();
 
+        String cardTier = "1";
         String message = this.newBaseMessage()
                 .replace("$userUuid", player.getUuid().toString())
-                .replace("$cardTier", "LEVEL_1");
+                .replace("$cardTier", cardTier);
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
@@ -256,9 +260,10 @@ public class MakeReservationFromDeckTests {
 
         room.startGame();
 
+        String cardTier = "1";
         String message = this.newBaseMessage()
                 .replace("$userUuid", owner.getUuid().toString())
-                .replace("$cardTier", "LEVEL_1");
+                .replace("$cardTier", cardTier);
 
         Messenger messenger = new Messenger();
         for (int i = 0; i < 3; i++) {
@@ -304,9 +309,10 @@ public class MakeReservationFromDeckTests {
 
         room.startGame();
 
+        String cardTier = "1";
         String message = this.newBaseMessage()
                 .replace("$userUuid", owner.getUuid().toString())
-                .replace("$cardTier", "LEVEL_1");
+                .replace("$cardTier", cardTier);
 
         Messenger messenger = new Messenger();
         for (int i = 0; i < 3; i++) {
@@ -320,7 +326,7 @@ public class MakeReservationFromDeckTests {
 
         message = this.newBaseMessage()
                 .replace("$userUuid", player.getUuid().toString())
-                .replace("$cardTier", "LEVEL_1");
+                .replace("$cardTier", cardTier);
 
         for (int i = 0; i < 2; i++) {
             UserMessage receivedMessage = new UserMessage(message);
@@ -373,9 +379,10 @@ public class MakeReservationFromDeckTests {
 
         room.startGame();
 
+        String cardTier = "1";
         String message = this.newBaseMessage()
                 .replace("$userUuid", owner.getUuid().toString())
-                .replace("$cardTier", "LEVEL_1");
+                .replace("$cardTier", cardTier);
 
         UserMessage receivedMessage = new UserMessage(message);
         Messenger messenger = new Messenger();
