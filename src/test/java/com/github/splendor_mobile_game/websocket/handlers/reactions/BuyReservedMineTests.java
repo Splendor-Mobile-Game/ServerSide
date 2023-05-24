@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,9 +32,9 @@ public class BuyReservedMineTests {
     private Database database;
     private Map<TokenType, Integer> tokens;
     private Card cardToBuy;
-    private String messageUuid;
+    private final String messageUuid = "80bdc250-5365-4caf-8dd9-a33e709a0110";
 
-    private String newBaseMessage(String contextUuid) {
+    private String newBaseMessage() {
         return """
                 {
                     "contextId": "$contextUuid",
@@ -47,10 +48,10 @@ public class BuyReservedMineTests {
                         }
                     }
                 }
-                """.replace("$contextUuid", contextUuid);
+                """.replace("$contextUuid", this.messageUuid);
     }
 
-    private String newBaseErrorMessage(String contextUuid) {
+    private String newBaseErrorMessage() {
         return """
                 {
                     "contextId": "$contextUuid",
@@ -60,14 +61,12 @@ public class BuyReservedMineTests {
                         "error": "$error"
                     }
                 }
-                """.replace("$contextUuid", contextUuid);
+                """.replace("$contextUuid", this.messageUuid);
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         this.database = new InMemoryDatabase();
-        this.messageUuid = "80bdc250-5365-4caf-8dd9-a33e709a0110";
-
     }
 
     @Test
@@ -82,30 +81,37 @@ public class BuyReservedMineTests {
 
         room.startGame();
 
+        Random random = new Random();
+        int additionalEmeraldTokens = random.nextInt(3);
+        int additionalSapphireTokens = random.nextInt(3);
+        int additionalRubyTokens = random.nextInt(3);
+        int additionalDiamondTokens = random.nextInt(3);
+        int additionalOnyxTokens = random.nextInt(3);
+
         try{
-                Game game = room.getGame();
+            Game game = room.getGame();
 
-                Field privateField = Game.class.getDeclaredField("revealedCards");
-                privateField.setAccessible(true);
-                Map<CardTier, Deck> revealedDecks = (HashMap<CardTier, Deck>) privateField.get(game);
-                cardToBuy = revealedDecks.get(CardTier.LEVEL_1).get(0);
+            Field privateField = Game.class.getDeclaredField("revealedCards");
+            privateField.setAccessible(true);
+            Map<CardTier, Deck> revealedDecks = (HashMap<CardTier, Deck>) privateField.get(game);
+            cardToBuy = revealedDecks.get(CardTier.LEVEL_1).get(0);
 
-                Field privateTokens = User.class.getDeclaredField("tokens");
-                privateTokens.setAccessible(true);
-                tokens = (HashMap<TokenType, Integer>) privateTokens.get(owner);
+            Field privateTokens = User.class.getDeclaredField("tokens");
+            privateTokens.setAccessible(true);
+            tokens = (HashMap<TokenType, Integer>) privateTokens.get(owner);
 
-                tokens.put(TokenType.RUBY, cardToBuy.getCost(TokenType.RUBY) + 2);
-                tokens.put(TokenType.EMERALD, cardToBuy.getCost(TokenType.EMERALD) + 1);
-                tokens.put(TokenType.SAPPHIRE, cardToBuy.getCost(TokenType.SAPPHIRE));
-                tokens.put(TokenType.DIAMOND, cardToBuy.getCost(TokenType.DIAMOND));
-                tokens.put(TokenType.ONYX, cardToBuy.getCost(TokenType.ONYX) + 1);
+            tokens.put(TokenType.EMERALD, cardToBuy.getCost(TokenType.EMERALD) + additionalEmeraldTokens);
+            tokens.put(TokenType.SAPPHIRE, cardToBuy.getCost(TokenType.SAPPHIRE) + additionalSapphireTokens);
+            tokens.put(TokenType.RUBY, cardToBuy.getCost(TokenType.RUBY) + additionalRubyTokens);
+            tokens.put(TokenType.DIAMOND, cardToBuy.getCost(TokenType.DIAMOND) + additionalDiamondTokens);
+            tokens.put(TokenType.ONYX, cardToBuy.getCost(TokenType.ONYX) + additionalOnyxTokens);
 
-                owner.reserveCard(cardToBuy, false);
+            owner.reserveCard(cardToBuy, false);
         }catch (Exception e){
                 e.printStackTrace();
         }
 
-        String message = this.newBaseMessage(messageUuid)
+        String message = this.newBaseMessage()
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", cardToBuy.getUuid().toString());
 
@@ -132,11 +138,11 @@ public class BuyReservedMineTests {
                 "buyer": {
                     "userUuid": "$userUuid",
                     "tokens": {
-                        "ruby": 2,
-                        "emerald": 1,
-                        "sapphire": 0,
-                        "diamond": 0,
-                        "onyx": 1,
+                        "ruby": $rubyTokens,
+                        "emerald": $emeraldTokens,
+                        "sapphire": $sapphireTokens,
+                        "diamond": $diamondTokens,
+                        "onyx": $onyxTokens,
                         "gold": 0
                     },
                     "cardUuid": "$cardUuid"
@@ -144,11 +150,24 @@ public class BuyReservedMineTests {
             }
         }""".replace("$contextUuid", messageUuid)
             .replace("$userUuid", owner.getUuid().toString())
-            .replace("$cardUuid", cardToBuy.getUuid().toString());
+            .replace("$cardUuid", cardToBuy.getUuid().toString())
+            .replace("$rubyTokens", String.valueOf(additionalRubyTokens))
+            .replace("$emeraldTokens", String.valueOf(additionalEmeraldTokens))
+            .replace("$sapphireTokens", String.valueOf(additionalSapphireTokens))
+            .replace("$diamondTokens", String.valueOf(additionalDiamondTokens))
+            .replace("$onyxTokens", String.valueOf(additionalOnyxTokens));
+
             
             JsonElement actualJson = JsonParser.parseString(reply);
         
         assertEquals(JsonParser.parseString(expectedJsonString), actualJson);
+
+        int baseGameTokens = 4;
+        assertEquals(baseGameTokens + cardToBuy.getCost(TokenType.EMERALD) + additionalEmeraldTokens - owner.getTokenCount(TokenType.EMERALD), room.getGame().getTokens(TokenType.EMERALD));
+        assertEquals(baseGameTokens + cardToBuy.getCost(TokenType.SAPPHIRE) + additionalSapphireTokens - owner.getTokenCount(TokenType.SAPPHIRE), room.getGame().getTokens(TokenType.SAPPHIRE));
+        assertEquals(baseGameTokens + cardToBuy.getCost(TokenType.RUBY) + additionalRubyTokens - owner.getTokenCount(TokenType.RUBY), room.getGame().getTokens(TokenType.RUBY));
+        assertEquals(baseGameTokens + cardToBuy.getCost(TokenType.DIAMOND) + additionalDiamondTokens - owner.getTokenCount(TokenType.DIAMOND), room.getGame().getTokens(TokenType.DIAMOND));
+        assertEquals(baseGameTokens + cardToBuy.getCost(TokenType.ONYX) + additionalOnyxTokens - owner.getTokenCount(TokenType.ONYX), room.getGame().getTokens(TokenType.ONYX));
     }
     
     @Test
@@ -157,7 +176,7 @@ public class BuyReservedMineTests {
         String userUuid = "invalid-uuid";
         String cardUuid = "80bdc250-5365-4caf-8dd9-a33e709a0112";
 
-        String message = this.newBaseMessage(messageUuid)
+        String message = this.newBaseMessage()
                 .replace("$userUuid", userUuid)
                 .replace("$cardUuid", cardUuid);                
 
@@ -171,7 +190,7 @@ public class BuyReservedMineTests {
         String userUuid = "80bdc250-5365-4caf-8dd9-a33e709a0111";
         String cardUuid = "invalid-uuid";
 
-        String message = this.newBaseMessage(messageUuid)
+        String message = this.newBaseMessage()
                 .replace("$userUuid", userUuid)
                 .replace("$cardUuid", cardUuid);
 
@@ -185,7 +204,7 @@ public class BuyReservedMineTests {
         String userUuid = "80bdc250-5365-4caf-8dd9-a33e709a0111";
         String cardUuid = "80bdc250-5365-4caf-8dd9-a33e709a0112";
 
-        String message = this.newBaseMessage(messageUuid)
+        String message = this.newBaseMessage()
                 .replace("$userUuid", userUuid)
                 .replace("$cardUuid", cardUuid);
 
@@ -199,7 +218,7 @@ public class BuyReservedMineTests {
         assertEquals(1, messenger.getMessages().size());
         assertEquals(clientConnectionHashCode, messenger.getMessages().get(0).getReceiverHashcode());
 
-        String expectedJsonString = this.newBaseErrorMessage(messageUuid)
+        String expectedJsonString = this.newBaseErrorMessage()
                 .replace("$error", "Couldn't find a user with given UUID.");
 
         String reply = messenger.getMessages().get(0).getMessage();
@@ -219,7 +238,7 @@ public class BuyReservedMineTests {
         User user = new User(UUID.randomUUID(), "PLAYER", 100000);
         this.database.addUser(user);
 
-        String message = this.newBaseMessage(messageUuid)
+        String message = this.newBaseMessage()
                 .replace("$userUuid", user.getUuid().toString())
                 .replace("$cardUuid", cardUuid);
 
@@ -232,7 +251,7 @@ public class BuyReservedMineTests {
         assertEquals(1, messenger.getMessages().size());
         assertEquals(user.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
 
-        String expectedJsonString = this.newBaseErrorMessage(messageUuid)
+        String expectedJsonString = this.newBaseErrorMessage()
                 .replace("$error", "You are not a member of any room!");
 
         String reply = messenger.getMessages().get(0).getMessage();
@@ -254,7 +273,7 @@ public class BuyReservedMineTests {
         this.database.addUser(owner);
         this.database.addRoom(room);
 
-        String message = this.newBaseMessage(messageUuid)
+        String message = this.newBaseMessage()
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", cardUuid);
 
@@ -267,7 +286,7 @@ public class BuyReservedMineTests {
         assertEquals(1, messenger.getMessages().size());
         assertEquals(owner.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
 
-        String expectedJsonString = this.newBaseErrorMessage(messageUuid)
+        String expectedJsonString = this.newBaseErrorMessage()
                 .replace("$error", "Game hasn't started yet.");
 
         String reply = messenger.getMessages().get(0).getMessage();
@@ -294,7 +313,7 @@ public class BuyReservedMineTests {
 
         room.startGame();
 
-        String message = this.newBaseMessage(messageUuid)
+        String message = this.newBaseMessage()
                 .replace("$userUuid", player.getUuid().toString())
                 .replace("$cardUuid", cardUuid);
 
@@ -307,7 +326,7 @@ public class BuyReservedMineTests {
         assertEquals(1, messenger.getMessages().size());
         assertEquals(player.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
 
-        String expectedJsonString = this.newBaseErrorMessage(messageUuid)
+        String expectedJsonString = this.newBaseErrorMessage()
                 .replace("$error", "It's not your turn.");
 
         String reply = messenger.getMessages().get(0).getMessage();
@@ -335,7 +354,7 @@ public class BuyReservedMineTests {
         room.startGame();
         owner.reserveCard(card, false);
 
-        String message = this.newBaseMessage(messageUuid)
+        String message = this.newBaseMessage()
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", card.getUuid().toString());
 
@@ -354,7 +373,7 @@ public class BuyReservedMineTests {
         this.database.getAllCards().add(card);
         owner.reserveCard(card, false);
 
-        message = this.newBaseMessage(messageUuid)
+        message = this.newBaseMessage()
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", card.getUuid().toString());
 
@@ -367,7 +386,7 @@ public class BuyReservedMineTests {
         assertEquals(1, messenger.getMessages().size());
         assertEquals(owner.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
 
-        String expectedJsonString = this.newBaseErrorMessage(messageUuid)
+        String expectedJsonString = this.newBaseErrorMessage()
                 .replace("$error", "You have already performed an action.");
 
         String reply = messenger.getMessages().get(0).getMessage();
@@ -394,7 +413,7 @@ public class BuyReservedMineTests {
 
         room.startGame();
 
-        String message = this.newBaseMessage(messageUuid)
+        String message = this.newBaseMessage()
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", cardUuid);
 
@@ -407,7 +426,7 @@ public class BuyReservedMineTests {
         assertEquals(1, messenger.getMessages().size());
         assertEquals(owner.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
 
-        String expectedJsonString = this.newBaseErrorMessage(messageUuid)
+        String expectedJsonString = this.newBaseErrorMessage()
                 .replace("$error", "Couldn't find a card with given UUID.");
 
         String reply = messenger.getMessages().get(0).getMessage();
@@ -435,7 +454,7 @@ public class BuyReservedMineTests {
         room.startGame();
         room.getGame().getRevealedCards(CardTier.LEVEL_1).remove(card);
 
-        String message = this.newBaseMessage(messageUuid)
+        String message = this.newBaseMessage()
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", card.getUuid().toString());
 
@@ -448,7 +467,7 @@ public class BuyReservedMineTests {
         assertEquals(1, messenger.getMessages().size());
         assertEquals(owner.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
 
-        String expectedJsonString = this.newBaseErrorMessage(messageUuid)
+        String expectedJsonString = this.newBaseErrorMessage()
                 .replace("$error", "The card is not in the reserved deck.");
 
         String reply = messenger.getMessages().get(0).getMessage();
@@ -496,7 +515,7 @@ public class BuyReservedMineTests {
                 e.printStackTrace();
         }
 
-        String message = this.newBaseMessage(messageUuid)
+        String message = this.newBaseMessage()
                 .replace("$userUuid", owner.getUuid().toString())
                 .replace("$cardUuid", cardToBuy.getUuid().toString());
 
