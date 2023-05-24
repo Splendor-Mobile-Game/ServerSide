@@ -160,7 +160,7 @@ public class MakeReservationFromDeck extends Reaction {
             Game game = room.getGame();
 
             reservee.setPerformedAction(true);
-            ReservationResult reservationResult = game.reserveCardFromDeck(CardTier.valueOf(dataDTO.cardTier),reservee);
+            ReservationResult reservationResult = game.reserveCardFromDeck(CardTier.fromInt(Integer.parseInt(dataDTO.cardTier)),reservee);
             Card card = reservationResult.getCard();
             boolean goldenToken = reservationResult.getGoldenToken();
 
