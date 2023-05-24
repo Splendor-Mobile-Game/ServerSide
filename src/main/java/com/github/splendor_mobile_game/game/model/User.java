@@ -124,8 +124,10 @@ public class User implements Comparable<User> {
         this.tokens.forEach((k,v) -> {
             if(k != TokenType.GOLD_JOKER) {
                 int neededTokens = card.getCost(k) - this.cardBonuses.get(k);
-                int changedValue = v > neededTokens ? v - neededTokens : 0;
-                this.tokens.put(k, changedValue);
+                if(neededTokens >= 0){
+                    int changedValue = v > neededTokens ? v - neededTokens : 0;
+                    this.tokens.put(k, changedValue);
+                }
             }
         });
 
