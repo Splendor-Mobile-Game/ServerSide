@@ -76,3 +76,12 @@ Basically, reactions are handling game logic which structure is implemented in p
 There is a protected `main` branch which stores "production" code. 
 In order to avoid code destroying, the default branch is `develop`. We don't want to work directly on it, because few users may be editing the same files.
 Instead - you must create a new branch which will be a temporal storage for any additional code that you've created.
+
+## Documentation in Doxygen
+In the main directory of the repository, there is a Doxygen configuration file for creating documentation from code. To update the documentation with the added code, you should follow these steps:
+
+1. Open the Doxyfile using Doxywizard.
+2. Select the "Run" tab.
+3. Click the "Run doxygen" button and wait for a few seconds.
+
+A "docs" folder will be created in the main directory, and an "html" folder containing the documentation will be created within it.
