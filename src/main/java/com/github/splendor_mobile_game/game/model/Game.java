@@ -22,7 +22,7 @@ public class Game {
 
     private int gameReservationCount=0;
 
-    private final ArrayList<User> users = new ArrayList<>();
+    public ArrayList<User> users = new ArrayList<>();
 
     private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
     private final Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>(); // Cards of each tier visible on the table
@@ -34,7 +34,7 @@ public class Game {
 
     public Game(Database database, ArrayList<User> users) {
         this.database = database;
-
+        this.users = users;
         start(users.size());
     }
 
