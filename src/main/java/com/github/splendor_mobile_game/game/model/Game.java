@@ -99,14 +99,17 @@ public class Game {
 
     public int getUserRanking(UUID uuid) {
         User user = database.getUser(uuid);
-        ArrayList<Integer> points = new ArrayList<>();
+
         for (User u : users) {
-            if (user.compareTo(u) != 0){
-                points.add(u.getPoints());
+            //I dont if its better to write user.equals(u) because if the given
+            // uuid does not belong to user from game, the call equals will throw null exception
+            // but the other way wont
+            if (u.equals(user)){
+                return user.getPoints();
             }
         }
-        Collections.sort(points, Collections.reverseOrder());
-        return points.indexOf(user.getPoints()) + 1;
+        //User is not in database
+        return -1;
     }
 
     private boolean removeToken(TokenType type){

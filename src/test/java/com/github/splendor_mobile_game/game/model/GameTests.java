@@ -236,5 +236,7 @@ public class GameTests {
         Card card = new Card(CardTier.LEVEL_1, 10, 0,0,0,0,0, TokenType.ONYX, 0);
         joiner.buyCard(card);
         Log.DEBUG("owner ranking = " + game.getUserRanking(owner.getUuid()));
+        Log.DEBUG("joiner ranking = " + game.getUserRanking(joiner.getUuid()));
+        Log.DEBUG("not in room user ranking = " + game.getUserRanking(UUID.randomUUID()));
     }
 }
