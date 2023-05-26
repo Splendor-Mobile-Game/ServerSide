@@ -7,7 +7,6 @@ import com.github.splendor_mobile_game.game.enums.CardTier;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.game.exceptions.NotEnoughTokensException;
 import com.github.splendor_mobile_game.websocket.handlers.exceptions.CardDoesntExistException;
-import com.github.splendor_mobile_game.websocket.utils.Log;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,8 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GameTests {
     private Database database;
 
-    private final int tierOneCardCount = 40;
-    private final int tierTwoCardCount = 30;
     private final int tierThreeCardCount = 20;
 
     @BeforeEach
@@ -218,35 +215,26 @@ public class GameTests {
     }
 
     @Test
-    public void testTest() throws NotEnoughTokensException {
+    public void userRankingTest() throws NotEnoughTokensException {
         User owner = new User(UUID.randomUUID(), "OWNER", 100000);
         User joiner = new User(UUID.randomUUID(), "JOINER", 100001);
-        User joiner2 = new User(UUID.randomUUID(), "JOINER2", 100002);
-
         Room room = new Room(UUID.randomUUID(), "ROOM", "PASSWORD", owner, this.database);
         room.joinGame(joiner);
-        room.joinGame(joiner2);
 
         this.database.addUser(owner);
         this.database.addUser(joiner);
-        this.database.addUser(joiner2);
         this.database.addRoom(room);
 
         room.startGame();
         Game game = room.getGame();
 
-        Log.DEBUG("users = " + game.users.size());
-        Log.DEBUG("owner ranking = " + game.getUserRanking(owner.getUuid()));
-        Log.DEBUG("joiner2 ranking = " + game.getUserRanking(joiner2.getUuid()));
-        Log.DEBUG("joiner ranking = " + game.getUserRanking(joiner.getUuid()));
         Card card = new Card(CardTier.LEVEL_1, 10, 0,0,0,0,0, TokenType.ONYX, 0);
-        Card card2 = new Card(CardTier.LEVEL_1, 5, 0,0,0,0,0, TokenType.ONYX, 0);
-        joiner.buyCard(card2);
-        joiner.buyCard(card2);
-        joiner2.buyCard(card);
-        Log.DEBUG("owner ranking = " + game.getUserRanking(owner.getUuid()));
-        Log.DEBUG("joiner2 ranking = " + game.getUserRanking(joiner2.getUuid()));
-        Log.DEBUG("joiner ranking = " + game.getUserRanking(joiner.getUuid()));
-        Log.DEBUG("not in room user ranking = " + game.getUserRanking(UUID.randomUUID()));
+        joiner.buyCard(card);
+        assertEquals(2, game.getUserRanking(owner.getUuid()));
+        assertEquals(1, game.getUserRanking(joiner.getUuid()));
+        card = new Card(CardTier.LEVEL_1, 20, 0,0,0,0,0, TokenType.ONYX, 0);
+        owner.buyCard(card);
+        assertEquals(1, game.getUserRanking(owner.getUuid()));
+        assertEquals(2, game.getUserRanking(joiner.getUuid()));
     }
 }
