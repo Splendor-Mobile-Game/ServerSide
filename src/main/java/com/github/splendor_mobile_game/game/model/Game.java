@@ -2,6 +2,7 @@ package com.github.splendor_mobile_game.game.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -98,18 +99,19 @@ public class Game {
     }
 
     public int getUserRanking(UUID uuid) {
-        User user = database.getUser(uuid);
-
-        for (User u : users) {
-            //I dont if its better to write user.equals(u) because if the given
-            // uuid does not belong to user from game, the call equals will throw null exception
-            // but the other way wont
-            if (u.equals(user)){
-                return user.getPoints();
+        ArrayList<User> postitions = new ArrayList<>(users);
+        Collections.sort(postitions, new Comparator<User>() {
+            @Override
+            public int compare(User user1, User user2) {
+                if (user1.getPoints() != user2.getPoints()) {
+                    return Integer.compare(user2.getPoints(), user1.getPoints());
+                } else {
+                    return Integer.compare(user1.getNumberOfPurchesedCards(), user2.getNumberOfPurchesedCards());
+                }
             }
-        }
-        //User is not in database
-        return -1;
+        });
+
+        return postitions.indexOf(database.getUser(uuid)) + 1;
     }
 
     private boolean removeToken(TokenType type){

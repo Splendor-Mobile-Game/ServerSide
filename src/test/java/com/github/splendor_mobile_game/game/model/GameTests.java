@@ -221,11 +221,15 @@ public class GameTests {
     public void testTest() throws NotEnoughTokensException {
         User owner = new User(UUID.randomUUID(), "OWNER", 100000);
         User joiner = new User(UUID.randomUUID(), "JOINER", 100001);
+        User joiner2 = new User(UUID.randomUUID(), "JOINER2", 100002);
+
         Room room = new Room(UUID.randomUUID(), "ROOM", "PASSWORD", owner, this.database);
         room.joinGame(joiner);
+        room.joinGame(joiner2);
 
         this.database.addUser(owner);
         this.database.addUser(joiner);
+        this.database.addUser(joiner2);
         this.database.addRoom(room);
 
         room.startGame();
@@ -233,9 +237,15 @@ public class GameTests {
 
         Log.DEBUG("users = " + game.users.size());
         Log.DEBUG("owner ranking = " + game.getUserRanking(owner.getUuid()));
+        Log.DEBUG("joiner2 ranking = " + game.getUserRanking(joiner2.getUuid()));
+        Log.DEBUG("joiner ranking = " + game.getUserRanking(joiner.getUuid()));
         Card card = new Card(CardTier.LEVEL_1, 10, 0,0,0,0,0, TokenType.ONYX, 0);
-        joiner.buyCard(card);
+        Card card2 = new Card(CardTier.LEVEL_1, 5, 0,0,0,0,0, TokenType.ONYX, 0);
+        joiner.buyCard(card2);
+        joiner.buyCard(card2);
+        joiner2.buyCard(card);
         Log.DEBUG("owner ranking = " + game.getUserRanking(owner.getUuid()));
+        Log.DEBUG("joiner2 ranking = " + game.getUserRanking(joiner2.getUuid()));
         Log.DEBUG("joiner ranking = " + game.getUserRanking(joiner.getUuid()));
         Log.DEBUG("not in room user ranking = " + game.getUserRanking(UUID.randomUUID()));
     }
