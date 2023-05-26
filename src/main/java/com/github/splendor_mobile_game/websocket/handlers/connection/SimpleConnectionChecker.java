@@ -67,8 +67,14 @@ public class SimpleConnectionChecker extends ConnectionChecker {
         Room room = database.getRoomWithUser(user.getUuid());
         if (room != null) {
             room.leaveGame(user);
+            Log.DEBUG("User `" + user.getConnectionHashCode() + "` has been removed from its room, because connection has been lost.");
             
-            if(room.getGame()!=null && room.getCurrentPlayer()==user){
+            //Remove room if it's empty
+            if(room.getAllUsers().size()==0){
+                database.getAllRooms().remove(room);
+                Log.DEBUG("Room `" + room.getName() + "` has been removed from entire database, because all players have left.");
+            }
+            else if(room.getGame()!=null && room.getCurrentPlayer()==user){
                 room.changeTurn();
 
                 // Create a message to inform other players that is new turn
@@ -103,15 +109,12 @@ public class SimpleConnectionChecker extends ConnectionChecker {
                         u.getConnectionHashCode() + ":" + userConnection.getRemoteSocketAddress() + "): " + message
                     );
                 }
-            }
-
-            Log.DEBUG("User `" + user.getConnectionHashCode() + "` has been removed from its room, because connection has been lost.");    
+            }    
         }
 
         // Remove the user from the database
         database.getAllUsers().remove(user);
         Log.DEBUG("User `" + user.getConnectionHashCode() + "` has been removed from entire database, because connection has been lost.");
-
     }
 
 }
