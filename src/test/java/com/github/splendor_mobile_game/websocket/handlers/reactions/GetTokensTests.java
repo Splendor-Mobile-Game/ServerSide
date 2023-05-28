@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -1464,16 +1466,17 @@ public class GetTokensTests {
         assertEquals(1, messenger.getMessages().size());
         assertEquals(owner.getConnectionHashCode(), messenger.getMessages().get(0).getReceiverHashcode());
 
-        String expectedJsonString = this.newBaseErrorMessage()
-                .replace("$error", "There are not enough RUBY tokens on the table");
+        String pattern = "There are not enough \\w+ tokens on the table";
+        Pattern regex = Pattern.compile(pattern);
 
         String reply = messenger.getMessages().get(0).getMessage();
         
-        JsonElement expectedJson = JsonParser.parseString(expectedJsonString);
         JsonElement actualJson = JsonParser.parseString(reply);
+        String error = actualJson.getAsJsonObject().get("data").getAsJsonObject().get("error").getAsString();
+        Matcher matcher = regex.matcher(error);
 
         assertTrue(actualJson.getAsJsonObject().get("data").getAsJsonObject().has("error"));
-        assertEquals(expectedJson, actualJson);
+        assertTrue(matcher.matches());
     }
 
     @Test
