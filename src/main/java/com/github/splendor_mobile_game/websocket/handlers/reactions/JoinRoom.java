@@ -253,8 +253,9 @@ public class JoinRoom extends Reaction {
      * @throws RoomFullException thrown when room has already reached a maximum number of members
      * @throws InvalidEnterCodeException thrown when enter code has invalid format
      * @throws InvalidPasswordException thrown when provided password is incorrect
+     * @throws RoomInGameException
      */
-    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, RoomDoesntExistException, UserAlreadyInRoomException, RoomFullException, InvalidEnterCodeException, InvalidPasswordException {
+    private void validateData(DataDTO dataDTO, Database database) throws InvalidUUIDException, RoomDoesntExistException, UserAlreadyInRoomException, RoomFullException, InvalidEnterCodeException, InvalidPasswordException, RoomInGameException {
         // Check if user's UUID matches the pattern
         if (!Regex.UUID_PATTERN.matches(dataDTO.userDTO.uuid.toString()))
             throw new InvalidUUIDException("Invalid UUID format.");
@@ -286,6 +287,11 @@ public class JoinRoom extends Reaction {
 
         // Check if user is already a member of any room
         database.isUserInRoom(dataDTO.userDTO.uuid);
+
+        //Check if room is already in game
+        if (room.getGame() != null)
+            throw new RoomInGameException("Room is already in game!");
+            
     }
 
 

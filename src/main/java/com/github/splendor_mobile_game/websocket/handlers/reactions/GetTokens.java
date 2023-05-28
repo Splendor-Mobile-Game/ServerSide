@@ -254,7 +254,7 @@ public class GetTokens extends Reaction {
             throw new TooManyReturnedTokensException("You are trying to return tokens when you already have less than 10");
         }
 
-        if(isUserTryingToReturnTokens(room, user, tokensReturned) && canUserReturnChosenTokens(room, user, tokensReturned)) {
+        if(isUserTryingToReturnTokens(room, user, tokensReturned) && !canUserReturnChosenTokens(room, user, tokensReturned)) {
             throw new WrongTokenChoiceException("You don't have enough tokens to return");
         }
 
