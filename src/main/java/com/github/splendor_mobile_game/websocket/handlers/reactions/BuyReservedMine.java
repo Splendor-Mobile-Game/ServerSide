@@ -163,7 +163,7 @@ public class BuyReservedMine extends Reaction {
             Room room = database.getRoomWithUser(buyer.getUuid());
             Game game = room.getGame();
 
-            buyer.setPerformedAction(true);
+            
 
             Map<TokenType, Integer> tokens = new HashMap<>();
             for(TokenType tokenType : EnumSet.allOf(TokenType.class)){
@@ -171,6 +171,7 @@ public class BuyReservedMine extends Reaction {
             }
             
             buyer.buyCard(boughtCard);
+            buyer.setPerformedAction(true);
 
             //Return tokens to table
             for(TokenType tokenType : EnumSet.allOf(TokenType.class)){

@@ -2,6 +2,7 @@ package com.github.splendor_mobile_game.game.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -22,7 +23,7 @@ public class Game {
 
     private int gameReservationCount=0;
 
-    private final ArrayList<User> users = new ArrayList<>();
+    public ArrayList<User> users = new ArrayList<>();
 
     private final Map<CardTier,Deck> revealedCards = new HashMap<CardTier,Deck>(); // Cards that were already revealed
     private final Map<CardTier,Deck> decks = new HashMap<CardTier,Deck>(); // Cards of each tier visible on the table
@@ -34,7 +35,7 @@ public class Game {
 
     public Game(Database database, ArrayList<User> users) {
         this.database = database;
-
+        this.users = users;
         start(users.size());
     }
 
@@ -98,15 +99,19 @@ public class Game {
     }
 
     public int getUserRanking(UUID uuid) {
-        User user = database.getUser(uuid);
-        ArrayList<Integer> points = new ArrayList<>();
-        for (User u : users) {
-            if (user.compareTo(u) != 0){
-                points.add(u.getPoints());
+        ArrayList<User> postitions = new ArrayList<>(users);
+        Collections.sort(postitions, new Comparator<User>() {
+            @Override
+            public int compare(User user1, User user2) {
+                if (user1.getPoints() != user2.getPoints()) {
+                    return Integer.compare(user2.getPoints(), user1.getPoints());
+                } else {
+                    return Integer.compare(user1.getNumberOfPurchesedCards(), user2.getNumberOfPurchesedCards());
+                }
             }
-        }
-        Collections.sort(points, Collections.reverseOrder());
-        return points.indexOf(user.getPoints()) + 1;
+        });
+
+        return postitions.indexOf(database.getUser(uuid)) + 1;
     }
 
     private boolean removeToken(TokenType type){
