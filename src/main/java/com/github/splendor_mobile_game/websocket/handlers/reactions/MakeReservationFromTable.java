@@ -195,9 +195,8 @@ public class MakeReservationFromTable extends Reaction {
             Room room = database.getRoomWithUser(dataDTO.userDTO.uuid);
             Game game = room.getGame();
 
-            reservee.setPerformedAction(true);
             ReservationResult reservationResult = game.reserveCardFromTable(database.getCard(dataDTO.cardDTO.uuid),reservee);
-
+            reservee.setPerformedAction(true);
             // newCard
             Card cardDrawn = reservationResult.getCard();
             boolean gotGoldenToken = reservationResult.getGoldenToken();
@@ -292,10 +291,6 @@ public class MakeReservationFromTable extends Reaction {
         // Check reservation count
         if (user.getReservationCount() >= 3)
             throw new UserReservationException("You have reached the current reserved cards limit.");
-
-        // Check game reservation count
-        if (game.getGameReservationCount() >= 5)
-            throw new UserReservationException("You have reached the limit of reserved cards per game.");
 
         // Check if card is on table
         if(!game.isCardRevealed(dataDTO.cardDTO.uuid))
