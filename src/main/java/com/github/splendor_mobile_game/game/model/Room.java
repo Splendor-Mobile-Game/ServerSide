@@ -131,6 +131,7 @@ public class Room {
 
     public void setOwner(User owner) {
         this.owner = owner;
+        this.currentOrder = owner;
     }
 
     public Game getGame() {
