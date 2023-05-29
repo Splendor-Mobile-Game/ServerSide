@@ -159,10 +159,11 @@ public class MakeReservationFromDeck extends Reaction {
             Room room = database.getRoomWithUser(reservee.getUuid());
             Game game = room.getGame();
 
-            reservee.setPerformedAction(true);
+            
             ReservationResult reservationResult = game.reserveCardFromDeck(CardTier.fromInt(Integer.parseInt(dataDTO.cardTier)),reservee);
             Card card = reservationResult.getCard();
             boolean goldenToken = reservationResult.getGoldenToken();
+            reservee.setPerformedAction(true);
 
             Log.DEBUG("User "+reservee.getName()+" reserved card from deck "+card.getCardTier()+" and golden token: "+goldenToken);
             
@@ -236,12 +237,7 @@ public class MakeReservationFromDeck extends Reaction {
         if (user.getReservationCount() >= 3)
             throw new UserReservationException("You have reached the current reserved cards limit.");
 
-
-        // Check game reservation count
-        if (game.getGameReservationCount() >= 5)
-            throw new UserReservationException("You have reached the limit of reserved cards per game.");
-
-
+            
         // Check if user has not maxed tokens
         if (user.getTokenCount() >= 10)
             throw new TokenCountException("You have reached the maximum token count on hand.");

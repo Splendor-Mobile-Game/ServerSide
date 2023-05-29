@@ -57,11 +57,11 @@ public class Game {
 
 
     private boolean canReserveCardFromDeck(CardTier tier, User user) {
-        return !(getRandomCardOrNull(tier) == null) && user.getReservationCount() < 3 && getGameReservationCount() < 5;
+        return !(getRandomCardOrNull(tier) == null) && user.getReservationCount() < 3;
     }
 
     private boolean canReserveCardFromTable(Card card, User user) {
-        return !(card == null) && user.getReservationCount() < 3 && getGameReservationCount() < 5 && isCardRevealed(card.getUuid());
+        return !(card == null) && user.getReservationCount() < 3 && isCardRevealed(card.getUuid());
     }
 
 

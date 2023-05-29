@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.github.splendor_mobile_game.game.enums.TokenType;
 import com.github.splendor_mobile_game.websocket.handlers.ServerMessageType;
 import com.github.splendor_mobile_game.websocket.response.Result;
+import com.github.splendor_mobile_game.websocket.utils.Log;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -73,6 +74,7 @@ public class MakeReservationFromDeckTests {
         UserMessage receivedMessage = new UserMessage(message);
         MakeReservationFromDeck mrfd = new MakeReservationFromDeck(owner.getConnectionHashCode(), receivedMessage, messenger, this.database);
         receivedMessage.parseDataToClass(MakeReservationFromDeck.DataDTO.class);
+        Log.DEBUG(message);
         mrfd.react();
 
         assertEquals(2, messenger.getMessages().size());
