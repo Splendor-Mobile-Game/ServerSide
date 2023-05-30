@@ -248,6 +248,16 @@ public class Game {
         return nobles;
     }
 
+
+    public boolean takeNobleIfPossible(User user, Noble noble) {
+        if (user.takeNoble(noble)) {
+            this.nobles.remove(noble);
+            return true;
+        }
+        return false;
+    }
+
+
     public int getTokens(TokenType type){
         return this.tokensOnTable.get(type);
     }

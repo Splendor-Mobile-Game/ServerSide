@@ -230,7 +230,7 @@ public class EndTurn extends Reaction {
             for (Noble noble : game.getNobles()) {
 
                 // if he can then announce it
-                if (user.takeNoble(noble)) {
+                if (game.takeNobleIfPossible(user, noble)) {
                     ResponseDataNobleReceived responseData = new ResponseDataNobleReceived(user.getUuid(), noble.getUuid());
                     ServerMessage serverMessage = new ServerMessage(
                             userMessage.getContextId(),
