@@ -38,6 +38,7 @@ public class InMemoryDatabase implements Database {
         return null;
     }
 
+
     @Override
     public void addUser(User user) {
         this.allUsers.add(user);
@@ -62,6 +63,11 @@ public class InMemoryDatabase implements Database {
     @Override
     public void addRoom(Room room) {
         this.allRooms.add(room);
+    }
+
+    @Override
+    public void deleteRoom(Room room) {
+        this.allRooms.remove(room);
     }
 
     @Override
