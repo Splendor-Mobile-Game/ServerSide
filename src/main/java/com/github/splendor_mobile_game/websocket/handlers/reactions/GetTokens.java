@@ -263,7 +263,7 @@ public class GetTokens extends Reaction {
         }
 
         if(finalTokenAmount(room, user, tokensTaken, tokensReturned) > 10) {
-            throw new TooManyTokensException("You have too many tokens");
+            throw new TooManyTokensException("You would have too many tokens");
         }
 
         isTokensCombinationRight(room, user, tokensTaken);
@@ -318,10 +318,10 @@ public class GetTokens extends Reaction {
 
         for(Map.Entry<TokenType, Integer> set : tokensTaken.entrySet()) {
             if(set.getValue() > 2){
-                throw new WrongTokenChoiceException(String.format("You've taken too many %s tokens", set.getKey()));
+                throw new WrongTokenChoiceException(String.format("You've choosen too many %s tokens", set.getKey()));
             }
             if(set.getValue() < 0) {
-                throw new WrongTokenChoiceException(String.format("You've taken not enough %s tokens", set.getKey()));
+                throw new WrongTokenChoiceException(String.format("You've choosen not enough %s tokens", set.getKey()));
             }
             if(set.getValue() == 2) twoTokenTypes.add(set.getKey());
             if(set.getValue() == 1) oneTokenTypes.add(set.getKey());
@@ -332,9 +332,32 @@ public class GetTokens extends Reaction {
             else throw new WrongTokenChoiceException(String.format("There are not enough %s tokens on the table", twoTokenTypes.get(0)));
         }
 
-        if(oneTokenTypes.size() == 3 && twoTokenTypes.size() == 0) {
-            for (TokenType type : oneTokenTypes) {
-                if(room.getGame().getTokenCount(type) <= 0) throw new WrongTokenChoiceException(String.format("There are not enough %s tokens on the table", type));
+        for (TokenType type : oneTokenTypes) {
+            if(room.getGame().getTokenCount(type) <= 0) throw new WrongTokenChoiceException(String.format("There are not enough %s tokens on the table", type));
+        }
+
+        if(oneTokenTypes.size() == 3 && twoTokenTypes.size() == 0) return true;
+
+        Map<TokenType, Integer> tokensOnTableAmount = new HashMap<TokenType, Integer>();
+
+        for(Map.Entry<TokenType, Integer> set : tokensTaken.entrySet()) {
+            tokensOnTableAmount.put(set.getKey(), room.getGame().getTokenCount(set.getKey()));
+        }
+
+        if(oneTokenTypes.size() == 2 && twoTokenTypes.size() == 0) {
+            for(Map.Entry<TokenType, Integer> set : tokensOnTableAmount.entrySet()) {
+                if(set.getKey() != oneTokenTypes.get(0) && set.getKey() != oneTokenTypes.get(1) && set.getValue() != 0) {
+                    throw new WrongTokenChoiceException("You can take 3x1 tokens");
+                }
+            }
+            return true;
+        }
+
+        if(oneTokenTypes.size() == 1 && twoTokenTypes.size() == 0) {
+            for(Map.Entry<TokenType, Integer> set : tokensOnTableAmount.entrySet()) {
+                if(set.getKey()!= oneTokenTypes.get(0) && set.getValue() != 0) {
+                    throw new WrongTokenChoiceException("You can take 3x1 tokens");
+                }
             }
             return true;
         }
