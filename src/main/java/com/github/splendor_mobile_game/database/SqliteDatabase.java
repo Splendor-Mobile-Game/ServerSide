@@ -22,6 +22,11 @@ public class SqliteDatabase implements Database {
     }
 
     @Override
+    public void deleteRoom(Room room) {
+
+    }
+
+    @Override
     public void addUser(User user) {
         // TODO Auto-generated method stub
         
