@@ -243,8 +243,6 @@ public class GetTokens extends Reaction {
 
         Room room = database.getRoomWithUser(dataDTO.userUuid);
         User user = database.getUser(dataDTO.userUuid);
-
-        if(room.getGame() == null) room.startGame(); //to delete!!!!!!
         
         if(room.getGame() == null) throw new GameNotStartedException("You can't take tokens when game didn't start");
 
