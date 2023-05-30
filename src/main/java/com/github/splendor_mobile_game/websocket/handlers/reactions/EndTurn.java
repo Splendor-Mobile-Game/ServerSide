@@ -274,6 +274,8 @@ public class EndTurn extends Reaction {
                     ServerMessageType.END_GAME_ANNOUNCEMENT, 
                     Result.OK, 
                     responseData);
+                database.deleteRoom(room);
+
 
             } else {
 
