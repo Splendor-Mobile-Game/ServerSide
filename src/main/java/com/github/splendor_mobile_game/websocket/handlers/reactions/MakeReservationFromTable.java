@@ -297,7 +297,7 @@ public class MakeReservationFromTable extends Reaction {
             throw new CardNotRevealedException("There is no this card on table");
 
         // Check if user has not maxed tokens
-        if (user.getTokenCount() >= 10)
+        if (user.getTokenCount() > 10)
             throw new TokenCountException("You have reached the maximum token count on hand.");
 
     }
