@@ -87,7 +87,14 @@ public class Game {
     public ReservationResult reserveCardFromTable(Card card, User player) throws CardDoesntExistException {
         if (card == null)  throw new CardDoesntExistException("There are no more cards available to reserve.");
 
-        boolean goldenToken = removeToken(TokenType.GOLD_JOKER);
+        boolean goldenToken;
+        if(player.getTokenCount()>10){
+            goldenToken=false;
+        }
+        else{
+            goldenToken=removeToken(TokenType.GOLD_JOKER);
+        }
+        
         player.reserveCard(card,goldenToken);
         Card newCard = takeCardFromRevealed(card);
 
