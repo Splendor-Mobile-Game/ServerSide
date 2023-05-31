@@ -66,11 +66,9 @@ public class SimpleConnectionChecker extends ConnectionChecker {
         // If the user was in a room, remove them from the room
         Room room = database.getRoomWithUser(user.getUuid());
         if (room != null) {
-            room.leaveGame(user);
-            Log.DEBUG("User `" + user.getConnectionHashCode() + "` has been removed from its room, because connection has been lost.");
-            
+                     
             //Remove room if it's empty
-            if(room.getAllUsers().size()==0){
+            if(room.getAllUsers().size()==1){
                 database.getAllRooms().remove(room);
                 Log.DEBUG("Room `" + room.getName() + "` has been removed from entire database, because all players have left.");
             }
@@ -93,6 +91,10 @@ public class SimpleConnectionChecker extends ConnectionChecker {
                     }
                 }
             }
+            
+            //fisrtly change turn then leave
+            room.leaveGame(user);
+            Log.DEBUG("User `" + user.getConnectionHashCode() + "` has been removed from its room, because connection has been lost.");
 
             // Create a message to inform other players that the user has left the room
             LeaveRoom.UserDataResponse userDataResponse = new LeaveRoom.UserDataResponse(user.getUuid(), user.getName());
